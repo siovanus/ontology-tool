@@ -3,7 +3,7 @@
   "WebSocketAddress":"http://localhost:20335",
   "JsonRpcAddress":"http://localhost:20336",
   "WalletFile":"./wallet.dat",
-  "Password":"wangbing",
+  "Password":"passwordtest",
   "GasPrice":0,
   "GasLimit":10000000
 }

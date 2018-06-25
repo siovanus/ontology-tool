@@ -18,9 +18,7 @@
 package testcase
 
 import (
-	"github.com/ontio/ontology-test/testcase/http"
 	"github.com/ontio/ontology-test/testcase/smartcontract"
-	"github.com/ontio/ontology-test/testcase/vm"
 	"github.com/ontio/ontology-test/testframework"
 	"math"
 	"time"
@@ -28,9 +26,9 @@ import (
 
 //TestCase list
 func init() {
-	testframework.TFramework.SetBeforeCallback(BeforeTestCase)
-	http.TestHttp()
-	vm.TestVM()
+	//testframework.TFramework.SetBeforeCallback(BeforeTestCase)
+	//http.TestHttp()
+	//vm.TestVM()
 	smartcontract.TestSmartContract()
 }
 
