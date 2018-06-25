@@ -145,6 +145,37 @@ func RegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
+type UnRegisterCandidateParam struct {
+	Path       string
+	PeerPubkey []string
+}
+
+func UnRegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/UnRegisterCandidate.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	unRegisterCandidateParam := new(UnRegisterCandidateParam)
+	err = json.Unmarshal(data, unRegisterCandidateParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	user, ok := getAccount(ctx, unRegisterCandidateParam.Path)
+	if !ok {
+		return false
+	}
+	for i := 0;i < len(unRegisterCandidateParam.PeerPubkey);i ++ {
+		ok = unRegisterCandidate(ctx, user, unRegisterCandidateParam.PeerPubkey[i])
+		if !ok {
+			return false
+		}
+	}
+	waitForBlock(ctx)
+	return true
+}
+
 type ApproveCandidateParam struct {
 	Path       string
 	PeerPubkey []string
