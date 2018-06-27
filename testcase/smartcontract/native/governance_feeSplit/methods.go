@@ -7,12 +7,10 @@ import (
 	"github.com/ontio/ontology-test/testframework"
 	"github.com/ontio/ontology/account"
 	"github.com/ontio/ontology/common"
-	"github.com/ontio/ontology/common/serialization"
 	"github.com/ontio/ontology/errors"
 	"github.com/ontio/ontology/smartcontract/service/native/auth"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
-	cstates "github.com/ontio/ontology/smartcontract/states"
 )
 
 var OntIDVersion = byte(0)
@@ -483,25 +481,4 @@ func getPenaltyStake(ctx *testframework.TestFrameworkContext, peerPubkey string)
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize penaltyStake error!")
 	}
 	return penaltyStake, nil
-}
-
-func getDDO(ctx *testframework.TestFrameworkContext, user *account.Account) bool {
-	contractAddress := utils.OntIDContractAddress
-
-	bf := new(bytes.Buffer)
-	if err := serialization.WriteVarBytes(bf, []byte("did:ont:"+user.Address.ToBase58())); err != nil {
-		ctx.LogError("Serialize ontid error:%s", err)
-		return false
-	}
-	crt := &cstates.Contract{
-		Address: contractAddress,
-		Method:  "getDDO",
-		Args:    bf.Bytes(),
-	}
-
-	ok := invokeNativeContractWithoutWait(ctx, crt, user)
-	if !ok {
-		ctx.LogError("invokeNativeContract error")
-	}
-	return true
 }

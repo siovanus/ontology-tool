@@ -19,21 +19,41 @@
 package governance_feeSplit
 
 import (
-	"bytes"
 	"time"
+	"os/exec"
 
-	sdkcom "github.com/ontio/ontology-go-sdk/common"
+	"github.com/Ontology/common/password"
 	"github.com/ontio/ontology-test/common"
 	"github.com/ontio/ontology-test/testframework"
 	"github.com/ontio/ontology/account"
-	cstates "github.com/ontio/ontology/smartcontract/states"
-	"os/exec"
+	scommon "github.com/ontio/ontology/common"
+	sdkcom "github.com/ontio/ontology-go-sdk/common"
+	"github.com/ontio/ontology-crypto/keypair"
 )
 
 func getDefaultAccount(ctx *testframework.TestFrameworkContext) (*account.Account, bool) {
 	user, err := ctx.GetDefaultAccount()
 	if err != nil {
 		ctx.LogError("GetDefaultAccount error:%s", err)
+		return nil, false
+	}
+	return user, true
+}
+
+func getAccountByPassword(ctx *testframework.TestFrameworkContext, path string) (*account.Account, bool) {
+	wallet, err := ctx.Ont.OpenWallet(path)
+	if err != nil {
+		ctx.LogError("open wallet error:%s", err)
+		return nil, false
+	}
+	pwd, err := password.GetPassword()
+	if err != nil {
+		ctx.LogError("getPassword error:%s", err)
+		return nil, false
+	}
+	user, err := wallet.GetDefaultAccount(pwd)
+	if err != nil {
+		ctx.LogError("getDefaultAccount error:%s", err)
 		return nil, false
 	}
 	return user, true
@@ -95,52 +115,28 @@ func getAccount3(ctx *testframework.TestFrameworkContext) (*account.Account, boo
 	return user, true
 }
 
-func invokeNativeContract(ctx *testframework.TestFrameworkContext, crt *cstates.Contract, user *account.Account) bool {
-	buf := bytes.NewBuffer(nil)
-	err := crt.Serialize(buf)
+func invokeNativeContractWithMultiSign(
+	ctx *testframework.TestFrameworkContext,
+	gasPrice,
+	gasLimit uint64,
+	pubKeys []keypair.PublicKey,
+	singers []*account.Account,
+	cversion byte,
+	contractAddress scommon.Address,
+	method string,
+	params []interface{},
+) (scommon.Uint256, error) {
+	tx, err := ctx.Ont.Rpc.NewNativeInvokeTransaction(gasPrice, gasLimit, cversion, contractAddress, method, params)
 	if err != nil {
-		ctx.LogError("Serialize contract error:%s", err)
-		return false
+		return scommon.UINT256_EMPTY, err
 	}
-	invokeTx := sdkcom.NewInvokeTransaction(ctx.GetGasPrice(), ctx.GetGasLimit(), buf.Bytes())
-	err = sdkcom.SignToTransaction(invokeTx, user)
-	if err != nil {
-		ctx.LogError("SignTransaction error:%s", err)
-		return false
+	for _, singer := range singers {
+		err = sdkcom.MultiSignToTransaction(tx, uint16((5*len(pubKeys) + 6) / 7), pubKeys, singer)
+		if err != nil {
+			return scommon.UINT256_EMPTY, err
+		}
 	}
-	ctx.Ont.Rpc.SendRawTransaction(invokeTx)
-	if err != nil {
-		ctx.LogError("SendTransaction error:%s", err)
-		return false
-	}
-
-	_, err = ctx.Ont.Rpc.WaitForGenerateBlock(30*time.Second, 1)
-	if err != nil {
-		ctx.LogError("WaitForGenerateBlock error:%s", err)
-		return false
-	}
-	return true
-}
-
-func invokeNativeContractWithoutWait(ctx *testframework.TestFrameworkContext, crt *cstates.Contract, user *account.Account) bool {
-	buf := bytes.NewBuffer(nil)
-	err := crt.Serialize(buf)
-	if err != nil {
-		ctx.LogError("Serialize contract error:%s", err)
-		return false
-	}
-	invokeTx := sdkcom.NewInvokeTransaction(ctx.GetGasPrice(), ctx.GetGasLimit(), buf.Bytes())
-	err = sdkcom.SignToTransaction(invokeTx, user)
-	if err != nil {
-		ctx.LogError("SignTransaction error:%s", err)
-		return false
-	}
-	ctx.Ont.Rpc.SendRawTransaction(invokeTx)
-	if err != nil {
-		ctx.LogError("SendTransaction error:%s", err)
-		return false
-	}
-	return true
+	return ctx.Ont.Rpc.SendRawTransaction(tx)
 }
 
 func waitForBlock(ctx *testframework.TestFrameworkContext) bool {
