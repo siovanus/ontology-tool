@@ -19,10 +19,13 @@
 package governance_feeSplit
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
 
+	"github.com/ontio/ontology-crypto/keypair"
+	"github.com/ontio/ontology-crypto/vrf"
 	"github.com/ontio/ontology-test/testframework"
 	"github.com/ontio/ontology/account"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
@@ -135,7 +138,7 @@ func RegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	for i := 0;i < len(registerCandidateParam.PeerPubkey);i ++ {
+	for i := 0; i < len(registerCandidateParam.PeerPubkey); i++ {
 		ok = registerCandidate(ctx, user, registerCandidateParam.PeerPubkey[i], registerCandidateParam.InitPos[i])
 		if !ok {
 			return false
@@ -166,7 +169,7 @@ func UnRegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	for i := 0;i < len(unRegisterCandidateParam.PeerPubkey);i ++ {
+	for i := 0; i < len(unRegisterCandidateParam.PeerPubkey); i++ {
 		ok = unRegisterCandidate(ctx, user, unRegisterCandidateParam.PeerPubkey[i])
 		if !ok {
 			return false
@@ -337,7 +340,7 @@ func QuitNode(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	for i := 0;i < len(quitNodeParam.Path);i ++ {
+	for i := 0; i < len(quitNodeParam.Path); i++ {
 		user, ok := getAccount(ctx, quitNodeParam.Path[i])
 		if !ok {
 			return false
@@ -863,5 +866,57 @@ func WithdrawOng(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	waitForBlock(ctx)
+	return true
+}
+
+type VrfParam struct {
+	Path string
+}
+
+type vrfData struct {
+	BlockNum uint32 `json:"block_num"`
+	PrevVrf  []byte `json:"prev_vrf"`
+}
+
+func Vrf(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/Vrf.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	vrfParam := new(VrfParam)
+	err = json.Unmarshal(data, vrfParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	user, ok := getAccount(ctx, vrfParam.Path)
+	if !ok {
+		return false
+	}
+
+	data, err = json.Marshal(&vrfData{
+		BlockNum: 0,
+		PrevVrf:  keypair.SerializePublicKey(user.PublicKey),
+	})
+	if err != nil {
+		ctx.LogError("json.Unmarshal vrf payload failed %v", err)
+		return false
+	}
+
+	value, proof, err := vrf.Vrf(user.PrivateKey, data)
+	if err != nil {
+		ctx.LogError("vrf computation failed %v", err)
+		return false
+	}
+
+	if ok, err := vrf.Verify(user.PublicKey, data, value, proof); err != nil || !ok {
+		ctx.LogError("vrf verify failed: %v", err)
+		return false
+	}
+
+	ctx.LogInfo("vrf value: %s", hex.EncodeToString(value))
+	ctx.LogInfo("vrf proof: %s", hex.EncodeToString(proof))
+
 	return true
 }
