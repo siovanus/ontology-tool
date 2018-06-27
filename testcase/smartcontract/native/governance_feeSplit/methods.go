@@ -257,7 +257,7 @@ func assignFuncsToRole(ctx *testframework.TestFrameworkContext, user *account.Ac
 	params := &auth.FuncsToRoleParam{
 		ContractAddr: utils.GovernanceContractAddress,
 		AdminOntID:   []byte("did:ont:" + user.Address.ToBase58()),
-		Role:         []byte("role"),
+		Role:         []byte("TrionesCandidatePeerOwner"),
 		FuncNames:    []string{"registerCandidate"},
 		KeyNo:        1,
 	}
@@ -275,7 +275,7 @@ func assignOntIDsToRole(ctx *testframework.TestFrameworkContext, user *account.A
 	params := &auth.OntIDsToRoleParam{
 		ContractAddr: utils.GovernanceContractAddress,
 		AdminOntID:   []byte("did:ont:" + user.Address.ToBase58()),
-		Role:         []byte("role"),
+		Role:         []byte("TrionesCandidatePeerOwner"),
 		Persons:      [][]byte{},
 		KeyNo:        1,
 	}
