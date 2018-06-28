@@ -19,16 +19,16 @@
 package governance_feeSplit
 
 import (
-	"time"
 	"os/exec"
+	"time"
 
-	"github.com/Ontology/common/password"
+	"github.com/ontio/ontology-crypto/keypair"
+	sdkcom "github.com/ontio/ontology-go-sdk/common"
 	"github.com/ontio/ontology-test/common"
 	"github.com/ontio/ontology-test/testframework"
 	"github.com/ontio/ontology/account"
 	scommon "github.com/ontio/ontology/common"
-	sdkcom "github.com/ontio/ontology-go-sdk/common"
-	"github.com/ontio/ontology-crypto/keypair"
+	"github.com/ontio/ontology/common/password"
 )
 
 func getDefaultAccount(ctx *testframework.TestFrameworkContext) (*account.Account, bool) {
@@ -131,7 +131,7 @@ func invokeNativeContractWithMultiSign(
 		return scommon.UINT256_EMPTY, err
 	}
 	for _, singer := range singers {
-		err = sdkcom.MultiSignToTransaction(tx, uint16((5*len(pubKeys) + 6) / 7), pubKeys, singer)
+		err = sdkcom.MultiSignToTransaction(tx, uint16((5*len(pubKeys)+6)/7), pubKeys, singer)
 		if err != nil {
 			return scommon.UINT256_EMPTY, err
 		}
@@ -220,12 +220,6 @@ func setupTest(ctx *testframework.TestFrameworkContext, user *account.Account) b
 		return false
 	}
 	waitForBlock(ctx)
-
-	//ok = getDDO(ctx, user)
-	//if !ok {
-	//	ctx.LogError("getDDO failed!")
-	//	return false
-	//}
 
 	ok = assignFuncsToRole(ctx, user)
 	if !ok {

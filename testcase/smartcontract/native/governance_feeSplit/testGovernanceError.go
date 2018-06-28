@@ -558,7 +558,7 @@ func SimulateUpdateGlobalParamError(ctx *testframework.TestFrameworkContext) boo
 		return false
 	}
 	if globalParam.CandidateFee != 0 || globalParam.MinInitStake != 10000 ||
-		globalParam.CandidateNum != (7*7) || globalParam.PosLimit != 50 ||
+		globalParam.CandidateNum != (7*7) || globalParam.PosLimit != 20 ||
 		globalParam.A != 50 || globalParam.B != 50 || globalParam.Yita != 5 || globalParam.Penalty != 5 {
 		ctx.LogError("globalParam is error")
 		return false
