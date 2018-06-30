@@ -7,17 +7,17 @@ import (
 	"github.com/ontio/ontology-test/testframework"
 	"github.com/ontio/ontology/account"
 	"github.com/ontio/ontology/common"
+	"github.com/ontio/ontology/core/types"
 	"github.com/ontio/ontology/errors"
 	"github.com/ontio/ontology/smartcontract/service/native/auth"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
 	"github.com/ontio/ontology/smartcontract/service/native/ont"
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
-	"github.com/ontio/ontology/core/types"
 )
 
 var OntIDVersion = byte(0)
 
-func registerCandidate(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkey string, initPos uint64) bool {
+func registerCandidate(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkey string, initPos uint32) bool {
 	params := &governance.RegisterCandidateParam{
 		PeerPubkey: peerPubkey,
 		Address:    user.Address,
@@ -106,7 +106,7 @@ func rejectCandidateMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 	return true
 }
 
-func voteForPeer(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkeyList []string, posList []uint64) bool {
+func voteForPeer(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkeyList []string, posList []uint32) bool {
 	params := &governance.VoteForPeerParam{
 		Address:        user.Address,
 		PeerPubkeyList: peerPubkeyList,
@@ -122,7 +122,7 @@ func voteForPeer(ctx *testframework.TestFrameworkContext, user *account.Account,
 	return true
 }
 
-func unVoteForPeer(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkeyList []string, posList []uint64) bool {
+func unVoteForPeer(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkeyList []string, posList []uint32) bool {
 	params := &governance.VoteForPeerParam{
 		Address:        user.Address,
 		PeerPubkeyList: peerPubkeyList,
@@ -138,7 +138,7 @@ func unVoteForPeer(ctx *testframework.TestFrameworkContext, user *account.Accoun
 	return true
 }
 
-func withdraw(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkeyList []string, withdrawList []uint64) bool {
+func withdraw(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkeyList []string, withdrawList []uint32) bool {
 	params := &governance.WithdrawParam{
 		Address:        user.Address,
 		PeerPubkeyList: peerPubkeyList,
@@ -403,6 +403,30 @@ func transferOntMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []key
 	return true
 }
 
+func transferOntMultiSignToMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, address common.Address, amount uint64) bool {
+	var sts []*ont.State
+	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
+	if err != nil {
+		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+	}
+	sts = append(sts, &ont.State{
+		From:  from,
+		To:    address,
+		Value: amount,
+	})
+	transfers := &ont.Transfers{
+		States: sts,
+	}
+	contractAddress := utils.OntContractAddress
+	method := "transfer"
+	_, err = invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+		contractAddress, method, []interface{}{transfers})
+	if err != nil {
+		ctx.LogError("invokeNativeContract error")
+	}
+	return true
+}
+
 func transferOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, user *account.Account, amount uint64) bool {
 	var sts []*ont.State
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
@@ -427,6 +451,30 @@ func transferOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []key
 	return true
 }
 
+func transferOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, address common.Address, amount uint64) bool {
+	var sts []*ont.State
+	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
+	if err != nil {
+		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+	}
+	sts = append(sts, &ont.State{
+		From:  from,
+		To:    address,
+		Value: amount,
+	})
+	transfers := &ont.Transfers{
+		States: sts,
+	}
+	contractAddress := utils.OngContractAddress
+	method := "transfer"
+	_, err = invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+		contractAddress, method, []interface{}{transfers})
+	if err != nil {
+		ctx.LogError("invokeNativeContract error")
+	}
+	return true
+}
+
 func transferFromOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, user *account.Account, amount uint64) bool {
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
 	if err != nil {
@@ -436,6 +484,27 @@ func transferFromOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 		Sender: from,
 		From:   utils.OntContractAddress,
 		To:     user.Address,
+		Value:  amount,
+	}
+	contractAddress := utils.OngContractAddress
+	method := "transferFrom"
+	_, err = invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+		contractAddress, method, []interface{}{params})
+	if err != nil {
+		ctx.LogError("invokeNativeContract error")
+	}
+	return true
+}
+
+func transferFromOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, address common.Address, amount uint64) bool {
+	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
+	if err != nil {
+		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+	}
+	params := &ont.TransferFrom{
+		Sender: from,
+		From:   utils.OntContractAddress,
+		To:     address,
 		Value:  amount,
 	}
 	contractAddress := utils.OngContractAddress

@@ -47,10 +47,10 @@ func SimulateUnConsensusVoteForPeerError(ctx *testframework.TestFrameworkContext
 	}
 
 	peerPubkeyList := []string{PEER_PUBKEY}
-	posList := []uint64{1000}
+	posList := []uint32{1000}
 	unVoteForPeer(ctx, user1, peerPubkeyList, posList)
 	peerPubkeyList = []string{PEER_PUBKEY}
-	posList = []uint64{2000}
+	posList = []uint32{2000}
 	voteForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	//check balance
@@ -66,7 +66,7 @@ func SimulateUnConsensusVoteForPeerError(ctx *testframework.TestFrameworkContext
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
 	peerPubkeyList = []string{PEER_PUBKEY}
-	posList = []uint64{1000}
+	posList = []uint32{1000}
 	unVoteForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	//check voteInfo data
@@ -82,7 +82,7 @@ func SimulateUnConsensusVoteForPeerError(ctx *testframework.TestFrameworkContext
 	}
 
 	peerPubkeyList = []string{PEER_PUBKEY}
-	posList = []uint64{2000}
+	posList = []uint32{2000}
 	unVoteForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	//check voteInfo data
@@ -118,10 +118,10 @@ func SimulateConsensusVoteForPeerError(ctx *testframework.TestFrameworkContext) 
 	}
 
 	peerPubkeyList := []string{PEER_PUBKEY}
-	posList := []uint64{1000}
+	posList := []uint32{1000}
 	unVoteForPeer(ctx, user1, peerPubkeyList, posList)
 	peerPubkeyList = []string{PEER_PUBKEY}
-	posList = []uint64{300000}
+	posList = []uint32{300000}
 	voteForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	//check balance
@@ -137,7 +137,7 @@ func SimulateConsensusVoteForPeerError(ctx *testframework.TestFrameworkContext) 
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
 	peerPubkeyList = []string{PEER_PUBKEY}
-	posList = []uint64{200000}
+	posList = []uint32{200000}
 	unVoteForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	//check voteInfo data
@@ -155,7 +155,7 @@ func SimulateConsensusVoteForPeerError(ctx *testframework.TestFrameworkContext) 
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
 	peerPubkeyList = []string{PEER_PUBKEY}
-	posList = []uint64{200000}
+	posList = []uint32{200000}
 	unVoteForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	//check voteInfo data
@@ -187,17 +187,17 @@ func SimulateWithDrawError(ctx *testframework.TestFrameworkContext) bool {
 	}
 
 	peerPubkeyList := []string{PEER_PUBKEY}
-	posList := []uint64{300000}
+	posList := []uint32{300000}
 	voteForPeer(ctx, user1, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
 	peerPubkeyList = []string{PEER_PUBKEY}
-	posList = []uint64{100000}
+	posList = []uint32{100000}
 	unVoteForPeer(ctx, user1, peerPubkeyList, posList)
 	waitForBlock(ctx)
 
-	withdrawList := []uint64{80000}
+	withdrawList := []uint32{80000}
 	withdraw(ctx, user1, peerPubkeyList, withdrawList)
 	waitForBlock(ctx)
 	//check balance
@@ -207,7 +207,7 @@ func SimulateWithDrawError(ctx *testframework.TestFrameworkContext) bool {
 	}
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
-	withdrawList = []uint64{80000}
+	withdrawList = []uint32{80000}
 	withdraw(ctx, user1, peerPubkeyList, withdrawList)
 	waitForBlock(ctx)
 	//check balance
@@ -218,7 +218,7 @@ func SimulateWithDrawError(ctx *testframework.TestFrameworkContext) bool {
 
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
-	withdrawList = []uint64{80000}
+	withdrawList = []uint32{80000}
 	withdraw(ctx, user1, peerPubkeyList, withdrawList)
 	waitForBlock(ctx)
 	//check balance
@@ -227,7 +227,7 @@ func SimulateWithDrawError(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 
-	withdrawList = []uint64{80000}
+	withdrawList = []uint32{80000}
 	withdraw(ctx, user1, peerPubkeyList, withdrawList)
 	waitForBlock(ctx)
 	//check balance
@@ -582,7 +582,7 @@ func SimulateTransferPenaltyError(ctx *testframework.TestFrameworkContext) bool 
 
 	//select in consensus
 	peerPubkeyList := []string{PEER_PUBKEY}
-	posList := []uint64{1000}
+	posList := []uint32{1000}
 	voteForPeer(ctx, user1, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)

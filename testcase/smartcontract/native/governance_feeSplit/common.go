@@ -244,7 +244,7 @@ func setupTest(ctx *testframework.TestFrameworkContext, user *account.Account) b
 		"03f1095289e7fddb882f1cb3e158acc1c30d9de606af21c97ba851821e8b6ea535",
 		"0215865baab70607f4a2413a7a9ba95ab2c3c0202d5b7731c6824eef48e899fc90",
 	}
-	posList := []uint64{
+	posList := []uint32{
 		20000,
 		30000,
 		40000,

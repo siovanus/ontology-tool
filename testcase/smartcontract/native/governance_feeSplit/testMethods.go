@@ -29,8 +29,8 @@ import (
 	"github.com/ontio/ontology-crypto/vrf"
 	"github.com/ontio/ontology-test/testframework"
 	"github.com/ontio/ontology/account"
-	"github.com/ontio/ontology/smartcontract/service/native/governance"
 	"github.com/ontio/ontology/core/types"
+	"github.com/ontio/ontology/smartcontract/service/native/governance"
 )
 
 type Account struct {
@@ -124,7 +124,7 @@ func AssignOntIDsToRole(ctx *testframework.TestFrameworkContext) bool {
 type RegisterCandidateParam struct {
 	Path       []string
 	PeerPubkey []string
-	InitPos    []uint64
+	InitPos    []uint32
 }
 
 func RegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
@@ -261,7 +261,7 @@ func RejectCandidate(ctx *testframework.TestFrameworkContext) bool {
 type VoteForPeerParam struct {
 	Path           string
 	PeerPubkeyList []string
-	PosList        []uint64
+	PosList        []uint32
 }
 
 func VoteForPeer(ctx *testframework.TestFrameworkContext) bool {
@@ -315,7 +315,7 @@ func UnVoteForPeer(ctx *testframework.TestFrameworkContext) bool {
 type WithdrawParam struct {
 	Path           string
 	PeerPubkeyList []string
-	WithdrawList   []uint64
+	WithdrawList   []uint32
 }
 
 func Withdraw(ctx *testframework.TestFrameworkContext) bool {
@@ -568,13 +568,13 @@ func UpdateConfig(ctx *testframework.TestFrameworkContext) bool {
 type UpdateGlobalParamParam struct {
 	Path         []string
 	CandidateFee uint64
-	MinInitStake uint64
-	CandidateNum uint64
-	PosLimit     uint64
-	A            uint64
-	B            uint64
-	Yita         uint64
-	Penalty      uint64
+	MinInitStake uint32
+	CandidateNum uint32
+	PosLimit     uint32
+	A            uint32
+	B            uint32
+	Yita         uint32
+	Penalty      uint32
 }
 
 func UpdateGlobalParam(ctx *testframework.TestFrameworkContext) bool {
@@ -620,7 +620,7 @@ func UpdateGlobalParam(ctx *testframework.TestFrameworkContext) bool {
 
 type UpdateSplitCurveParam struct {
 	Path []string
-	Yi   []uint64
+	Yi   []uint32
 }
 
 func UpdateSplitCurve(ctx *testframework.TestFrameworkContext) bool {
@@ -1148,5 +1148,122 @@ func GetAddressMultiSign(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("types.AddressFromMultiPubKeys error", err)
 	}
 	fmt.Println("address is:", from.ToBase58())
+	return true
+}
+
+type TransferMultiSignToMultiSignParam struct {
+	Path1   []string
+	PubKeys []string
+	Amount  uint64
+}
+
+func TransferOntMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/TransferOntMultiSignToMultiSign.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	transferMultiSignParam := new(TransferMultiSignParam)
+	err = json.Unmarshal(data, transferMultiSignParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	var users []*account.Account
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, path := range transferMultiSignParam.Path1 {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+		pubKeys = append(pubKeys, user.PublicKey)
+	}
+	to, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
+	if err != nil {
+		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+	}
+	ok := transferOntMultiSignToMultiSign(ctx, pubKeys, users, to, transferMultiSignParam.Amount)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+func TransferOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/TransferOngMultiSignToMultiSign.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	transferMultiSignParam := new(TransferMultiSignParam)
+	err = json.Unmarshal(data, transferMultiSignParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	var users []*account.Account
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, path := range transferMultiSignParam.Path1 {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+		pubKeys = append(pubKeys, user.PublicKey)
+	}
+	to, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
+	if err != nil {
+		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+	}
+	ok := transferOngMultiSignToMultiSign(ctx, pubKeys, users, to, transferMultiSignParam.Amount)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+type TransferFromMultiSignToMultiSignParam struct {
+	Path1  []string
+	Path2  string
+	Amount uint64
+}
+
+func TransferFromOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/TransferFromOngMultiSignToMultiSign.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	transferFromMultiSignParam := new(TransferFromMultiSignParam)
+	err = json.Unmarshal(data, transferFromMultiSignParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	var users []*account.Account
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, path := range transferFromMultiSignParam.Path1 {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+		pubKeys = append(pubKeys, user.PublicKey)
+	}
+	to, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
+	if err != nil {
+		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+	}
+	ok := transferFromOngMultiSignToMultiSign(ctx, pubKeys, users, to, transferFromMultiSignParam.Amount)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
 	return true
 }
