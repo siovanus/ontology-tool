@@ -1003,8 +1003,8 @@ func Vrf(ctx *testframework.TestFrameworkContext) bool {
 
 type TransferMultiSignParam struct {
 	Path1  []string
-	Path2  string
-	Amount uint64
+	Path2  []string
+	Amount []uint64
 }
 
 func TransferOntMultiSign(ctx *testframework.TestFrameworkContext) bool {
@@ -1030,13 +1030,16 @@ func TransferOntMultiSign(ctx *testframework.TestFrameworkContext) bool {
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	user2, ok := getAccountByPassword(ctx, transferMultiSignParam.Path2)
-	if !ok {
-		return false
-	}
-	ok = transferOntMultiSign(ctx, pubKeys, users, user2, transferMultiSignParam.Amount)
-	if !ok {
-		return false
+	time.Sleep(1 * time.Second)
+	for index, path2 := range transferMultiSignParam.Path2 {
+		user2, ok := getAccountByPassword(ctx, path2)
+		if !ok {
+			return false
+		}
+		ok = transferOntMultiSign(ctx, pubKeys, users, user2, transferMultiSignParam.Amount[index])
+		if !ok {
+			return false
+		}
 	}
 	waitForBlock(ctx)
 	return true
@@ -1065,13 +1068,16 @@ func TransferOngMultiSign(ctx *testframework.TestFrameworkContext) bool {
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	user2, ok := getAccountByPassword(ctx, transferMultiSignParam.Path2)
-	if !ok {
-		return false
-	}
-	ok = transferOngMultiSign(ctx, pubKeys, users, user2, transferMultiSignParam.Amount)
-	if !ok {
-		return false
+	time.Sleep(1 * time.Second)
+	for index, path2 := range transferMultiSignParam.Path2 {
+		user2, ok := getAccountByPassword(ctx, path2)
+		if !ok {
+			return false
+		}
+		ok = transferOngMultiSign(ctx, pubKeys, users, user2, transferMultiSignParam.Amount[index])
+		if !ok {
+			return false
+		}
 	}
 	waitForBlock(ctx)
 	return true
@@ -1079,8 +1085,8 @@ func TransferOngMultiSign(ctx *testframework.TestFrameworkContext) bool {
 
 type TransferFromMultiSignParam struct {
 	Path1  []string
-	Path2  string
-	Amount uint64
+	Path2  []string
+	Amount []uint64
 }
 
 func TransferFromOngMultiSign(ctx *testframework.TestFrameworkContext) bool {
@@ -1106,20 +1112,23 @@ func TransferFromOngMultiSign(ctx *testframework.TestFrameworkContext) bool {
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	user2, ok := getAccountByPassword(ctx, transferFromMultiSignParam.Path2)
-	if !ok {
-		return false
-	}
-	ok = transferFromOngMultiSign(ctx, pubKeys, users, user2, transferFromMultiSignParam.Amount)
-	if !ok {
-		return false
+	time.Sleep(1 * time.Second)
+	for index, path2 := range transferFromMultiSignParam.Path2 {
+		user2, ok := getAccountByPassword(ctx, path2)
+		if !ok {
+			return false
+		}
+		ok = transferFromOngMultiSign(ctx, pubKeys, users, user2, transferFromMultiSignParam.Amount[index])
+		if !ok {
+			return false
+		}
 	}
 	waitForBlock(ctx)
 	return true
 }
 
 type GetAddressMultiSignParam struct {
-	Path []string
+	PubKeys []string
 }
 
 func GetAddressMultiSign(ctx *testframework.TestFrameworkContext) bool {
@@ -1136,12 +1145,16 @@ func GetAddressMultiSign(ctx *testframework.TestFrameworkContext) bool {
 	}
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
-	for _, path := range getAddressMultiSignParam.Path {
-		user, ok := getAccountByPassword(ctx, path)
-		if !ok {
-			return false
+	for _, v := range getAddressMultiSignParam.PubKeys {
+		vByte, err := hex.DecodeString(v)
+		if err != nil {
+			ctx.LogError("hex.DecodeString failed %v", err)
 		}
-		pubKeys = append(pubKeys, user.PublicKey)
+		k, err := keypair.DeserializePublicKey(vByte)
+		if err != nil {
+			ctx.LogError("keypair.DeserializePublicKey failed %v", err)
+		}
+		pubKeys = append(pubKeys, k)
 	}
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
 	if err != nil {
