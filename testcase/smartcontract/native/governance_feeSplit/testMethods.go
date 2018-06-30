@@ -1163,16 +1163,17 @@ func TransferOntMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bo
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
 	}
-	transferMultiSignParam := new(TransferMultiSignParam)
-	err = json.Unmarshal(data, transferMultiSignParam)
+	transferMultiSignToMultiSignParam := new(TransferMultiSignToMultiSignParam)
+	err = json.Unmarshal(data, transferMultiSignToMultiSignParam)
 	if err != nil {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*account.Account
 	var pubKeys []keypair.PublicKey
+	var pubKeysTo []keypair.PublicKey
 	time.Sleep(1 * time.Second)
-	for _, path := range transferMultiSignParam.Path1 {
+	for _, path := range transferMultiSignToMultiSignParam.Path1 {
 		user, ok := getAccountByPassword(ctx, path)
 		if !ok {
 			return false
@@ -1180,11 +1181,22 @@ func TransferOntMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bo
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	to, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
+	for _, v := range transferMultiSignToMultiSignParam.PubKeys {
+		vByte, err := hex.DecodeString(v)
+		if err != nil {
+			ctx.LogError("hex.DecodeString failed %v", err)
+		}
+		k, err := keypair.DeserializePublicKey(vByte)
+		if err != nil {
+			ctx.LogError("keypair.DeserializePublicKey failed %v", err)
+		}
+		pubKeysTo = append(pubKeysTo, k)
+	}
+	to, err := types.AddressFromMultiPubKeys(pubKeysTo, int((5*len(pubKeysTo)+6)/7))
 	if err != nil {
 		ctx.LogError("types.AddressFromMultiPubKeys error", err)
 	}
-	ok := transferOntMultiSignToMultiSign(ctx, pubKeys, users, to, transferMultiSignParam.Amount)
+	ok := transferOntMultiSignToMultiSign(ctx, pubKeys, users, to, transferMultiSignToMultiSignParam.Amount)
 	if !ok {
 		return false
 	}
@@ -1198,16 +1210,17 @@ func TransferOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bo
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
 	}
-	transferMultiSignParam := new(TransferMultiSignParam)
-	err = json.Unmarshal(data, transferMultiSignParam)
+	transferMultiSignToMultiSignParam := new(TransferMultiSignToMultiSignParam)
+	err = json.Unmarshal(data, transferMultiSignToMultiSignParam)
 	if err != nil {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*account.Account
 	var pubKeys []keypair.PublicKey
+	var pubKeysTo []keypair.PublicKey
 	time.Sleep(1 * time.Second)
-	for _, path := range transferMultiSignParam.Path1 {
+	for _, path := range transferMultiSignToMultiSignParam.Path1 {
 		user, ok := getAccountByPassword(ctx, path)
 		if !ok {
 			return false
@@ -1215,11 +1228,22 @@ func TransferOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bo
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	to, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
+	for _, v := range transferMultiSignToMultiSignParam.PubKeys {
+		vByte, err := hex.DecodeString(v)
+		if err != nil {
+			ctx.LogError("hex.DecodeString failed %v", err)
+		}
+		k, err := keypair.DeserializePublicKey(vByte)
+		if err != nil {
+			ctx.LogError("keypair.DeserializePublicKey failed %v", err)
+		}
+		pubKeysTo = append(pubKeysTo, k)
+	}
+	to, err := types.AddressFromMultiPubKeys(pubKeysTo, int((5*len(pubKeysTo)+6)/7))
 	if err != nil {
 		ctx.LogError("types.AddressFromMultiPubKeys error", err)
 	}
-	ok := transferOngMultiSignToMultiSign(ctx, pubKeys, users, to, transferMultiSignParam.Amount)
+	ok := transferOngMultiSignToMultiSign(ctx, pubKeys, users, to, transferMultiSignToMultiSignParam.Amount)
 	if !ok {
 		return false
 	}
@@ -1228,9 +1252,9 @@ func TransferOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bo
 }
 
 type TransferFromMultiSignToMultiSignParam struct {
-	Path1  []string
-	Path2  string
-	Amount uint64
+	Path1   []string
+	PubKeys []string
+	Amount  uint64
 }
 
 func TransferFromOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bool {
@@ -1239,16 +1263,17 @@ func TransferFromOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
 	}
-	transferFromMultiSignParam := new(TransferFromMultiSignParam)
-	err = json.Unmarshal(data, transferFromMultiSignParam)
+	transferFromMultiSignToMultiSignParam := new(TransferFromMultiSignToMultiSignParam)
+	err = json.Unmarshal(data, transferFromMultiSignToMultiSignParam)
 	if err != nil {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*account.Account
 	var pubKeys []keypair.PublicKey
+	var pubKeysTo []keypair.PublicKey
 	time.Sleep(1 * time.Second)
-	for _, path := range transferFromMultiSignParam.Path1 {
+	for _, path := range transferFromMultiSignToMultiSignParam.Path1 {
 		user, ok := getAccountByPassword(ctx, path)
 		if !ok {
 			return false
@@ -1256,11 +1281,22 @@ func TransferFromOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	to, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
+	for _, v := range transferFromMultiSignToMultiSignParam.PubKeys {
+		vByte, err := hex.DecodeString(v)
+		if err != nil {
+			ctx.LogError("hex.DecodeString failed %v", err)
+		}
+		k, err := keypair.DeserializePublicKey(vByte)
+		if err != nil {
+			ctx.LogError("keypair.DeserializePublicKey failed %v", err)
+		}
+		pubKeysTo = append(pubKeysTo, k)
+	}
+	to, err := types.AddressFromMultiPubKeys(pubKeysTo, int((5*len(pubKeysTo)+6)/7))
 	if err != nil {
 		ctx.LogError("types.AddressFromMultiPubKeys error", err)
 	}
-	ok := transferFromOngMultiSignToMultiSign(ctx, pubKeys, users, to, transferFromMultiSignParam.Amount)
+	ok := transferFromOngMultiSignToMultiSign(ctx, pubKeys, users, to, transferFromMultiSignToMultiSignParam.Amount)
 	if !ok {
 		return false
 	}
