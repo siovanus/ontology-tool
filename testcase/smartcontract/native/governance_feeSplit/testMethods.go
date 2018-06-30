@@ -1030,7 +1030,7 @@ func TransferOntMultiSign(ctx *testframework.TestFrameworkContext) bool {
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	user2, ok := getAccount(ctx, transferMultiSignParam.Path2)
+	user2, ok := getAccountByPassword(ctx, transferMultiSignParam.Path2)
 	if !ok {
 		return false
 	}
@@ -1065,7 +1065,7 @@ func TransferOngMultiSign(ctx *testframework.TestFrameworkContext) bool {
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	user2, ok := getAccount(ctx, transferMultiSignParam.Path2)
+	user2, ok := getAccountByPassword(ctx, transferMultiSignParam.Path2)
 	if !ok {
 		return false
 	}
@@ -1106,7 +1106,7 @@ func TransferFromOngMultiSign(ctx *testframework.TestFrameworkContext) bool {
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	user2, ok := getAccount(ctx, transferFromMultiSignParam.Path2)
+	user2, ok := getAccountByPassword(ctx, transferFromMultiSignParam.Path2)
 	if !ok {
 		return false
 	}
