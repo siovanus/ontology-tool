@@ -49,7 +49,8 @@ func RegIdWithPublicKey(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	user, ok := getAccount(ctx, account.Path)
+	time.Sleep(1 * time.Second)
+	user, ok := getAccountByPassword(ctx, account.Path)
 	if !ok {
 		return false
 	}
@@ -73,7 +74,8 @@ func AssignFuncsToRole(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	user, ok := getAccount(ctx, account.Path)
+	time.Sleep(1 * time.Second)
+	user, ok := getAccountByPassword(ctx, account.Path)
 	if !ok {
 		return false
 	}
@@ -102,11 +104,12 @@ func AssignOntIDsToRole(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	user1, ok := getAccount(ctx, assignOntIDsToRoleParam.Path1)
+	time.Sleep(1 * time.Second)
+	user1, ok := getAccountByPassword(ctx, assignOntIDsToRoleParam.Path1)
 	if !ok {
 		return false
 	}
-	user2, ok := getAccount(ctx, assignOntIDsToRoleParam.Path2)
+	user2, ok := getAccountByPassword(ctx, assignOntIDsToRoleParam.Path2)
 	if !ok {
 		return false
 	}
@@ -119,7 +122,7 @@ func AssignOntIDsToRole(ctx *testframework.TestFrameworkContext) bool {
 }
 
 type RegisterCandidateParam struct {
-	Path       string
+	Path       []string
 	PeerPubkey []string
 	InitPos    []uint64
 }
@@ -136,11 +139,11 @@ func RegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	user, ok := getAccount(ctx, registerCandidateParam.Path)
-	if !ok {
-		return false
-	}
 	for i := 0; i < len(registerCandidateParam.PeerPubkey); i++ {
+		user, ok := getAccountByPassword(ctx, registerCandidateParam.Path[i])
+		if !ok {
+			return false
+		}
 		ok = registerCandidate(ctx, user, registerCandidateParam.PeerPubkey[i], registerCandidateParam.InitPos[i])
 		if !ok {
 			return false
@@ -356,8 +359,9 @@ func QuitNode(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
+	time.Sleep(1 * time.Second)
 	for i := 0; i < len(quitNodeParam.Path); i++ {
-		user, ok := getAccount(ctx, quitNodeParam.Path[i])
+		user, ok := getAccountByPassword(ctx, quitNodeParam.Path[i])
 		if !ok {
 			return false
 		}
