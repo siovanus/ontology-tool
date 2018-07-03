@@ -31,6 +31,7 @@ import (
 	"github.com/ontio/ontology/account"
 	"github.com/ontio/ontology/core/types"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
+	"github.com/ontio/ontology/common"
 )
 
 type Account struct {
@@ -1036,7 +1037,7 @@ func TransferOntMultiSign(ctx *testframework.TestFrameworkContext) bool {
 		if !ok {
 			return false
 		}
-		ok = transferOntMultiSign(ctx, pubKeys, users, user2, transferMultiSignParam.Amount[index])
+		ok = transferOntMultiSign(ctx, pubKeys, users, user2.Address, transferMultiSignParam.Amount[index])
 		if !ok {
 			return false
 		}
@@ -1074,7 +1075,7 @@ func TransferOngMultiSign(ctx *testframework.TestFrameworkContext) bool {
 		if !ok {
 			return false
 		}
-		ok = transferOngMultiSign(ctx, pubKeys, users, user2, transferMultiSignParam.Amount[index])
+		ok = transferOngMultiSign(ctx, pubKeys, users, user2.Address, transferMultiSignParam.Amount[index])
 		if !ok {
 			return false
 		}
@@ -1118,7 +1119,7 @@ func TransferFromOngMultiSign(ctx *testframework.TestFrameworkContext) bool {
 		if !ok {
 			return false
 		}
-		ok = transferFromOngMultiSign(ctx, pubKeys, users, user2, transferFromMultiSignParam.Amount[index])
+		ok = transferFromOngMultiSign(ctx, pubKeys, users, user2.Address, transferFromMultiSignParam.Amount[index])
 		if !ok {
 			return false
 		}
@@ -1312,6 +1313,135 @@ func TransferFromOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext
 	ok := transferFromOngMultiSignToMultiSign(ctx, pubKeys, users, to, transferFromMultiSignToMultiSignParam.Amount)
 	if !ok {
 		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+type TransferMultiSignAddressParam struct {
+	Path1  []string
+	Address []string
+	Amount []uint64
+}
+
+func TransferOntMultiSignAddress(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/TransferOntMultiSignAddress.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	transferMultiSignAddressParam := new(TransferMultiSignAddressParam)
+	err = json.Unmarshal(data, transferMultiSignAddressParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	var users []*account.Account
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, path := range transferMultiSignAddressParam.Path1 {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+		pubKeys = append(pubKeys, user.PublicKey)
+	}
+	time.Sleep(1 * time.Second)
+	for index, address := range transferMultiSignAddressParam.Address {
+		addr, err := common.AddressFromBase58(address)
+		if err != nil {
+			ctx.LogError("common.AddressFromBase58 failed %v", err)
+			return false
+		}
+		ok := transferOntMultiSign(ctx, pubKeys, users, addr, transferMultiSignAddressParam.Amount[index])
+		if !ok {
+			return false
+		}
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+func TransferOngMultiSignAddress(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/TransferOngMultiSignAddress.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	transferMultiSignAddressParam := new(TransferMultiSignAddressParam)
+	err = json.Unmarshal(data, transferMultiSignAddressParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	var users []*account.Account
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, path := range transferMultiSignAddressParam.Path1 {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+		pubKeys = append(pubKeys, user.PublicKey)
+	}
+	time.Sleep(1 * time.Second)
+	for index, address := range transferMultiSignAddressParam.Address {
+		addr, err := common.AddressFromBase58(address)
+		if err != nil {
+			ctx.LogError("common.AddressFromBase58 failed %v", err)
+			return false
+		}
+		ok := transferOngMultiSign(ctx, pubKeys, users, addr, transferMultiSignAddressParam.Amount[index])
+		if !ok {
+			return false
+		}
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+type TransferFromMultiSignAddressParam struct {
+	Path1  []string
+	Address  []string
+	Amount []uint64
+}
+
+func TransferFromOngMultiSignAddress(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/TransferFromOngMultiSignAddress.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	transferFromMultiSignAddressParam := new(TransferFromMultiSignAddressParam)
+	err = json.Unmarshal(data, transferFromMultiSignAddressParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	var users []*account.Account
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, path := range transferFromMultiSignAddressParam.Path1 {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+		pubKeys = append(pubKeys, user.PublicKey)
+	}
+	time.Sleep(1 * time.Second)
+	for index, address := range transferFromMultiSignAddressParam.Address {
+		addr, err := common.AddressFromBase58(address)
+		if err != nil {
+			ctx.LogError("common.AddressFromBase58 failed %v", err)
+			return false
+		}
+		ok := transferFromOngMultiSign(ctx, pubKeys, users, addr, transferFromMultiSignAddressParam.Amount[index])
+		if !ok {
+			return false
+		}
 	}
 	waitForBlock(ctx)
 	return true

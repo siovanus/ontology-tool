@@ -379,7 +379,7 @@ func transferPenaltyMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 	return true
 }
 
-func transferOntMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, user *account.Account, amount uint64) bool {
+func transferOntMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, address common.Address, amount uint64) bool {
 	var sts []*ont.State
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
 	if err != nil {
@@ -387,7 +387,7 @@ func transferOntMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []key
 	}
 	sts = append(sts, &ont.State{
 		From:  from,
-		To:    user.Address,
+		To:    address,
 		Value: amount,
 	})
 	transfers := &ont.Transfers{
@@ -427,7 +427,7 @@ func transferOntMultiSignToMultiSign(ctx *testframework.TestFrameworkContext, pu
 	return true
 }
 
-func transferOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, user *account.Account, amount uint64) bool {
+func transferOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, address common.Address, amount uint64) bool {
 	var sts []*ont.State
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
 	if err != nil {
@@ -435,7 +435,7 @@ func transferOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []key
 	}
 	sts = append(sts, &ont.State{
 		From:  from,
-		To:    user.Address,
+		To:    address,
 		Value: amount,
 	})
 	transfers := &ont.Transfers{
@@ -475,7 +475,7 @@ func transferOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext, pu
 	return true
 }
 
-func transferFromOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, user *account.Account, amount uint64) bool {
+func transferFromOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, address common.Address, amount uint64) bool {
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
 	if err != nil {
 		ctx.LogError("types.AddressFromMultiPubKeys error", err)
@@ -483,7 +483,7 @@ func transferFromOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 	params := &ont.TransferFrom{
 		Sender: from,
 		From:   utils.OntContractAddress,
-		To:     user.Address,
+		To:     address,
 		Value:  amount,
 	}
 	contractAddress := utils.OngContractAddress
