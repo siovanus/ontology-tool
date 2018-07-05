@@ -18,7 +18,7 @@
 package smartcontract
 
 import (
-	"github.com/ontio/ontology-test/testcase/smartcontract/native"
+	"github.com/ontio/ontology-tool/testcase/smartcontract/native"
 )
 
 //Register test case

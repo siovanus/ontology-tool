@@ -3,7 +3,7 @@ Ontology Test Framework is a light-weight test framework for ontology. Integrati
 
 ## How to use?
 
-1. copy wallet file from bookkeeper ontology node to ontology-test. Otherwise some testcase will failed because of balance of ont is zero.
+1. copy wallet file from bookkeeper ontology node to ontology-tool. Otherwise some testcase will failed because of balance of ont is zero.
 2. Set rpc server address of ontology, wallet file and password in config_test.json config file.
 
 ```

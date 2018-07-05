@@ -19,7 +19,7 @@
 package governance_feeSplit
 
 import (
-	"github.com/ontio/ontology-test/testframework"
+	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
 )
 

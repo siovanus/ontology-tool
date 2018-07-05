@@ -18,7 +18,7 @@
 package testcase
 
 import (
-	"github.com/ontio/ontology-test/testcase/smartcontract"
+	"github.com/ontio/ontology-tool/testcase/smartcontract"
 )
 
 //TestCase list
