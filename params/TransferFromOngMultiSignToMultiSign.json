@@ -1,0 +1,6 @@
+{
+  "Path1": ["wallets/peer1/wallet.dat","wallets/peer2/wallet.dat","wallets/peer3/wallet.dat","wallets/peer4/wallet.dat","wallets/peer5/wallet.dat","wallets/peer6/wallet.dat","wallets/peer7/wallet.dat"],
+  "PubKeys": ["0253ccfd439b29eca0fe90ca7c6eaa1f98572a054aa2d1d56e72ad96c466107a85","035eb654bad6c6409894b9b42289a43614874c7984bde6b03aaf6fc1d0486d9d45","0281d198c0dd3737a9c39191bc2d1af7d65a44261a8a64d6ef74d63f27cfb5ed92","023967bba3060bf8ade06d9bad45d02853f6c623e4d4f52d767eb56df4d364a99f","038bfc50b0e3f0e5df6d451069065cbfa7ab5d382a5839cce82e0c963edb026e94","03f1095289e7fddb882f1cb3e158acc1c30d9de606af21c97ba851821e8b6ea535","02ce9e4a85ef234cbb3c2d839bd8c92801e5737d4d886e29890cee8f1d415bd628"],
+  "Amount": 10000000000000
+}
+

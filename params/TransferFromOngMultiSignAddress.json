@@ -1,0 +1,6 @@
+{
+  "Path1": ["wallets/peer1/wallet.dat","wallets/peer2/wallet.dat","wallets/peer3/wallet.dat","wallets/peer4/wallet.dat","wallets/peer5/wallet.dat","wallets/peer6/wallet.dat","wallets/peer7/wallet.dat"],
+  "Address": ["AZqk4i7Zhfhc1CRUtZYKrLw4YTSq4Y9khN"],
+  "Amount": [10000000000000]
+}
+

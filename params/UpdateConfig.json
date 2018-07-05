@@ -1,0 +1,11 @@
+{
+   "Path": ["wallets/peer1/wallet.dat","wallets/peer2/wallet.dat","wallets/peer3/wallet.dat","wallets/peer4/wallet.dat","wallets/peer5/wallet.dat","wallets/peer6/wallet.dat","wallets/peer7/wallet.dat"],
+   "N": 7,
+   "C": 2,
+   "K": 7,
+   "L": 112,
+   "BlockMsgDelay": 10000,
+   "HashMsgDelay": 10000,
+   "PeerHandshakeTimeout": 10,
+   "MaxBlockChangeView": 8888
+}
