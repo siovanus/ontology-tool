@@ -29,9 +29,9 @@ import (
 	"github.com/ontio/ontology-crypto/vrf"
 	"github.com/ontio/ontology-test/testframework"
 	"github.com/ontio/ontology/account"
+	"github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/core/types"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
-	"github.com/ontio/ontology/common"
 )
 
 type Account struct {
@@ -1319,9 +1319,9 @@ func TransferFromOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext
 }
 
 type TransferMultiSignAddressParam struct {
-	Path1  []string
+	Path1   []string
 	Address []string
-	Amount []uint64
+	Amount  []uint64
 }
 
 func TransferOntMultiSignAddress(ctx *testframework.TestFrameworkContext) bool {
@@ -1403,9 +1403,9 @@ func TransferOngMultiSignAddress(ctx *testframework.TestFrameworkContext) bool {
 }
 
 type TransferFromMultiSignAddressParam struct {
-	Path1  []string
-	Address  []string
-	Amount []uint64
+	Path1   []string
+	Address []string
+	Amount  []uint64
 }
 
 func TransferFromOngMultiSignAddress(ctx *testframework.TestFrameworkContext) bool {

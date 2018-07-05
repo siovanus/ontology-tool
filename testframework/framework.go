@@ -74,14 +74,6 @@ func (this *TestFramework) RegTestCase(name string, testCase TestCase) {
 	this.testCasesMap[testCaseId] = testCase
 }
 
-func (this *TestFramework) SetBeforeCallback(callback func(ctx *TestFrameworkContext)) {
-	this.before = callback
-}
-
-func (this *TestFramework) SetAfterCallback(callback func(ctx *TestFrameworkContext)) {
-	this.after = callback
-}
-
 //Start run test case
 func (this *TestFramework) Start(testCases []string) {
 	if len(testCases) > 0 {
@@ -110,12 +102,6 @@ func (this *TestFramework) runTestList(testCaseList []TestCase) {
 	defer this.onTestFinish(testCaseList)
 	failNowCh := make(chan interface{}, 10)
 	ctx := NewTestFrameworkContext(this.ont, this.wallet, failNowCh)
-	if this.before != nil {
-		this.before(ctx)
-	}
-	if this.after != nil {
-		defer this.after(ctx)
-	}
 	for i, testCase := range testCaseList {
 		select {
 		case <-failNowCh:
