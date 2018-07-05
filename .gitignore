@@ -7,7 +7,7 @@ build/
 *.rej
 vendor/*
 *.iml
-ontology-test
+ontology-tool
 config_test.json
 wallet.dat
 main.exe 

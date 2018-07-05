@@ -21,9 +21,9 @@ import (
 	"flag"
 	log4 "github.com/alecthomas/log4go"
 	sdk "github.com/ontio/ontology-go-sdk"
-	"github.com/ontio/ontology-test/common"
-	_ "github.com/ontio/ontology-test/testcase"
-	"github.com/ontio/ontology-test/testframework"
+	"github.com/ontio/ontology-tool/common"
+	_ "github.com/ontio/ontology-tool/testcase"
+	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/common/log"
 	"math/rand"
 	"strings"
@@ -37,8 +37,8 @@ var (
 )
 
 func init() {
-	flag.StringVar(&TestConfig, "cfg", "./config_test.json", "Config of ontology-test")
-	flag.StringVar(&LogConfig, "lfg", "./log4go.xml", "Log config of ontology-test")
+	flag.StringVar(&TestConfig, "cfg", "./config_test.json", "Config of ontology-tool")
+	flag.StringVar(&LogConfig, "lfg", "./log4go.xml", "Log config of ontology-tool")
 	flag.StringVar(&TestCases, "t", "", "Test case to run. use ',' to split test case")
 	flag.Parse()
 }

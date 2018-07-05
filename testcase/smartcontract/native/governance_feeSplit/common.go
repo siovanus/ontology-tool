@@ -24,8 +24,8 @@ import (
 
 	"github.com/ontio/ontology-crypto/keypair"
 	sdkcom "github.com/ontio/ontology-go-sdk/common"
-	"github.com/ontio/ontology-test/common"
-	"github.com/ontio/ontology-test/testframework"
+	"github.com/ontio/ontology-tool/common"
+	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/account"
 	scommon "github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/password"

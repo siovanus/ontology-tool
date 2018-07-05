@@ -16,7 +16,7 @@
  * along with The ontology.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-//common use fot ontology-test
+//common use fot ontology-tool
 package common
 
 import (

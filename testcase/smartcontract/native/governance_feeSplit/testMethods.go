@@ -27,7 +27,7 @@ import (
 
 	"github.com/ontio/ontology-crypto/keypair"
 	"github.com/ontio/ontology-crypto/vrf"
-	"github.com/ontio/ontology-test/testframework"
+	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/account"
 	"github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/core/types"
