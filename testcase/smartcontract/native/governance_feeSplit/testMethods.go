@@ -1476,7 +1476,7 @@ func EmergencyBlock(ctx *testframework.TestFrameworkContext) bool {
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	block, err := buildEmergencyBlock(ctx, users, pubKeys, emergencyParam.PeerPubkey)
+	block, err := buildEmergencyBlock(ctx, pubKeys, users, emergencyParam.PeerPubkey)
 	if err != nil {
 		ctx.LogError("buildEmergencyBlock error:%s", err)
 		return false

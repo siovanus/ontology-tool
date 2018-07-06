@@ -123,11 +123,6 @@ func buildEmergencyBlock(ctx *testframework.TestFrameworkContext, pubKeys []keyp
 		adminsig.PubKeys = append(adminsig.PubKeys, singer.PublicKey)
 		adminsig.SigData = append(adminsig.SigData, sig)
 	}
-
-	emergencysig, err := signature.Sign(singers[0], buf.Bytes())
-	if err != nil {
-		return nil, fmt.Errorf("sign block failed, block hash：%x, error: %s", blkHash, err)
-	}
 	emergencyblock.AdminSigs = []*types.Sig{adminsig}
 	emergencyHash := emergencyblock.Hash()
 	reqSig, _ := signature.Sign(singers[0], emergencyHash[:])
@@ -200,8 +195,8 @@ func constructBlock(singers []*account.Account, blkNum uint32, prevBlkHash commo
 		Header:       blkHeader,
 		Transactions: systxs,
 	}
-	blkHash := blk.Hash()
 	/*
+		blkHash := blk.Hash()
 		for _, singer := range singers {
 			sig, err := signature.Sign(singer, blkHash[:])
 			if err != nil {
