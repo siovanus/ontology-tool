@@ -113,7 +113,7 @@ func buildEmergencyBlock(ctx *testframework.TestFrameworkContext, pubKeys []keyp
 	serialization.WriteVarBytes(buf, emergencyblock.ProposerSigOnBlk)
 
 	adminsig := &types.Sig{
-		M: uint16(len(singers)),
+		M: uint16((5*len(pubKeys) + 6) / 7),
 	}
 	for _, singer := range singers {
 		sig, err := signature.Sign(singer, buf.Bytes())
