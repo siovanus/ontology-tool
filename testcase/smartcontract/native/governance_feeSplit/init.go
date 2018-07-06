@@ -99,4 +99,5 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("TransferOntMultiSignToMultiSign", TransferOntMultiSignToMultiSign)
 	testframework.TFramework.RegTestCase("TransferOngMultiSignToMultiSign", TransferOngMultiSignToMultiSign)
 	testframework.TFramework.RegTestCase("TransferFromOngMultiSignToMultiSign", TransferFromOngMultiSignToMultiSign)
+	testframework.TFramework.RegTestCase("EmergencyBlock", EmergencyBlock)
 }

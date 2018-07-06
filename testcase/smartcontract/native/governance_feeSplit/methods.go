@@ -3,6 +3,7 @@ package governance_feeSplit
 import (
 	"bytes"
 	"encoding/hex"
+
 	"github.com/ontio/ontology-crypto/keypair"
 	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/account"
