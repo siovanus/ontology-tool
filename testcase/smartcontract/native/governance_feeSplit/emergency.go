@@ -95,8 +95,8 @@ func buildEmergencyBlock(ctx *testframework.TestFrameworkContext, pubKeys []keyp
 		Evidence:       emergency.ConsensusMessage,
 		ProposalBlkNum: blkNum,
 		ProposalBlk:    blk,
-		ProposerPK:     pubKeys[0],
-		ReqPK:          pubKeys[0],
+		ProposerPK:     singers[0].PublicKey,
+		ReqPK:          singers[0].PublicKey,
 	}
 	blkHash := blk.Hash()
 	blocksig, err := signature.Sign(singers[0], blkHash[:])
