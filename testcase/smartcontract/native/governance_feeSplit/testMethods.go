@@ -23,6 +23,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"time"
 
 	"github.com/ontio/ontology-crypto/keypair"
@@ -30,6 +31,7 @@ import (
 	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/account"
 	"github.com/ontio/ontology/common"
+	"github.com/ontio/ontology/consensus/vbft/config"
 	"github.com/ontio/ontology/core/types"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
 )
@@ -1484,6 +1486,53 @@ func EmergencyBlock(ctx *testframework.TestFrameworkContext) bool {
 	err = ctx.Ont.Rpc.SendEmergencyGovReq(block)
 	if err != nil {
 		ctx.LogError("ctx.Ont.Rpc.SendEmergencyGovReq error:%s", err)
+	}
+	return true
+}
+func GetVbftInfo(ctx *testframework.TestFrameworkContext) bool {
+	blkNum, err := ctx.Ont.Rpc.GetBlockCount()
+	if err != nil {
+		ctx.LogError("TestGetVbftInfo GetBlockCount error:%s", err)
+		return false
+	}
+	blk, err := ctx.Ont.Rpc.GetBlockByHeight(blkNum - 1)
+	if err != nil {
+		ctx.LogError("TestGetVbftInfo GetBlockByHeight error:%s", err)
+		return false
+	}
+	block, err := initVbftBlock(blk)
+	if err != nil {
+		ctx.LogError("TestGetVbftInfo initVbftBlock error:%s", err)
+		return false
+	}
+
+	var cfg vconfig.ChainConfig
+	if block.Info.NewChainConfig != nil {
+		cfg = *block.Info.NewChainConfig
+	} else {
+		var cfgBlock *types.Block
+		if block.Info.LastConfigBlockNum != math.MaxUint32 {
+			cfgBlock, err = ctx.Ont.Rpc.GetBlockByHeight(block.Info.LastConfigBlockNum)
+			if err != nil {
+				ctx.LogError("TestGetVbftInfo chainconfig GetBlockByHeight error:%s", err)
+				return false
+			}
+		}
+		blk, err := initVbftBlock(cfgBlock)
+		if err != nil {
+			ctx.LogError("TestGetVbftInfo initVbftBlock error:%s", err)
+			return false
+		}
+		if blk.Info.NewChainConfig == nil {
+			ctx.LogError("TestGetVbftInfo newchainconfig error:%s", err)
+			return false
+		}
+		cfg = *blk.Info.NewChainConfig
+	}
+	fmt.Printf("block vbft chainConfig, View:%d, N:%d, C:%d, BlockMsgDelay:%v, HashMsgDelay:%v, PeerHandshakeTimeout:%v, MaxBlockChangeView:%d, PosTable:%v\n",
+		cfg.View, cfg.N, cfg.C, cfg.BlockMsgDelay, cfg.HashMsgDelay, cfg.PeerHandshakeTimeout, cfg.MaxBlockChangeView, cfg.PosTable)
+	for _, p := range cfg.Peers {
+		fmt.Printf("peerInfo Index: %d, ID:%v\n", p.Index, p.ID)
 	}
 	return true
 }

@@ -131,6 +131,7 @@ func buildEmergencyBlock(ctx *testframework.TestFrameworkContext, pubKeys []keyp
 	if err := emergencyblock.Serialize(emergency); err != nil {
 		return nil, fmt.Errorf("Serialize emergencyblock error:%s", err)
 	}
+	ctx.LogInfo("Emergency block height: %d", blkNum)
 	return emergency.Bytes(), nil
 }
 
