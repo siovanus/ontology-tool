@@ -92,7 +92,7 @@ func AssignFuncsToRole(ctx *testframework.TestFrameworkContext) bool {
 
 type AssignOntIDsToRoleParam struct {
 	Path1 string
-	Path2 string
+	Ontid []string
 }
 
 func AssignOntIDsToRole(ctx *testframework.TestFrameworkContext) bool {
@@ -112,11 +112,7 @@ func AssignOntIDsToRole(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	user2, ok := getAccountByPassword(ctx, assignOntIDsToRoleParam.Path2)
-	if !ok {
-		return false
-	}
-	ok = assignOntIDsToRole(ctx, user1, []*account.Account{user2})
+	ok = assignOntIDsToRole(ctx, user1, assignOntIDsToRoleParam.Ontid)
 	if !ok {
 		return false
 	}

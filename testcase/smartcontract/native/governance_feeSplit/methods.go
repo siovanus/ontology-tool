@@ -536,7 +536,7 @@ func assignFuncsToRole(ctx *testframework.TestFrameworkContext, user *account.Ac
 	return true
 }
 
-func assignOntIDsToRole(ctx *testframework.TestFrameworkContext, user *account.Account, users []*account.Account) bool {
+func assignOntIDsToRole(ctx *testframework.TestFrameworkContext, user *account.Account, ontids []string) bool {
 	params := &auth.OntIDsToRoleParam{
 		ContractAddr: utils.GovernanceContractAddress,
 		AdminOntID:   []byte("did:ont:" + user.Address.ToBase58()),
@@ -544,8 +544,8 @@ func assignOntIDsToRole(ctx *testframework.TestFrameworkContext, user *account.A
 		Persons:      [][]byte{},
 		KeyNo:        1,
 	}
-	for _, user := range users {
-		params.Persons = append(params.Persons, []byte("did:ont:"+user.Address.ToBase58()))
+	for _, ontid := range ontids {
+		params.Persons = append(params.Persons, []byte(ontid))
 	}
 	contractAddress := utils.AuthContractAddress
 	method := "assignOntIDsToRole"
