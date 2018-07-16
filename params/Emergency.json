@@ -1,4 +1,4 @@
 {
     "Path": ["wallets/peer1/wallet.dat","wallets/peer2/wallet.dat","wallets/peer3/wallet.dat","wallets/peer4/wallet.dat","wallets/peer5/wallet.dat","wallets/peer6/wallet.dat","wallets/peer7/wallet.dat"],
-    "PeerPubkey": ["023967bba3060bf8ade06d9bad45d02853f6c623e4d4f52d767eb56df4d364a99f"]
+    "PeerPubkey": ["0253ccfd439b29eca0fe90ca7c6eaa1f98572a054aa2d1d56e72ad96c466107a85"]
   }
