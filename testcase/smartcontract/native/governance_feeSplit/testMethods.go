@@ -31,6 +31,7 @@ import (
 	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/account"
 	"github.com/ontio/ontology/common"
+	"github.com/ontio/ontology/consensus/vbft"
 	"github.com/ontio/ontology/consensus/vbft/config"
 	"github.com/ontio/ontology/core/types"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
@@ -1486,47 +1487,6 @@ func TransferFromOngMultiSignAddress(ctx *testframework.TestFrameworkContext) bo
 	waitForBlock(ctx)
 	return true
 }
-
-type EmergencyParam struct {
-	Path       []string
-	PeerPubkey []string
-}
-
-func EmergencyBlock(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./params/Emergency.json")
-	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
-		return false
-	}
-	emergencyParam := new(EmergencyParam)
-	err = json.Unmarshal(data, emergencyParam)
-	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
-		return false
-	}
-
-	var users []*account.Account
-	var pubKeys []keypair.PublicKey
-	time.Sleep(1 * time.Second)
-	for _, path := range emergencyParam.Path {
-		user, ok := getAccountByPassword(ctx, path)
-		if !ok {
-			return false
-		}
-		users = append(users, user)
-		pubKeys = append(pubKeys, user.PublicKey)
-	}
-	block, err := buildEmergencyBlock(ctx, pubKeys, users, emergencyParam.PeerPubkey)
-	if err != nil {
-		ctx.LogError("buildEmergencyBlock error:%s", err)
-		return false
-	}
-	err = ctx.Ont.Rpc.SendEmergencyGovReq(block)
-	if err != nil {
-		ctx.LogError("ctx.Ont.Rpc.SendEmergencyGovReq error:%s", err)
-	}
-	return true
-}
 func GetVbftInfo(ctx *testframework.TestFrameworkContext) bool {
 	blkNum, err := ctx.Ont.Rpc.GetBlockCount()
 	if err != nil {
@@ -1573,4 +1533,19 @@ func GetVbftInfo(ctx *testframework.TestFrameworkContext) bool {
 		fmt.Printf("peerInfo Index: %d, ID:%v\n", p.Index, p.ID)
 	}
 	return true
+}
+func initVbftBlock(block *types.Block) (*vbft.Block, error) {
+	if block == nil {
+		return nil, fmt.Errorf("nil block in initVbftBlock")
+	}
+
+	blkInfo := &vconfig.VbftBlockInfo{}
+	if err := json.Unmarshal(block.Header.ConsensusPayload, blkInfo); err != nil {
+		return nil, fmt.Errorf("unmarshal blockInfo: %s", err)
+	}
+
+	return &vbft.Block{
+		Block: block,
+		Info:  blkInfo,
+	}, nil
 }
