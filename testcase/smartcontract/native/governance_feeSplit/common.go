@@ -228,7 +228,7 @@ func setupTest(ctx *testframework.TestFrameworkContext, user *account.Account) b
 	}
 	waitForBlock(ctx)
 
-	ok = assignOntIDsToRole(ctx, user, []string{"did:ont:"+user.Address.ToBase58(), "did:ont:"+user1.Address.ToBase58(), "did:ont:"+user2.Address.ToBase58()})
+	ok = assignOntIDsToRole(ctx, user, []string{"did:ont:" + user.Address.ToBase58(), "did:ont:" + user1.Address.ToBase58(), "did:ont:" + user2.Address.ToBase58()})
 	if !ok {
 		ctx.LogError("assignOntIDsToRole failed!")
 		return false

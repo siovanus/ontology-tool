@@ -14,6 +14,7 @@ import (
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
 	"github.com/ontio/ontology/smartcontract/service/native/ont"
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
+	sdkcom "github.com/ontio/ontology-go-sdk/common"
 )
 
 var OntIDVersion = byte(0)
@@ -32,6 +33,44 @@ func registerCandidate(ctx *testframework.TestFrameworkContext, user *account.Ac
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
+	}
+	return true
+}
+
+func registerCandidateMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, user *account.Account, peerPubkey string, initPos uint32) bool {
+	address, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
+	if err != nil {
+		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+	}
+	params := &governance.RegisterCandidateParam{
+		PeerPubkey: peerPubkey,
+		Address:    address,
+		InitPos:    initPos,
+		Caller:     []byte("did:ont:" + user.Address.ToBase58()),
+		KeyNo:      1,
+	}
+	contractAddress := utils.GovernanceContractAddress
+	method := "registerCandidate"
+	tx, err := ctx.Ont.Rpc.NewNativeInvokeTransaction(ctx.GetGasPrice(), ctx.GetGasLimit(), OntIDVersion, contractAddress, method, []interface{}{params})
+	if err != nil {
+		ctx.LogError("newNativeInvokeTransaction error")
+		return false
+	}
+	for _, singer := range users {
+		err = sdkcom.MultiSignToTransaction(tx, uint16((5*len(pubKeys)+6)/7), pubKeys, singer)
+		if err != nil {
+			ctx.LogError("multiSignToTransaction error")
+			return false
+		}
+	}
+	err = sdkcom.SignToTransaction(tx, user)
+	if err != nil {
+		ctx.LogError("signToTransaction error")
+		return false
+	}
+	_, err = ctx.Ont.Rpc.SendRawTransaction(tx)
+	if err != nil {
+		ctx.LogError("sendRawTransaction error")
 	}
 	return true
 }

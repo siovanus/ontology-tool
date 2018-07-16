@@ -152,6 +152,48 @@ func RegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
+type RegisterCandidateMultiSignParam struct {
+	Path1      []string
+	Path2      string
+	PeerPubkey string
+	InitPos    uint32
+}
+
+func RegisterCandidateMultiSign(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/RegisterCandidateMultiSign.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	registerCandidateMultiSignParam := new(RegisterCandidateMultiSignParam)
+	err = json.Unmarshal(data, registerCandidateMultiSignParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	var users []*account.Account
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, path := range registerCandidateMultiSignParam.Path1 {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+		pubKeys = append(pubKeys, user.PublicKey)
+	}
+	user2, ok := getAccountByPassword(ctx, registerCandidateMultiSignParam.Path2)
+	if !ok {
+		return false
+	}
+	ok = registerCandidateMultiSign(ctx, pubKeys, users, user2, registerCandidateMultiSignParam.PeerPubkey, registerCandidateMultiSignParam.InitPos)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
+
 type UnRegisterCandidateParam struct {
 	Path       string
 	PeerPubkey []string

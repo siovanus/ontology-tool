@@ -63,6 +63,7 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("AssignFuncsToRole", AssignFuncsToRole)
 	testframework.TFramework.RegTestCase("AssignOntIDsToRole", AssignOntIDsToRole)
 	testframework.TFramework.RegTestCase("RegisterCandidate", RegisterCandidate)
+	testframework.TFramework.RegTestCase("RegisterCandidateMultiSign", RegisterCandidateMultiSign)
 	testframework.TFramework.RegTestCase("UnRegisterCandidate", UnRegisterCandidate)
 	testframework.TFramework.RegTestCase("ApproveCandidate", ApproveCandidate)
 	testframework.TFramework.RegTestCase("RejectCandidate", RejectCandidate)
