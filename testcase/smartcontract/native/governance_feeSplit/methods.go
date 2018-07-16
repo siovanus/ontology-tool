@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 
 	"github.com/ontio/ontology-crypto/keypair"
+	sdkcom "github.com/ontio/ontology-go-sdk/common"
 	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/account"
 	"github.com/ontio/ontology/common"
@@ -14,7 +15,6 @@ import (
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
 	"github.com/ontio/ontology/smartcontract/service/native/ont"
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
-	sdkcom "github.com/ontio/ontology-go-sdk/common"
 )
 
 var OntIDVersion = byte(0)
@@ -29,11 +29,12 @@ func registerCandidate(ctx *testframework.TestFrameworkContext, user *account.Ac
 	}
 	method := "registerCandidate"
 	contractAddress := utils.GovernanceContractAddress
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -68,10 +69,11 @@ func registerCandidateMultiSign(ctx *testframework.TestFrameworkContext, pubKeys
 		ctx.LogError("signToTransaction error")
 		return false
 	}
-	_, err = ctx.Ont.Rpc.SendRawTransaction(tx)
+	txHash, err := ctx.Ont.Rpc.SendRawTransaction(tx)
 	if err != nil {
 		ctx.LogError("sendRawTransaction error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -82,11 +84,12 @@ func unRegisterCandidate(ctx *testframework.TestFrameworkContext, user *account.
 	}
 	method := "unRegisterCandidate"
 	contractAddress := utils.GovernanceContractAddress
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -96,11 +99,12 @@ func approveCandidate(ctx *testframework.TestFrameworkContext, user *account.Acc
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "approveCandidate"
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -110,11 +114,12 @@ func approveCandidateMultiSign(ctx *testframework.TestFrameworkContext, pubKeys 
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "approveCandidate"
-	_, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -124,11 +129,12 @@ func rejectCandidate(ctx *testframework.TestFrameworkContext, user *account.Acco
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "rejectCandidate"
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -138,11 +144,12 @@ func rejectCandidateMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "rejectCandidate"
-	_, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -154,11 +161,12 @@ func voteForPeer(ctx *testframework.TestFrameworkContext, user *account.Account,
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "voteForPeer"
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -170,11 +178,12 @@ func unVoteForPeer(ctx *testframework.TestFrameworkContext, user *account.Accoun
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "unVoteForPeer"
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -186,11 +195,12 @@ func withdraw(ctx *testframework.TestFrameworkContext, user *account.Account, pe
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "withdraw"
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -200,33 +210,36 @@ func withdrawOng(ctx *testframework.TestFrameworkContext, user *account.Account)
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "withdrawOng"
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
 func commitDpos(ctx *testframework.TestFrameworkContext, user *account.Account) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "commitDpos"
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
 func commitDposMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "commitDpos"
-	_, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -237,11 +250,12 @@ func quitNode(ctx *testframework.TestFrameworkContext, user *account.Account, pe
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "quitNode"
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -251,11 +265,12 @@ func blackNode(ctx *testframework.TestFrameworkContext, user *account.Account, p
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "blackNode"
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -265,11 +280,12 @@ func blackNodeMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypa
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "blackNode"
-	_, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -279,11 +295,12 @@ func whiteNode(ctx *testframework.TestFrameworkContext, user *account.Account, p
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "whiteNode"
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -293,99 +310,108 @@ func whiteNodeMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypa
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "whiteNode"
-	_, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
 func updateConfig(ctx *testframework.TestFrameworkContext, user *account.Account, config *governance.Configuration) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateConfig"
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{config})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
 func updateConfigMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, config *governance.Configuration) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateConfig"
-	_, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{config})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
 func updateGlobalParam(ctx *testframework.TestFrameworkContext, user *account.Account, globalParam *governance.GlobalParam) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateGlobalParam"
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{globalParam})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
 func updateGlobalParamMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, globalParam *governance.GlobalParam) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateGlobalParam"
-	_, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{globalParam})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
 func updateSplitCurve(ctx *testframework.TestFrameworkContext, user *account.Account, splitCurve *governance.SplitCurve) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateSplitCurve"
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{splitCurve})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
 func updateSplitCurveMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, splitCurve *governance.SplitCurve) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateSplitCurve"
-	_, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{splitCurve})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
 func callSplit(ctx *testframework.TestFrameworkContext, user *account.Account) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "callSplit"
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
 func callSplitMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "callSplit"
-	_, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -396,11 +422,12 @@ func transferPenalty(ctx *testframework.TestFrameworkContext, user *account.Acco
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "transferPenalty"
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -411,11 +438,54 @@ func transferPenaltyMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "transferPenalty"
-	_, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
+	return true
+}
+
+func multiTransferOnt(ctx *testframework.TestFrameworkContext, from []*account.Account, to []string, amount []uint64) bool {
+	var sts []*ont.State
+	if len(from) != len(to) || len(from) != len(amount) {
+		ctx.LogError("input length error")
+		return false
+	}
+	for i := 0; i < len(from); i++ {
+		address, err := common.AddressFromBase58(to[i])
+		if err != nil {
+			ctx.LogError("common.AddressFromBase58 failed %v", err)
+			return false
+		}
+		sts = append(sts, &ont.State{
+			From:  from[i].Address,
+			To:    address,
+			Value: amount[i],
+		})
+	}
+	transfers := &ont.Transfers{
+		States: sts,
+	}
+	contractAddress := utils.OntContractAddress
+	method := "transfer"
+	tx, err := ctx.Ont.Rpc.NewNativeInvokeTransaction(ctx.GetGasPrice(), ctx.GetGasLimit(), OntIDVersion, contractAddress, method, []interface{}{transfers})
+	if err != nil {
+		return false
+	}
+	for _, singer := range from {
+		err = ctx.Ont.Rpc.SignToTransaction(tx, singer)
+		if err != nil {
+			return false
+		}
+	}
+	txHash, err := ctx.Ont.Rpc.SendRawTransaction(tx)
+	if err != nil {
+		ctx.LogError("invokeNativeContract error")
+		return false
+	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -435,11 +505,12 @@ func transferOntMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []key
 	}
 	contractAddress := utils.OntContractAddress
 	method := "transfer"
-	_, err = invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -459,11 +530,12 @@ func transferOntMultiSignToMultiSign(ctx *testframework.TestFrameworkContext, pu
 	}
 	contractAddress := utils.OntContractAddress
 	method := "transfer"
-	_, err = invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -483,11 +555,12 @@ func transferOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []key
 	}
 	contractAddress := utils.OngContractAddress
 	method := "transfer"
-	_, err = invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -507,11 +580,12 @@ func transferOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext, pu
 	}
 	contractAddress := utils.OngContractAddress
 	method := "transfer"
-	_, err = invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -528,11 +602,12 @@ func transferFromOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 	}
 	contractAddress := utils.OngContractAddress
 	method := "transferFrom"
-	_, err = invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -549,11 +624,12 @@ func transferFromOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext
 	}
 	contractAddress := utils.OngContractAddress
 	method := "transferFrom"
-	_, err = invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -567,11 +643,12 @@ func assignFuncsToRole(ctx *testframework.TestFrameworkContext, user *account.Ac
 	}
 	method := "assignFuncsToRole"
 	contractAddress := utils.AuthContractAddress
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -588,11 +665,12 @@ func assignOntIDsToRole(ctx *testframework.TestFrameworkContext, user *account.A
 	}
 	contractAddress := utils.AuthContractAddress
 	method := "assignOntIDsToRole"
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -605,11 +683,12 @@ func verifyToken(ctx *testframework.TestFrameworkContext, user *account.Account,
 	}
 	contractAddress := utils.AuthContractAddress
 	method := "verifyToken"
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -625,11 +704,12 @@ func regIdWithPublicKey(ctx *testframework.TestFrameworkContext, user *account.A
 	}
 	method := "regIDWithPublicKey"
 	contractAddress := utils.OntIDContractAddress
-	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
+	ctx.LogInfo("txHash is :", txHash.ToHexString())
 
 	return true
 }

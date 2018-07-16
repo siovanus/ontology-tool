@@ -1549,3 +1549,38 @@ func initVbftBlock(block *types.Block) (*vbft.Block, error) {
 		Info:  blkInfo,
 	}, nil
 }
+
+type MultiTransferParam struct {
+	From   []string
+	To     []string
+	Amount []uint64
+}
+
+func MultiTransferOnt(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/MultiTransferOnt.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	multiTransferParam := new(MultiTransferParam)
+	err = json.Unmarshal(data, multiTransferParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	var users []*account.Account
+	time.Sleep(1 * time.Second)
+	for _, path := range multiTransferParam.From {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+	}
+	ok := multiTransferOnt(ctx, users, multiTransferParam.To, multiTransferParam.Amount)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
