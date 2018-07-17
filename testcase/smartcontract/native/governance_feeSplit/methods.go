@@ -447,7 +447,7 @@ func transferPenaltyMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 	return true
 }
 
-func multiTransferOnt(ctx *testframework.TestFrameworkContext, from []*account.Account, to []string, amount []uint64) bool {
+func multiTransfer(ctx *testframework.TestFrameworkContext, contract common.Address, from []*account.Account, to []string, amount []uint64) bool {
 	var sts []*ont.State
 	if len(from) != len(to) || len(from) != len(amount) {
 		ctx.LogError("input length error")
@@ -468,7 +468,7 @@ func multiTransferOnt(ctx *testframework.TestFrameworkContext, from []*account.A
 	transfers := &ont.Transfers{
 		States: sts,
 	}
-	contractAddress := utils.OntContractAddress
+	contractAddress := contract
 	method := "transfer"
 	tx, err := ctx.Ont.Rpc.NewNativeInvokeTransaction(ctx.GetGasPrice(), ctx.GetGasLimit(), OntIDVersion, contractAddress, method, []interface{}{transfers})
 	if err != nil {
