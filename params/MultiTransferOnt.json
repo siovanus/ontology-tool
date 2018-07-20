@@ -1,0 +1,5 @@
+{
+  "FromPath": ["wallets/peer1/wallet.dat","wallets/peer2/wallet.dat"],
+  "ToAddress": ["AQs2BmzzFVk7pQPfTQQi9CTEz43ejSyBnt","AKBSRLbFNvUrWEGtKxNTpe2ZdkepQjYKfM"],
+  "Amount": [100,100]
+}

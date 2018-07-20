@@ -84,6 +84,7 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("GetSplitCurve", GetSplitCurve)
 	testframework.TFramework.RegTestCase("GetGovernanceView", GetGovernanceView)
 	testframework.TFramework.RegTestCase("GetPeerPoolItem", GetPeerPoolItem)
+	testframework.TFramework.RegTestCase("GetPeerPoolMap", GetPeerPoolMap)
 	testframework.TFramework.RegTestCase("GetVoteInfo", GetVoteInfo)
 	testframework.TFramework.RegTestCase("GetTotalStake", GetTotalStake)
 	testframework.TFramework.RegTestCase("GetPenaltyStake", GetPenaltyStake)

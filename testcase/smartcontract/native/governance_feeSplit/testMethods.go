@@ -31,7 +31,6 @@ import (
 	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/account"
 	"github.com/ontio/ontology/common"
-	"github.com/ontio/ontology/consensus/vbft"
 	"github.com/ontio/ontology/consensus/vbft/config"
 	"github.com/ontio/ontology/core/types"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
@@ -833,6 +832,25 @@ func GetPeerPoolItem(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
+func GetPeerPoolMap(ctx *testframework.TestFrameworkContext) bool {
+	peerPoolMap, err := getPeerPoolMap(ctx)
+	if err != nil {
+		ctx.LogError("getPeerPoolMap failed %v", err)
+		return false
+	}
+
+	for _ , v := range peerPoolMap.PeerPoolMap {
+		fmt.Println("###########################################")
+		fmt.Println("peerPoolItem.Index is:", v.Index)
+		fmt.Println("peerPoolItem.PeerPubkey is:", v.PeerPubkey)
+		fmt.Println("peerPoolItem.Address is:", v.Address.ToBase58())
+		fmt.Println("peerPoolItem.Status is:", v.Status)
+		fmt.Println("peerPoolItem.InitPos is:", v.InitPos)
+		fmt.Println("peerPoolItem.TotalPos is:", v.TotalPos)
+	}
+	return true
+}
+
 type GetVoteInfoParam struct {
 	Path       string
 	PeerPubkey string
@@ -1534,21 +1552,6 @@ func GetVbftInfo(ctx *testframework.TestFrameworkContext) bool {
 		fmt.Printf("peerInfo Index: %d, ID:%v\n", p.Index, p.ID)
 	}
 	return true
-}
-func initVbftBlock(block *types.Block) (*vbft.Block, error) {
-	if block == nil {
-		return nil, fmt.Errorf("nil block in initVbftBlock")
-	}
-
-	blkInfo := &vconfig.VbftBlockInfo{}
-	if err := json.Unmarshal(block.Header.ConsensusPayload, blkInfo); err != nil {
-		return nil, fmt.Errorf("unmarshal blockInfo: %s", err)
-	}
-
-	return &vbft.Block{
-		Block: block,
-		Info:  blkInfo,
-	}, nil
 }
 
 type MultiTransferParam struct {

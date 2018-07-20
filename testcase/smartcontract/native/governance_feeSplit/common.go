@@ -19,6 +19,8 @@
 package governance_feeSplit
 
 import (
+	"encoding/json"
+	"fmt"
 	"os/exec"
 	"time"
 
@@ -29,6 +31,9 @@ import (
 	"github.com/ontio/ontology/account"
 	scommon "github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/password"
+	"github.com/ontio/ontology/consensus/vbft"
+	"github.com/ontio/ontology/consensus/vbft/config"
+	"github.com/ontio/ontology/core/types"
 )
 
 func getDefaultAccount(ctx *testframework.TestFrameworkContext) (*account.Account, bool) {
@@ -274,4 +279,47 @@ func checkBalance(ctx *testframework.TestFrameworkContext, user *account.Account
 		return false
 	}
 	return true
+}
+
+func initVbftBlock(block *types.Block) (*vbft.Block, error) {
+	if block == nil {
+		return nil, fmt.Errorf("nil block in initVbftBlock")
+	}
+
+	blkInfo := &vconfig.VbftBlockInfo{}
+	if err := json.Unmarshal(block.Header.ConsensusPayload, blkInfo); err != nil {
+		return nil, fmt.Errorf("unmarshal blockInfo: %s", err)
+	}
+
+	return &vbft.Block{
+		Block: block,
+		Info:  blkInfo,
+	}, nil
+}
+
+func getEvent(ctx *testframework.TestFrameworkContext, txHash scommon.Uint256) bool {
+	_, err := ctx.Ont.Rpc.WaitForGenerateBlock(30*time.Second, 1)
+	if err != nil {
+		ctx.LogError("WaitForGenerateBlock error: %s", err)
+		return false
+	}
+	events, err := ctx.Ont.Rpc.GetSmartContractEvent(txHash)
+	if err != nil {
+		ctx.LogError("GetSmartContractEvent error: %s", err)
+		return false
+	}
+
+	if events.State == 0 {
+		ctx.LogWarn("ontio contract invoke failed, state:0")
+		return false
+	}
+
+	if len(events.Notify) > 0 {
+		states := events.Notify[0].States
+		ctx.LogInfo("result is : %+v", states)
+		return true
+	} else {
+		return false
+	}
+
 }
