@@ -83,7 +83,44 @@ func AssignFuncsToRole(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	ok = assignFuncsToRole(ctx, user)
+	ok = assignFuncsToRole(ctx, user, utils.GovernanceContractAddress, "TrionesCandidatePeerOwner", "registerCandidate")
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+type AssignFuncsToRoleAnyParam struct {
+	Path            string
+	ContractAddress string
+	Role            string
+	Function        string
+}
+
+func AssignFuncsToRoleAny(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/AssignFuncsToRoleAny.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	assignFuncsToRoleAnyParam := new(AssignFuncsToRoleAnyParam)
+	err = json.Unmarshal(data, assignFuncsToRoleAnyParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	time.Sleep(1 * time.Second)
+	user, ok := getAccountByPassword(ctx, assignFuncsToRoleAnyParam.Path)
+	if !ok {
+		return false
+	}
+	contractAddress, err := getAddressByHexString(assignFuncsToRoleAnyParam.ContractAddress)
+	if err != nil {
+		ctx.LogError("getAddressByHexString failed %v", err)
+		return false
+	}
+	ok = assignFuncsToRole(ctx, user, contractAddress, assignFuncsToRoleAnyParam.Role, assignFuncsToRoleAnyParam.Function)
 	if !ok {
 		return false
 	}
@@ -113,7 +150,44 @@ func AssignOntIDsToRole(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	ok = assignOntIDsToRole(ctx, user1, assignOntIDsToRoleParam.Ontid)
+	ok = assignOntIDsToRole(ctx, user1, utils.GovernanceContractAddress, "TrionesCandidatePeerOwner", assignOntIDsToRoleParam.Ontid)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+type AssignOntIDsToRoleAnyParam struct {
+	Path1           string
+	ContractAddress string
+	Role            string
+	Ontid           []string
+}
+
+func AssignOntIDsToRoleAny(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/AssignOntIDsToRoleAny.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	assignOntIDsToRoleAnyParam := new(AssignOntIDsToRoleAnyParam)
+	err = json.Unmarshal(data, assignOntIDsToRoleAnyParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	time.Sleep(1 * time.Second)
+	user1, ok := getAccountByPassword(ctx, assignOntIDsToRoleAnyParam.Path1)
+	if !ok {
+		return false
+	}
+	contractAddress, err := getAddressByHexString(assignOntIDsToRoleAnyParam.ContractAddress)
+	if err != nil {
+		ctx.LogError("getAddressByHexString failed %v", err)
+		return false
+	}
+	ok = assignOntIDsToRole(ctx, user1, contractAddress, assignOntIDsToRoleAnyParam.Role, assignOntIDsToRoleAnyParam.Ontid)
 	if !ok {
 		return false
 	}
@@ -839,7 +913,7 @@ func GetPeerPoolMap(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 
-	for _ , v := range peerPoolMap.PeerPoolMap {
+	for _, v := range peerPoolMap.PeerPoolMap {
 		fmt.Println("###########################################")
 		fmt.Println("peerPoolItem.Index is:", v.Index)
 		fmt.Println("peerPoolItem.PeerPubkey is:", v.PeerPubkey)

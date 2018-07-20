@@ -61,7 +61,9 @@ func TestGovernanceContractError() {
 func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("RegIdWithPublicKey", RegIdWithPublicKey)
 	testframework.TFramework.RegTestCase("AssignFuncsToRole", AssignFuncsToRole)
+	testframework.TFramework.RegTestCase("AssignFuncsToRoleAny", AssignFuncsToRoleAny)
 	testframework.TFramework.RegTestCase("AssignOntIDsToRole", AssignOntIDsToRole)
+	testframework.TFramework.RegTestCase("AssignOntIDsToRoleAny", AssignOntIDsToRoleAny)
 	testframework.TFramework.RegTestCase("RegisterCandidate", RegisterCandidate)
 	testframework.TFramework.RegTestCase("RegisterCandidateMultiSign", RegisterCandidateMultiSign)
 	testframework.TFramework.RegTestCase("UnRegisterCandidate", UnRegisterCandidate)

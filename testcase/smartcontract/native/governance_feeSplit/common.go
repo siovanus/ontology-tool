@@ -34,6 +34,8 @@ import (
 	"github.com/ontio/ontology/consensus/vbft"
 	"github.com/ontio/ontology/consensus/vbft/config"
 	"github.com/ontio/ontology/core/types"
+	"github.com/ontio/ontology/smartcontract/service/native/utils"
+	"encoding/hex"
 )
 
 func getDefaultAccount(ctx *testframework.TestFrameworkContext) (*account.Account, bool) {
@@ -226,14 +228,14 @@ func setupTest(ctx *testframework.TestFrameworkContext, user *account.Account) b
 	}
 	waitForBlock(ctx)
 
-	ok = assignFuncsToRole(ctx, user)
+	ok = assignFuncsToRole(ctx, user, utils.GovernanceContractAddress, "TrionesCandidatePeerOwner", "registerCandidate")
 	if !ok {
 		ctx.LogError("assignFuncsToRole failed!")
 		return false
 	}
 	waitForBlock(ctx)
 
-	ok = assignOntIDsToRole(ctx, user, []string{"did:ont:" + user.Address.ToBase58(), "did:ont:" + user1.Address.ToBase58(), "did:ont:" + user2.Address.ToBase58()})
+	ok = assignOntIDsToRole(ctx, user, utils.GovernanceContractAddress, "TrionesCandidatePeerOwner", []string{"did:ont:" + user.Address.ToBase58(), "did:ont:" + user1.Address.ToBase58(), "did:ont:" + user2.Address.ToBase58()})
 	if !ok {
 		ctx.LogError("assignOntIDsToRole failed!")
 		return false
@@ -322,4 +324,16 @@ func getEvent(ctx *testframework.TestFrameworkContext, txHash scommon.Uint256) b
 		return false
 	}
 
+}
+
+func getAddressByHexString(hexString string) (scommon.Address, error) {
+	contractByte, err := hex.DecodeString(hexString)
+	if err != nil {
+		return scommon.Address{}, fmt.Errorf("hex.DecodeString failed %v", err)
+	}
+	contractAddress, err := scommon.AddressParseFromBytes(scommon.ToArrayReverse(contractByte))
+	if err != nil {
+		return scommon.Address{}, fmt.Errorf("common.AddressParseFromBytes failed %v", err)
+	}
+	return contractAddress, nil
 }

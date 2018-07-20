@@ -633,12 +633,12 @@ func transferFromOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext
 	return true
 }
 
-func assignFuncsToRole(ctx *testframework.TestFrameworkContext, user *account.Account) bool {
+func assignFuncsToRole(ctx *testframework.TestFrameworkContext, user *account.Account, contract common.Address, role string, function string) bool {
 	params := &auth.FuncsToRoleParam{
-		ContractAddr: utils.GovernanceContractAddress,
+		ContractAddr: contract,
 		AdminOntID:   []byte("did:ont:" + user.Address.ToBase58()),
-		Role:         []byte("TrionesCandidatePeerOwner"),
-		FuncNames:    []string{"registerCandidate"},
+		Role:         []byte(role),
+		FuncNames:    []string{function},
 		KeyNo:        1,
 	}
 	method := "assignFuncsToRole"
@@ -652,11 +652,11 @@ func assignFuncsToRole(ctx *testframework.TestFrameworkContext, user *account.Ac
 	return true
 }
 
-func assignOntIDsToRole(ctx *testframework.TestFrameworkContext, user *account.Account, ontids []string) bool {
+func assignOntIDsToRole(ctx *testframework.TestFrameworkContext, user *account.Account, contract common.Address, role string, ontids []string) bool {
 	params := &auth.OntIDsToRoleParam{
-		ContractAddr: utils.GovernanceContractAddress,
+		ContractAddr: contract,
 		AdminOntID:   []byte("did:ont:" + user.Address.ToBase58()),
-		Role:         []byte("TrionesCandidatePeerOwner"),
+		Role:         []byte(role),
 		Persons:      [][]byte{},
 		KeyNo:        1,
 	}
