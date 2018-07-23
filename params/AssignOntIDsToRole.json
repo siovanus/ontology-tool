@@ -1,4 +1,4 @@
 {
-  "Path1": "ontadmin.dat",
-  "Ontid": ["did:ont:ASxWdihrj2YFXKRXNoVLZZghHUDubWTL7v"]
+  "Path1": "wallets/admin/wallet.dat",
+  "Ontid": ["did:ont:AMAx993nE6NEqZjwBssUfopxnnvTdob9ij"]
 }

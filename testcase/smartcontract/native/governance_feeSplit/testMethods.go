@@ -25,8 +25,9 @@ import (
 	"io/ioutil"
 	"math"
 	"time"
-
+	"encoding/base64"
 	"github.com/ontio/ontology-crypto/keypair"
+	s "github.com/ontio/ontology-crypto/signature"
 	"github.com/ontio/ontology-crypto/vrf"
 	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/account"
@@ -35,6 +36,7 @@ import (
 	"github.com/ontio/ontology/core/types"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
+	"github.com/ontio/ontology/common/password"
 )
 
 type Account struct {
@@ -224,6 +226,73 @@ func RegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
 		}
 	}
 	waitForBlock(ctx)
+	return true
+}
+
+type RegisterCandidate2SignParam struct {
+	Key        string
+	Address    string
+	Salt       string
+	Path       string
+	PeerPubkey string
+	InitPos    uint32
+}
+
+func RegisterCandidate2Sign(ctx *testframework.TestFrameworkContext) bool {
+	//"+UADcReBcLq0pn/2Grmz+UJsKl3ryop8pgRVHbQVgTBfT0lho06Svh4eQLSmC93j"
+	//"AG9W6c7nNhaiywcyVPgW9hQKvUYQr5iLvk"
+	//"IfxFV0Fer5LknIyCLP2P2w==2"
+
+	data, err := ioutil.ReadFile("./params/RegisterCandidate2Sign.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	registerCandidate2SignParam := new(RegisterCandidate2SignParam)
+	err = json.Unmarshal(data, registerCandidate2SignParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	key, _ := base64.StdEncoding.DecodeString(registerCandidate2SignParam.Key)
+	salt, _ := base64.StdEncoding.DecodeString(registerCandidate2SignParam.Salt)
+	var res = keypair.ProtectedKey{
+		Alg:     "ECDSA",
+		Address: registerCandidate2SignParam.Address,
+		Key:     key,
+		Salt:    salt,
+		EncAlg:  "aes-256-gcm",
+	}
+	res.Param = make(map[string]string)
+	res.Param["curve"] = "P-256"
+
+	time.Sleep(1*time.Second)
+	pwd, err := password.GetPassword()
+	if err != nil {
+		ctx.LogError("getPassword error:%s", err)
+		return false
+	}
+	pri, err := keypair.DecryptPrivateKey(&res, pwd)
+	if err != nil {
+		ctx.LogError("error: ", err)
+		return false
+	}
+	address, _ := common.AddressFromBase58(registerCandidate2SignParam.Address)
+	account := &account.Account{
+		PrivateKey: pri,
+		PublicKey:  pri.Public(),
+		Address:    address,
+		SigScheme:  s.SHA256withECDSA,
+	}
+	user, ok := getAccountByPassword(ctx, registerCandidate2SignParam.Path)
+	if !ok {
+		return false
+	}
+	ok = registerCandidate2Sign(ctx, account, user, registerCandidate2SignParam.PeerPubkey, registerCandidate2SignParam.InitPos)
+	if !ok {
+		return false
+	}
 	return true
 }
 
