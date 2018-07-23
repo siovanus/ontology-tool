@@ -24,6 +24,7 @@ import (
 	"os/exec"
 	"time"
 
+	"encoding/hex"
 	"github.com/ontio/ontology-crypto/keypair"
 	sdkcom "github.com/ontio/ontology-go-sdk/common"
 	"github.com/ontio/ontology-tool/common"
@@ -35,7 +36,6 @@ import (
 	"github.com/ontio/ontology/consensus/vbft/config"
 	"github.com/ontio/ontology/core/types"
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
-	"encoding/hex"
 )
 
 func getDefaultAccount(ctx *testframework.TestFrameworkContext) (*account.Account, bool) {

@@ -2,5 +2,5 @@
   "Path": "wallets/admin/wallet.dat",
   "ContractAddress": "81cad24cb735a94bd706b7ed9d031ce6c77d8161",
   "Role": "TestAuth",
-  "Function": "Get"
+  "Function": "Put"
 }

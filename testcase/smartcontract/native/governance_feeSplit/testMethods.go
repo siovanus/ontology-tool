@@ -1454,6 +1454,7 @@ func TransferFromOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext
 
 type TransferMultiSignAddressParam struct {
 	Path1   []string
+	PubKeys []string
 	Address []string
 	Amount  []uint64
 }
@@ -1479,9 +1480,18 @@ func TransferOntMultiSignAddress(ctx *testframework.TestFrameworkContext) bool {
 			return false
 		}
 		users = append(users, user)
-		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	time.Sleep(1 * time.Second)
+	for _, v := range transferMultiSignAddressParam.PubKeys {
+		vByte, err := hex.DecodeString(v)
+		if err != nil {
+			ctx.LogError("hex.DecodeString failed %v", err)
+		}
+		k, err := keypair.DeserializePublicKey(vByte)
+		if err != nil {
+			ctx.LogError("keypair.DeserializePublicKey failed %v", err)
+		}
+		pubKeys = append(pubKeys, k)
+	}
 	for index, address := range transferMultiSignAddressParam.Address {
 		addr, err := common.AddressFromBase58(address)
 		if err != nil {
@@ -1518,9 +1528,18 @@ func TransferOngMultiSignAddress(ctx *testframework.TestFrameworkContext) bool {
 			return false
 		}
 		users = append(users, user)
-		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	time.Sleep(1 * time.Second)
+	for _, v := range transferMultiSignAddressParam.PubKeys {
+		vByte, err := hex.DecodeString(v)
+		if err != nil {
+			ctx.LogError("hex.DecodeString failed %v", err)
+		}
+		k, err := keypair.DeserializePublicKey(vByte)
+		if err != nil {
+			ctx.LogError("keypair.DeserializePublicKey failed %v", err)
+		}
+		pubKeys = append(pubKeys, k)
+	}
 	for index, address := range transferMultiSignAddressParam.Address {
 		addr, err := common.AddressFromBase58(address)
 		if err != nil {
