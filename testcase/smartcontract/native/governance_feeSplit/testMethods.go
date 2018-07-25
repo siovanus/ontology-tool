@@ -215,6 +215,7 @@ func RegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
+	time.Sleep(1*time.Second)
 	for i := 0; i < len(registerCandidateParam.PeerPubkey); i++ {
 		user, ok := getAccountByPassword(ctx, registerCandidateParam.Path[i])
 		if !ok {
