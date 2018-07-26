@@ -53,19 +53,20 @@ func registerCandidate2Sign(ctx *testframework.TestFrameworkContext, ontid *acco
 		ctx.LogError("NewNativeInvokeTransaction error")
 		return false
 	}
-	err = ctx.Ont.Rpc.SignToTransaction(tx, ontid)
+	err = ctx.Ont.Rpc.SignToTransaction(tx, user)
 	if err != nil {
 		ctx.LogError("SignToTransaction error")
 		return false
 	}
-	err = ctx.Ont.Rpc.SignToTransaction(tx, user)
+	err = ctx.Ont.Rpc.SignToTransaction(tx, ontid)
 	if err != nil {
 		ctx.LogError("SignToTransaction error")
 		return false
 	}
 	txHash, err := ctx.Ont.Rpc.SendRawTransaction(tx)
 	if err != nil {
-		ctx.LogError("SendRawTransaction error")
+		ctx.LogError("SendRawTransaction error", err)
+		return false
 	}
 	ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true

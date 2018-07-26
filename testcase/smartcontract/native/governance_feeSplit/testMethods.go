@@ -274,7 +274,13 @@ func RegisterCandidate2Sign(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("getPassword error:%s", err)
 		return false
 	}
-	pri, err := keypair.DecryptPrivateKey(&res, pwd)
+	pri, err := keypair.DecryptWithCustomScrypt(&res, pwd, &keypair.ScryptParam{
+		N:     4096,
+		R:     keypair.DEFAULT_R,
+		P:     keypair.DEFAULT_P,
+		DKLen: keypair.DEFAULT_DERIVED_KEY_LENGTH,
+	})
+	//pri, err := keypair.DecryptPrivateKey(&res, pwd)
 	if err != nil {
 		ctx.LogError("error: ", err)
 		return false

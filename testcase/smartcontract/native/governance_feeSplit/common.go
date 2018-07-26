@@ -21,10 +21,10 @@ package governance_feeSplit
 import (
 	"encoding/json"
 	"fmt"
-	"os/exec"
 	"time"
-
 	"encoding/hex"
+	"os/exec"
+
 	"github.com/ontio/ontology-crypto/keypair"
 	sdkcom "github.com/ontio/ontology-go-sdk/common"
 	"github.com/ontio/ontology-tool/common"

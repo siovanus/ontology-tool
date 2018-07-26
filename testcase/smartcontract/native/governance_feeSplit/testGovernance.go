@@ -1106,10 +1106,10 @@ func SimulateUpdateConfig(ctx *testframework.TestFrameworkContext) bool {
 		C:                    2,
 		K:                    7,
 		L:                    112,
-		BlockMsgDelay:        5,
-		HashMsgDelay:         6,
-		PeerHandshakeTimeout: 7,
-		MaxBlockChangeView:   8,
+		BlockMsgDelay:        5000,
+		HashMsgDelay:         5000,
+		PeerHandshakeTimeout: 15,
+		MaxBlockChangeView:   10000,
 	}
 	ok = updateConfig(ctx, user, config)
 	if !ok {
@@ -1122,8 +1122,8 @@ func SimulateUpdateConfig(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("getVbftConfig error :%v", err)
 		return false
 	}
-	if config.L != 112 || config.K != 7 || config.C != 2 || config.N != 7 || config.BlockMsgDelay != 5 || config.HashMsgDelay != 6 ||
-		config.PeerHandshakeTimeout != 7 || config.MaxBlockChangeView != 8 {
+	if config.L != 112 || config.K != 7 || config.C != 2 || config.N != 7 || config.BlockMsgDelay != 5000 || config.HashMsgDelay != 5000 ||
+		config.PeerHandshakeTimeout != 15 || config.MaxBlockChangeView != 10000 {
 		ctx.LogError("config is error")
 		return false
 	}
