@@ -347,7 +347,7 @@ func RegisterCandidateMultiSign(ctx *testframework.TestFrameworkContext) bool {
 
 type UnRegisterCandidateParam struct {
 	Path       string
-	PeerPubkey []string
+	PeerPubkey string
 }
 
 func UnRegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
@@ -362,15 +362,13 @@ func UnRegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	user, ok := getAccount(ctx, unRegisterCandidateParam.Path)
+	user, ok := getAccountByPassword(ctx, unRegisterCandidateParam.Path)
 	if !ok {
 		return false
 	}
-	for i := 0; i < len(unRegisterCandidateParam.PeerPubkey); i++ {
-		ok = unRegisterCandidate(ctx, user, unRegisterCandidateParam.PeerPubkey[i])
-		if !ok {
-			return false
-		}
+	ok = unRegisterCandidate(ctx, user, unRegisterCandidateParam.PeerPubkey)
+	if !ok {
+		return false
 	}
 	waitForBlock(ctx)
 	return true
@@ -522,7 +520,7 @@ func Withdraw(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	user, ok := getAccount(ctx, withdrawParam.Path)
+	user, ok := getAccountByPassword(ctx, withdrawParam.Path)
 	if !ok {
 		return false
 	}
