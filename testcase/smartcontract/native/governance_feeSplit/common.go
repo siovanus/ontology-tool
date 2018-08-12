@@ -19,11 +19,11 @@
 package governance_feeSplit
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"time"
-	"encoding/hex"
 	"os/exec"
+	"time"
 
 	"github.com/ontio/ontology-crypto/keypair"
 	sdkcom "github.com/ontio/ontology-go-sdk/common"
@@ -260,7 +260,7 @@ func setupTest(ctx *testframework.TestFrameworkContext, user *account.Account) b
 		70000,
 		80000,
 	}
-	voteForPeer(ctx, user, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user, peerPubkeyList, posList)
 	waitForBlock(ctx)
 
 	registerCandidate(ctx, user, PEER_PUBKEY, 10000)

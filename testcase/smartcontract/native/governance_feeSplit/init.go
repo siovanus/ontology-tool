@@ -23,7 +23,7 @@ import (
 )
 
 func TestGovernanceContract() {
-	testframework.TFramework.RegTestCase("SimulateVoteForPeerAndWithdraw", SimulateVoteForPeerAndWithdraw)
+	testframework.TFramework.RegTestCase("SimulateAuthorizeForPeerAndWithdraw", SimulateAuthorizeForPeerAndWithdraw)
 	testframework.TFramework.RegTestCase("SimulateRejectCandidate", SimulateRejectCandidate)
 	testframework.TFramework.RegTestCase("SimulateUnConsensusToConsensus", SimulateUnConsensusToConsensus)
 	testframework.TFramework.RegTestCase("SimulateUnConsensusToUnConsensus", SimulateUnConsensusToUnConsensus)
@@ -43,8 +43,8 @@ func TestGovernanceContract() {
 }
 
 func TestGovernanceContractError() {
-	testframework.TFramework.RegTestCase("SimulateUnConsensusVoteForPeerError", SimulateUnConsensusVoteForPeerError)
-	testframework.TFramework.RegTestCase("SimulateConsensusVoteForPeerError", SimulateConsensusVoteForPeerError)
+	testframework.TFramework.RegTestCase("SimulateUnConsensusAuthorizeForPeerError", SimulateUnConsensusAuthorizeForPeerError)
+	testframework.TFramework.RegTestCase("SimulateConsensusAuthorizeForPeerError", SimulateConsensusAuthorizeForPeerError)
 	testframework.TFramework.RegTestCase("SimulateWithDrawError", SimulateWithDrawError)
 	testframework.TFramework.RegTestCase("SimulateRegisterCandidateError", SimulateRegisterCandidateError)
 	testframework.TFramework.RegTestCase("SimulateRejectCandidateError", SimulateRejectCandidateError)
@@ -70,8 +70,9 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("UnRegisterCandidate", UnRegisterCandidate)
 	testframework.TFramework.RegTestCase("ApproveCandidate", ApproveCandidate)
 	testframework.TFramework.RegTestCase("RejectCandidate", RejectCandidate)
-	testframework.TFramework.RegTestCase("VoteForPeer", VoteForPeer)
-	testframework.TFramework.RegTestCase("UnVoteForPeer", UnVoteForPeer)
+	testframework.TFramework.RegTestCase("ChangeAuthorization", ChangeAuthorization)
+	testframework.TFramework.RegTestCase("AuthorizeForPeer", AuthorizeForPeer)
+	testframework.TFramework.RegTestCase("UnAuthorizeForPeer", UnAuthorizeForPeer)
 	testframework.TFramework.RegTestCase("Withdraw", Withdraw)
 	testframework.TFramework.RegTestCase("QuitNode", QuitNode)
 	testframework.TFramework.RegTestCase("BlackNode", BlackNode)
@@ -88,9 +89,10 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("GetGovernanceView", GetGovernanceView)
 	testframework.TFramework.RegTestCase("GetPeerPoolItem", GetPeerPoolItem)
 	testframework.TFramework.RegTestCase("GetPeerPoolMap", GetPeerPoolMap)
-	testframework.TFramework.RegTestCase("GetVoteInfo", GetVoteInfo)
+	testframework.TFramework.RegTestCase("GetAuthorizeInfo", GetAuthorizeInfo)
 	testframework.TFramework.RegTestCase("GetTotalStake", GetTotalStake)
 	testframework.TFramework.RegTestCase("GetPenaltyStake", GetPenaltyStake)
+	testframework.TFramework.RegTestCase("GetAttributes", GetAttributes)
 	testframework.TFramework.RegTestCase("InBlackList", InBlackList)
 	testframework.TFramework.RegTestCase("WithdrawOng", WithdrawOng)
 	testframework.TFramework.RegTestCase("Vrf", Vrf)
@@ -107,4 +109,8 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("TransferOngMultiSignToMultiSign", TransferOngMultiSignToMultiSign)
 	testframework.TFramework.RegTestCase("TransferFromOngMultiSignToMultiSign", TransferFromOngMultiSignToMultiSign)
 	testframework.TFramework.RegTestCase("GetVbftInfo", GetVbftInfo)
+}
+
+func TestGovernanceBatch() {
+	testframework.TFramework.RegTestCase("AuthorizeForPeerBatch", AuthorizeForPeerBatch)
 }

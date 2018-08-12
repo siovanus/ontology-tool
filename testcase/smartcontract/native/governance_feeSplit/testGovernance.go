@@ -29,7 +29,7 @@ const (
 	INIT_ONT    = 1000000
 )
 
-func SimulateVoteForPeerAndWithdraw(ctx *testframework.TestFrameworkContext) bool {
+func SimulateAuthorizeForPeerAndWithdraw(ctx *testframework.TestFrameworkContext) bool {
 	user, ok := getDefaultAccount(ctx)
 	if !ok {
 		return false
@@ -49,9 +49,9 @@ func SimulateVoteForPeerAndWithdraw(ctx *testframework.TestFrameworkContext) boo
 
 	peerPubkeyList := []string{PEER_PUBKEY}
 	posList := []uint32{1000}
-	voteForPeer(ctx, user1, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	posList = []uint32{2000}
-	voteForPeer(ctx, user2, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	//check balance
 	ok = checkBalance(ctx, user1, INIT_ONT-1000)
@@ -83,9 +83,9 @@ func SimulateVoteForPeerAndWithdraw(ctx *testframework.TestFrameworkContext) boo
 	}
 
 	posList = []uint32{1000}
-	unVoteForPeer(ctx, user1, peerPubkeyList, posList)
+	unAuthorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	posList = []uint32{2000}
-	unVoteForPeer(ctx, user2, peerPubkeyList, posList)
+	unAuthorizeForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	//check balance
 	ok = checkBalance(ctx, user1, INIT_ONT-1000)
@@ -209,9 +209,9 @@ func SimulateUnConsensusToConsensus(ctx *testframework.TestFrameworkContext) boo
 
 	peerPubkeyList := []string{PEER_PUBKEY}
 	posList := []uint32{1000}
-	voteForPeer(ctx, user1, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	posList = []uint32{2000}
-	voteForPeer(ctx, user2, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
@@ -230,9 +230,9 @@ func SimulateUnConsensusToConsensus(ctx *testframework.TestFrameworkContext) boo
 
 	//select in consensus
 	posList = []uint32{300000}
-	voteForPeer(ctx, user1, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	posList = []uint32{500}
-	unVoteForPeer(ctx, user2, peerPubkeyList, posList)
+	unAuthorizeForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
@@ -250,23 +250,23 @@ func SimulateUnConsensusToConsensus(ctx *testframework.TestFrameworkContext) boo
 		return false
 	}
 
-	//check voteInfo data
+	//check authorizeInfo data
 	//user1
-	voteInfo, err := getVoteInfo(ctx, PEER_PUBKEY, user1.Address)
+	authorizeInfo, err := getAuthorizeInfo(ctx, PEER_PUBKEY, user1.Address)
 	if err != nil {
-		ctx.LogError("getVoteInfo error :%v", err)
+		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if voteInfo.NewPos != 0 || voteInfo.FreezePos != 0 || voteInfo.ConsensusPos != 301000 {
-		ctx.LogError("voteInfo data for user1 is wrong!")
+	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 0 || authorizeInfo.ConsensusPos != 301000 {
+		ctx.LogError("authorizeInfo data for user1 is wrong!")
 		return false
 	}
 	//user2
-	voteInfo, err = getVoteInfo(ctx, PEER_PUBKEY, user2.Address)
+	authorizeInfo, err = getAuthorizeInfo(ctx, PEER_PUBKEY, user2.Address)
 	if err != nil {
-		ctx.LogError("getVoteInfo error :%v", err)
+		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if voteInfo.NewPos != 0 || voteInfo.FreezePos != 0 || voteInfo.ConsensusPos != 1500 || voteInfo.WithdrawUnfreezePos != 500 {
-		ctx.LogError("voteInfo data for user2 is wrong!")
+	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 0 || authorizeInfo.ConsensusPos != 1500 || authorizeInfo.WithdrawUnfreezePos != 500 {
+		ctx.LogError("authorizeInfo data for user2 is wrong!")
 		return false
 	}
 	return true
@@ -300,14 +300,14 @@ func SimulateRejectCandidate(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("peerPoolItem data is wrong!")
 		return false
 	}
-	//check voteInfo data
+	//check authorizeInfo data
 	//user1
-	voteInfo, err := getVoteInfo(ctx, PEER_PUBKEY2, user1.Address)
+	authorizeInfo, err := getAuthorizeInfo(ctx, PEER_PUBKEY2, user1.Address)
 	if err != nil {
-		ctx.LogError("getVoteInfo error :%v", err)
+		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if voteInfo.WithdrawUnfreezePos != 10000 {
-		ctx.LogError("voteInfo data for user1 is wrong!")
+	if authorizeInfo.WithdrawUnfreezePos != 10000 {
+		ctx.LogError("authorizeInfo data for user1 is wrong!")
 		return false
 	}
 	//check balance
@@ -337,21 +337,21 @@ func SimulateUnConsensusToUnConsensus(ctx *testframework.TestFrameworkContext) b
 	}
 	peerPubkeyList := []string{PEER_PUBKEY}
 	posList := []uint32{1000}
-	voteForPeer(ctx, user1, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	posList = []uint32{2000}
-	voteForPeer(ctx, user2, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	posList = []uint32{500}
-	unVoteForPeer(ctx, user2, peerPubkeyList, posList)
+	unAuthorizeForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
 
 	//select in unconsensus
 	posList = []uint32{500}
-	voteForPeer(ctx, user1, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	posList = []uint32{500}
-	unVoteForPeer(ctx, user2, peerPubkeyList, posList)
+	unAuthorizeForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
@@ -368,23 +368,23 @@ func SimulateUnConsensusToUnConsensus(ctx *testframework.TestFrameworkContext) b
 		return false
 	}
 
-	//check voteInfo data
+	//check authorizeInfo data
 	//user1
-	voteInfo, err := getVoteInfo(ctx, PEER_PUBKEY, user1.Address)
+	authorizeInfo, err := getAuthorizeInfo(ctx, PEER_PUBKEY, user1.Address)
 	if err != nil {
-		ctx.LogError("getVoteInfo error :%v", err)
+		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if voteInfo.NewPos != 0 || voteInfo.FreezePos != 1500 || voteInfo.ConsensusPos != 0 {
-		ctx.LogError("voteInfo data for user1 is wrong!")
+	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 1500 || authorizeInfo.ConsensusPos != 0 {
+		ctx.LogError("authorizeInfo data for user1 is wrong!")
 		return false
 	}
 	//user2
-	voteInfo, err = getVoteInfo(ctx, PEER_PUBKEY, user2.Address)
+	authorizeInfo, err = getAuthorizeInfo(ctx, PEER_PUBKEY, user2.Address)
 	if err != nil {
-		ctx.LogError("getVoteInfo error :%v", err)
+		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if voteInfo.NewPos != 0 || voteInfo.FreezePos != 1000 || voteInfo.ConsensusPos != 0 || voteInfo.WithdrawUnfreezePos != 1000 {
-		ctx.LogError("voteInfo data for user2 is wrong!")
+	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 1000 || authorizeInfo.ConsensusPos != 0 || authorizeInfo.WithdrawUnfreezePos != 1000 {
+		ctx.LogError("authorizeInfo data for user2 is wrong!")
 		return false
 	}
 	return true
@@ -410,16 +410,16 @@ func SimulateConsensusToUnConsensus(ctx *testframework.TestFrameworkContext) boo
 	//select in consensus
 	peerPubkeyList := []string{PEER_PUBKEY}
 	posList := []uint32{300000}
-	voteForPeer(ctx, user1, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
 
 	//select in unconsensus
 	posList = []uint32{299000}
-	unVoteForPeer(ctx, user1, peerPubkeyList, posList)
+	unAuthorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	posList = []uint32{1000}
-	voteForPeer(ctx, user2, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
@@ -436,23 +436,23 @@ func SimulateConsensusToUnConsensus(ctx *testframework.TestFrameworkContext) boo
 		return false
 	}
 
-	//check voteInfo data
+	//check authorizeInfo data
 	//user1
-	voteInfo, err := getVoteInfo(ctx, PEER_PUBKEY, user1.Address)
+	authorizeInfo, err := getAuthorizeInfo(ctx, PEER_PUBKEY, user1.Address)
 	if err != nil {
-		ctx.LogError("getVoteInfo error :%v", err)
+		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if voteInfo.NewPos != 0 || voteInfo.FreezePos != 1000 || voteInfo.ConsensusPos != 0 || voteInfo.WithdrawFreezePos != 299000 {
-		ctx.LogError("voteInfo data for user1 is wrong!")
+	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 1000 || authorizeInfo.ConsensusPos != 0 || authorizeInfo.WithdrawFreezePos != 299000 {
+		ctx.LogError("authorizeInfo data for user1 is wrong!")
 		return false
 	}
 	//user2
-	voteInfo, err = getVoteInfo(ctx, PEER_PUBKEY, user2.Address)
+	authorizeInfo, err = getAuthorizeInfo(ctx, PEER_PUBKEY, user2.Address)
 	if err != nil {
-		ctx.LogError("getVoteInfo error :%v", err)
+		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if voteInfo.NewPos != 0 || voteInfo.FreezePos != 1000 || voteInfo.ConsensusPos != 0 {
-		ctx.LogError("voteInfo data for user2 is wrong!")
+	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 1000 || authorizeInfo.ConsensusPos != 0 {
+		ctx.LogError("authorizeInfo data for user2 is wrong!")
 		return false
 	}
 	return true
@@ -478,16 +478,16 @@ func SimulateConsensusToConsensus(ctx *testframework.TestFrameworkContext) bool 
 	//select in consensus
 	peerPubkeyList := []string{PEER_PUBKEY}
 	posList := []uint32{300000}
-	voteForPeer(ctx, user1, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
 
 	//select in consensus
 	posList = []uint32{100000}
-	unVoteForPeer(ctx, user1, peerPubkeyList, posList)
+	unAuthorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	posList = []uint32{1000}
-	voteForPeer(ctx, user2, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
@@ -504,23 +504,23 @@ func SimulateConsensusToConsensus(ctx *testframework.TestFrameworkContext) bool 
 		return false
 	}
 
-	//check voteInfo data
+	//check authorizeInfo data
 	//user1
-	voteInfo, err := getVoteInfo(ctx, PEER_PUBKEY, user1.Address)
+	authorizeInfo, err := getAuthorizeInfo(ctx, PEER_PUBKEY, user1.Address)
 	if err != nil {
-		ctx.LogError("getVoteInfo error :%v", err)
+		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if voteInfo.NewPos != 0 || voteInfo.FreezePos != 0 || voteInfo.ConsensusPos != 200000 || voteInfo.WithdrawFreezePos != 100000 {
-		ctx.LogError("voteInfo data for user1 is wrong!")
+	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 0 || authorizeInfo.ConsensusPos != 200000 || authorizeInfo.WithdrawFreezePos != 100000 {
+		ctx.LogError("authorizeInfo data for user1 is wrong!")
 		return false
 	}
 	//user2
-	voteInfo, err = getVoteInfo(ctx, PEER_PUBKEY, user2.Address)
+	authorizeInfo, err = getAuthorizeInfo(ctx, PEER_PUBKEY, user2.Address)
 	if err != nil {
-		ctx.LogError("getVoteInfo error :%v", err)
+		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if voteInfo.NewPos != 0 || voteInfo.FreezePos != 0 || voteInfo.ConsensusPos != 1000 {
-		ctx.LogError("voteInfo data for user2 is wrong!")
+	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 0 || authorizeInfo.ConsensusPos != 1000 {
+		ctx.LogError("authorizeInfo data for user2 is wrong!")
 		return false
 	}
 	return true
@@ -538,7 +538,7 @@ func SimulateQuitUnConsensus(ctx *testframework.TestFrameworkContext) bool {
 	//select in unconsensus
 	peerPubkeyList := []string{PEER_PUBKEY}
 	posList := []uint32{1000}
-	voteForPeer(ctx, user, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
@@ -575,12 +575,12 @@ func SimulateQuitUnConsensus(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	//check voteInfo data
+	//check authorizeInfo data
 	//user
-	voteInfo, err := getVoteInfo(ctx, PEER_PUBKEY, user.Address)
-	if voteInfo.WithdrawUnfreezePos != 11000 {
-		fmt.Println(voteInfo.WithdrawUnfreezePos)
-		ctx.LogError("voteInfo of user is error!")
+	authorizeInfo, err := getAuthorizeInfo(ctx, PEER_PUBKEY, user.Address)
+	if authorizeInfo.WithdrawUnfreezePos != 11000 {
+		fmt.Println(authorizeInfo.WithdrawUnfreezePos)
+		ctx.LogError("authorizeInfo of user is error!")
 		return false
 	}
 	return true
@@ -602,14 +602,14 @@ func SimulateQuitConsensus(ctx *testframework.TestFrameworkContext) bool {
 	//select in consensus
 	peerPubkeyList := []string{PEER_PUBKEY}
 	posList := []uint32{300000}
-	voteForPeer(ctx, user1, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
 
 	//quit consensus
 	posList = []uint32{100000}
-	unVoteForPeer(ctx, user1, peerPubkeyList, posList)
+	unAuthorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	quitNode(ctx, user, PEER_PUBKEY)
 	waitForBlock(ctx)
@@ -655,17 +655,17 @@ func SimulateQuitConsensus(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	//check voteInfo data
+	//check authorizeInfo data
 	//user
-	voteInfo, err := getVoteInfo(ctx, PEER_PUBKEY, user.Address)
-	if voteInfo.WithdrawUnfreezePos != 10000 {
-		ctx.LogError("voteInfo of user is error!")
+	authorizeInfo, err := getAuthorizeInfo(ctx, PEER_PUBKEY, user.Address)
+	if authorizeInfo.WithdrawUnfreezePos != 10000 {
+		ctx.LogError("authorizeInfo of user is error!")
 		return false
 	}
 	//user1
-	voteInfo, err = getVoteInfo(ctx, PEER_PUBKEY, user1.Address)
-	if voteInfo.WithdrawUnfreezePos != 300000 {
-		ctx.LogError("voteInfo of user1 is error!")
+	authorizeInfo, err = getAuthorizeInfo(ctx, PEER_PUBKEY, user1.Address)
+	if authorizeInfo.WithdrawUnfreezePos != 300000 {
+		ctx.LogError("authorizeInfo of user1 is error!")
 		return false
 	}
 
@@ -729,7 +729,7 @@ func SimulateBlackConsensusAndWhite(ctx *testframework.TestFrameworkContext) boo
 	//select in consensus
 	peerPubkeyList := []string{PEER_PUBKEY}
 	posList := []uint32{300000}
-	voteForPeer(ctx, user, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
@@ -777,11 +777,11 @@ func SimulateBlackConsensusAndWhite(ctx *testframework.TestFrameworkContext) boo
 	if ok {
 		ctx.LogError("peer quit failed, peerPoolMap is not deleted!")
 	}
-	//check voteInfo data
+	//check authorizeInfo data
 	//user
-	voteInfo, err := getVoteInfo(ctx, PEER_PUBKEY, user.Address)
-	if voteInfo.WithdrawUnfreezePos != 285000 {
-		ctx.LogError("voteInfo of user is error!")
+	authorizeInfo, err := getAuthorizeInfo(ctx, PEER_PUBKEY, user.Address)
+	if authorizeInfo.WithdrawUnfreezePos != 285000 {
+		ctx.LogError("authorizeInfo of user is error!")
 		return false
 	}
 	//check balance
@@ -805,7 +805,7 @@ func SimulateBlackConsensusAndWhite(ctx *testframework.TestFrameworkContext) boo
 		ctx.LogError("getPenaltyStake error :%v", err)
 		return false
 	}
-	if penaltyStake.InitPos != 10000 || penaltyStake.VotePos != (300000-285000) {
+	if penaltyStake.InitPos != 10000 || penaltyStake.AuthorizePos != (300000-285000) {
 		ctx.LogError("penalty stake is error")
 		return false
 	}
@@ -822,11 +822,11 @@ func SimulateBlackConsensusAndWhite(ctx *testframework.TestFrameworkContext) boo
 		ctx.LogError("peer should not in blackList!")
 		return false
 	}
-	//check voteInfo data
+	//check authorizeInfo data
 	//user
-	voteInfo, err = getVoteInfo(ctx, PEER_PUBKEY, user.Address)
-	if voteInfo.WithdrawUnfreezePos != 285000 {
-		ctx.LogError("voteInfo of user is error!")
+	authorizeInfo, err = getAuthorizeInfo(ctx, PEER_PUBKEY, user.Address)
+	if authorizeInfo.WithdrawUnfreezePos != 285000 {
+		ctx.LogError("authorizeInfo of user is error!")
 		return false
 	}
 	ok = checkBalance(ctx, user, 1000000000-2*INIT_ONT-350000-10000-300000)
@@ -849,7 +849,7 @@ func SimulateBlackConsensusAndWhite(ctx *testframework.TestFrameworkContext) boo
 		ctx.LogError("getPenaltyStake error :%v", err)
 		return false
 	}
-	if penaltyStake.InitPos != 10000 || penaltyStake.VotePos != (300000-285000) {
+	if penaltyStake.InitPos != 10000 || penaltyStake.AuthorizePos != (300000-285000) {
 		ctx.LogError("penalty stake is error")
 		return false
 	}
@@ -873,7 +873,7 @@ func SimulateBlackUnConsensusAndWhite(ctx *testframework.TestFrameworkContext) b
 	//select in consensus
 	peerPubkeyList := []string{PEER_PUBKEY}
 	posList := []uint32{1000}
-	voteForPeer(ctx, user1, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
@@ -980,17 +980,17 @@ func SimulateBlackUnConsensusAndWhite(ctx *testframework.TestFrameworkContext) b
 		ctx.LogError("total stake user1 is error")
 		return false
 	}
-	//check voteInfo data
+	//check authorizeInfo data
 	//user
-	voteInfo, err := getVoteInfo(ctx, PEER_PUBKEY, user.Address)
+	authorizeInfo, err := getAuthorizeInfo(ctx, PEER_PUBKEY, user.Address)
 	if err == nil {
-		ctx.LogError("voteInfo of user is error!")
+		ctx.LogError("authorizeInfo of user is error!")
 		return false
 	}
 	//user1
-	voteInfo, err = getVoteInfo(ctx, PEER_PUBKEY, user1.Address)
-	if voteInfo.WithdrawUnfreezePos != 950 {
-		ctx.LogError("voteInfo of user1 is error!")
+	authorizeInfo, err = getAuthorizeInfo(ctx, PEER_PUBKEY, user1.Address)
+	if authorizeInfo.WithdrawUnfreezePos != 950 {
+		ctx.LogError("authorizeInfo of user1 is error!")
 		return false
 	}
 	//check balance
@@ -1008,7 +1008,7 @@ func SimulateBlackUnConsensusAndWhite(ctx *testframework.TestFrameworkContext) b
 		ctx.LogError("getPenaltyStake error :%v", err)
 		return false
 	}
-	if penaltyStake.InitPos != 10000 || penaltyStake.VotePos != 50 {
+	if penaltyStake.InitPos != 10000 || penaltyStake.AuthorizePos != 50 {
 		ctx.LogError("penalty stake is error")
 		return false
 	}
@@ -1045,17 +1045,17 @@ func SimulateBlackUnConsensusAndWhite(ctx *testframework.TestFrameworkContext) b
 		ctx.LogError("total stake user1 is error")
 		return false
 	}
-	//check voteInfo data
+	//check authorizeInfo data
 	//user
-	voteInfo, err = getVoteInfo(ctx, PEER_PUBKEY, user.Address)
+	authorizeInfo, err = getAuthorizeInfo(ctx, PEER_PUBKEY, user.Address)
 	if err == nil {
-		ctx.LogError("voteInfo of user is error!")
+		ctx.LogError("authorizeInfo of user is error!")
 		return false
 	}
 	//user1
-	voteInfo, err = getVoteInfo(ctx, PEER_PUBKEY, user1.Address)
-	if voteInfo.WithdrawUnfreezePos != 950 {
-		ctx.LogError("voteInfo of user1 is error!")
+	authorizeInfo, err = getAuthorizeInfo(ctx, PEER_PUBKEY, user1.Address)
+	if authorizeInfo.WithdrawUnfreezePos != 950 {
+		ctx.LogError("authorizeInfo of user1 is error!")
 		return false
 	}
 	//check balance
@@ -1073,7 +1073,7 @@ func SimulateBlackUnConsensusAndWhite(ctx *testframework.TestFrameworkContext) b
 		ctx.LogError("getPenaltyStake error :%v", err)
 		return false
 	}
-	if penaltyStake.InitPos != 10000 || penaltyStake.VotePos != 50 {
+	if penaltyStake.InitPos != 10000 || penaltyStake.AuthorizePos != 50 {
 		ctx.LogError("penalty stake is error")
 		return false
 	}
@@ -1255,7 +1255,7 @@ func SimulateTransferPenalty(ctx *testframework.TestFrameworkContext) bool {
 	//select in consensus
 	peerPubkeyList := []string{PEER_PUBKEY}
 	posList := []uint32{1000}
-	voteForPeer(ctx, user1, peerPubkeyList, posList)
+	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
@@ -1299,7 +1299,7 @@ func SimulateTransferPenalty(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("getPenaltyStake1 error :%v", err)
 		return false
 	}
-	if penaltyStake.InitPos != 10000 || penaltyStake.VotePos != 50 {
+	if penaltyStake.InitPos != 10000 || penaltyStake.AuthorizePos != 50 {
 		ctx.LogError("penalty stake is error")
 		return false
 	}

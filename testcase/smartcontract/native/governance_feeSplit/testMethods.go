@@ -19,24 +19,24 @@
 package governance_feeSplit
 
 import (
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"math"
-	"time"
-	"encoding/base64"
 	"github.com/ontio/ontology-crypto/keypair"
 	s "github.com/ontio/ontology-crypto/signature"
 	"github.com/ontio/ontology-crypto/vrf"
 	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/account"
 	"github.com/ontio/ontology/common"
+	"github.com/ontio/ontology/common/password"
 	"github.com/ontio/ontology/consensus/vbft/config"
 	"github.com/ontio/ontology/core/types"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
-	"github.com/ontio/ontology/common/password"
+	"io/ioutil"
+	"math"
+	"time"
 )
 
 type Account struct {
@@ -215,7 +215,7 @@ func RegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	time.Sleep(1*time.Second)
+	time.Sleep(1 * time.Second)
 	for i := 0; i < len(registerCandidateParam.PeerPubkey); i++ {
 		user, ok := getAccountByPassword(ctx, registerCandidateParam.Path[i])
 		if !ok {
@@ -268,7 +268,7 @@ func RegisterCandidate2Sign(ctx *testframework.TestFrameworkContext) bool {
 	res.Param = make(map[string]string)
 	res.Param["curve"] = "P-256"
 
-	time.Sleep(1*time.Second)
+	time.Sleep(1 * time.Second)
 	pwd, err := password.GetPassword()
 	if err != nil {
 		ctx.LogError("getPassword error:%s", err)
@@ -448,29 +448,62 @@ func RejectCandidate(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
-type VoteForPeerParam struct {
+type ChangeAuthorizationParam struct {
+	PathList        []string
+	PeerPubkeyList  []string
+	IfAuthorizeList []bool
+}
+
+func ChangeAuthorization(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/ChangeAuthorization.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	changeAuthorizationParam := new(ChangeAuthorizationParam)
+	err = json.Unmarshal(data, changeAuthorizationParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	time.Sleep(1 * time.Second)
+	for index, path := range changeAuthorizationParam.PathList {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		ok = changeAuthorization(ctx, user, changeAuthorizationParam.PeerPubkeyList[index], changeAuthorizationParam.IfAuthorizeList[index])
+		if !ok {
+			return false
+		}
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+type AuthorizeForPeerParam struct {
 	Path           string
 	PeerPubkeyList []string
 	PosList        []uint32
 }
 
-func VoteForPeer(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./params/VoteForPeer.json")
+func AuthorizeForPeer(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/AuthorizeForPeer.json")
 	if err != nil {
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
 	}
-	voteForPeerParam := new(VoteForPeerParam)
-	err = json.Unmarshal(data, voteForPeerParam)
+	authorizeForPeerParam := new(AuthorizeForPeerParam)
+	err = json.Unmarshal(data, authorizeForPeerParam)
 	if err != nil {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	user, ok := getAccount(ctx, voteForPeerParam.Path)
+	user, ok := getAccount(ctx, authorizeForPeerParam.Path)
 	if !ok {
 		return false
 	}
-	ok = voteForPeer(ctx, user, voteForPeerParam.PeerPubkeyList, voteForPeerParam.PosList)
+	ok = authorizeForPeer(ctx, user, authorizeForPeerParam.PeerPubkeyList, authorizeForPeerParam.PosList)
 	if !ok {
 		return false
 	}
@@ -478,23 +511,54 @@ func VoteForPeer(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
-func UnVoteForPeer(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./params/UnVoteForPeer.json")
+type AuthorizeForPeerBatchParam struct {
+	PeerPubkey string
+	Pos        uint32
+}
+
+func AuthorizeForPeerBatch(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/AuthorizeForPeerBatch.json")
 	if err != nil {
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
 	}
-	voteForPeerParam := new(VoteForPeerParam)
-	err = json.Unmarshal(data, voteForPeerParam)
+	authorizeForPeerBatchParam := new(AuthorizeForPeerBatchParam)
+	err = json.Unmarshal(data, authorizeForPeerBatchParam)
 	if err != nil {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	user, ok := getAccount(ctx, voteForPeerParam.Path)
+	loop := 200000
+	peerPubkeyList := []string{authorizeForPeerBatchParam.PeerPubkey}
+	posList := []uint32{authorizeForPeerBatchParam.Pos}
+	for i := 0; i < loop; i++ {
+		user := account.NewAccount("123")
+		ok := authorizeForPeer(ctx, user, peerPubkeyList, posList)
+		if !ok {
+			return false
+		}
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+func UnAuthorizeForPeer(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/UnAuthorizeForPeer.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	authorizeForPeerParam := new(AuthorizeForPeerParam)
+	err = json.Unmarshal(data, authorizeForPeerParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	user, ok := getAccount(ctx, authorizeForPeerParam.Path)
 	if !ok {
 		return false
 	}
-	ok = unVoteForPeer(ctx, user, voteForPeerParam.PeerPubkeyList, voteForPeerParam.PosList)
+	ok = unAuthorizeForPeer(ctx, user, authorizeForPeerParam.PeerPubkeyList, authorizeForPeerParam.PosList)
 	if !ok {
 		return false
 	}
@@ -999,42 +1063,42 @@ func GetPeerPoolMap(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
-type GetVoteInfoParam struct {
+type GetAuthorizeInfoParam struct {
 	Path       string
 	PeerPubkey string
 }
 
-func GetVoteInfo(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./params/GetVoteInfo.json")
+func GetAuthorizeInfo(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/GetAuthorizeInfo.json")
 	if err != nil {
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
 	}
-	getVoteInfoParam := new(GetVoteInfoParam)
-	err = json.Unmarshal(data, getVoteInfoParam)
+	getAuthorizeInfoParam := new(GetAuthorizeInfoParam)
+	err = json.Unmarshal(data, getAuthorizeInfoParam)
 	if err != nil {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	user, ok := getAccount(ctx, getVoteInfoParam.Path)
+	user, ok := getAccount(ctx, getAuthorizeInfoParam.Path)
 	if !ok {
 		return false
 	}
 
-	voteInfo, err := getVoteInfo(ctx, getVoteInfoParam.PeerPubkey, user.Address)
+	authorizeInfo, err := getAuthorizeInfo(ctx, getAuthorizeInfoParam.PeerPubkey, user.Address)
 	if err != nil {
-		ctx.LogError("getVoteInfo failed %v", err)
+		ctx.LogError("getAuthorizeInfo failed %v", err)
 		return false
 	}
 
-	fmt.Println("voteInfo.PeerPubkey is:", voteInfo.PeerPubkey)
-	fmt.Println("voteInfo.Address is:", voteInfo.Address.ToBase58())
-	fmt.Println("voteInfo.ConsensusPos is:", voteInfo.ConsensusPos)
-	fmt.Println("voteInfo.FreezePos is:", voteInfo.FreezePos)
-	fmt.Println("voteInfo.NewPos is:", voteInfo.NewPos)
-	fmt.Println("voteInfo.WithdrawPos is:", voteInfo.WithdrawPos)
-	fmt.Println("voteInfo.WithdrawFreezePos is:", voteInfo.WithdrawFreezePos)
-	fmt.Println("voteInfo.WithdrawUnfreezePos is:", voteInfo.WithdrawUnfreezePos)
+	fmt.Println("authorizeInfo.PeerPubkey is:", authorizeInfo.PeerPubkey)
+	fmt.Println("authorizeInfo.Address is:", authorizeInfo.Address.ToBase58())
+	fmt.Println("authorizeInfo.ConsensusPos is:", authorizeInfo.ConsensusPos)
+	fmt.Println("authorizeInfo.FreezePos is:", authorizeInfo.FreezePos)
+	fmt.Println("authorizeInfo.NewPos is:", authorizeInfo.NewPos)
+	fmt.Println("authorizeInfo.WithdrawPos is:", authorizeInfo.WithdrawPos)
+	fmt.Println("authorizeInfo.WithdrawFreezePos is:", authorizeInfo.WithdrawFreezePos)
+	fmt.Println("authorizeInfo.WithdrawUnfreezePos is:", authorizeInfo.WithdrawUnfreezePos)
 	return true
 }
 
@@ -1096,7 +1160,7 @@ func GetPenaltyStake(ctx *testframework.TestFrameworkContext) bool {
 
 	fmt.Println("penaltyStake.PeerPubkey is:", penaltyStake.PeerPubkey)
 	fmt.Println("penaltyStake.InitPos is:", penaltyStake.InitPos)
-	fmt.Println("penaltyStake.VotePos is:", penaltyStake.VotePos)
+	fmt.Println("penaltyStake.AuthorizePos is:", penaltyStake.AuthorizePos)
 	fmt.Println("penaltyStake.TimeOffset is:", penaltyStake.TimeOffset)
 	fmt.Println("penaltyStake.Amount is:", penaltyStake.Amount)
 	return true
@@ -1782,5 +1846,35 @@ func MultiTransferOng(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	waitForBlock(ctx)
+	return true
+}
+
+type GetAttributesParam struct {
+	PeerPubkey string
+}
+
+func GetAttributes(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/GetAttributes.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	getAttributesParam := new(GetAttributesParam)
+	err = json.Unmarshal(data, getAttributesParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	peerAttributes, err := getAttributes(ctx, getAttributesParam.PeerPubkey)
+	if err != nil {
+		ctx.LogError("getAttributes failed %v", err)
+		return false
+	}
+	fmt.Println("peerAttributes.PeerPubkey is:", peerAttributes.PeerPubkey)
+	fmt.Println("peerAttributes.IfAuthorize is:", peerAttributes.IfAuthorize)
+	fmt.Println("peerAttributes.OldPeerCost is:", peerAttributes.OldPeerCost)
+	fmt.Println("peerAttributes.NewPeerCost is:", peerAttributes.NewPeerCost)
+	fmt.Println("peerAttributes.SetCostView is:", peerAttributes.SetCostView)
+
 	return true
 }

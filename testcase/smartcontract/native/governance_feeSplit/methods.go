@@ -187,31 +187,48 @@ func rejectCandidateMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 	return true
 }
 
-func voteForPeer(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkeyList []string, posList []uint32) bool {
-	params := &governance.VoteForPeerParam{
-		Address:        user.Address,
-		PeerPubkeyList: peerPubkeyList,
-		PosList:        posList,
+func changeAuthorization(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkey string, ifAuthorize bool) bool {
+	params := &governance.ChangeAuthorizationParam{
+		Address:     user.Address,
+		PeerPubkey:  peerPubkey,
+		IfAuthorize: ifAuthorize,
 	}
 	contractAddress := utils.GovernanceContractAddress
-	method := "voteForPeer"
-	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	method := "changeAuthorization"
+	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
-	ctx.LogInfo("txHash is :", txHash.ToHexString())
+	//ctx.LogInfo("txHash is :", txHash.ToHexString())
 	return true
 }
 
-func unVoteForPeer(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkeyList []string, posList []uint32) bool {
-	params := &governance.VoteForPeerParam{
+func authorizeForPeer(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkeyList []string, posList []uint32) bool {
+	params := &governance.AuthorizeForPeerParam{
 		Address:        user.Address,
 		PeerPubkeyList: peerPubkeyList,
 		PosList:        posList,
 	}
 	contractAddress := utils.GovernanceContractAddress
-	method := "unVoteForPeer"
+	method := "authorizeForPeer"
+	_, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+		contractAddress, method, []interface{}{params})
+	if err != nil {
+		ctx.LogError("invokeNativeContract error", err)
+	}
+	//ctx.LogInfo("txHash is :", txHash.ToHexString())
+	return true
+}
+
+func unAuthorizeForPeer(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkeyList []string, posList []uint32) bool {
+	params := &governance.AuthorizeForPeerParam{
+		Address:        user.Address,
+		PeerPubkeyList: peerPubkeyList,
+		PosList:        posList,
+	}
+	contractAddress := utils.GovernanceContractAddress
+	method := "unAuthorizePeer"
 	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
@@ -836,22 +853,22 @@ func getPeerPoolMap(ctx *testframework.TestFrameworkContext) (*governance.PeerPo
 	return peerPoolMap, nil
 }
 
-func getVoteInfo(ctx *testframework.TestFrameworkContext, peerPubkey string, address common.Address) (*governance.VoteInfo, error) {
+func getAuthorizeInfo(ctx *testframework.TestFrameworkContext, peerPubkey string, address common.Address) (*governance.AuthorizeInfo, error) {
 	contractAddress := utils.GovernanceContractAddress
 	peerPubkeyPrefix, err := hex.DecodeString(peerPubkey)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "hex.DecodeString, peerPubkey format error!")
 	}
-	voteInfo := new(governance.VoteInfo)
-	key := ConcatKey([]byte(governance.VOTE_INFO_POOL), peerPubkeyPrefix, address[:])
+	authorizeInfo := new(governance.AuthorizeInfo)
+	key := ConcatKey([]byte(governance.AUTHORIZE_INFO_POOL), peerPubkeyPrefix, address[:])
 	value, err := ctx.Ont.Rpc.GetStorage(contractAddress, key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
-	if err := voteInfo.Deserialize(bytes.NewBuffer(value)); err != nil {
-		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize voteInfo error!")
+	if err := authorizeInfo.Deserialize(bytes.NewBuffer(value)); err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize authorizeInfo error!")
 	}
-	return voteInfo, nil
+	return authorizeInfo, nil
 }
 
 func inBlackList(ctx *testframework.TestFrameworkContext, peerPubkey string) (bool, error) {
@@ -901,4 +918,22 @@ func getPenaltyStake(ctx *testframework.TestFrameworkContext, peerPubkey string)
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize penaltyStake error!")
 	}
 	return penaltyStake, nil
+}
+
+func getAttributes(ctx *testframework.TestFrameworkContext, peerPubkey string) (*governance.PeerAttributes, error) {
+	contractAddress := utils.GovernanceContractAddress
+	peerPubkeyPrefix, err := hex.DecodeString(peerPubkey)
+	if err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "hex.DecodeString, peerPubkey format error!")
+	}
+	peerAttributes := new(governance.PeerAttributes)
+	key := ConcatKey([]byte(governance.PEER_ATTRIBUTES), peerPubkeyPrefix)
+	value, err := ctx.Ont.Rpc.GetStorage(contractAddress, key)
+	if err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
+	}
+	if err := peerAttributes.Deserialize(bytes.NewBuffer(value)); err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize peerAttributes error!")
+	}
+	return peerAttributes, nil
 }
