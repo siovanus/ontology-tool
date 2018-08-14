@@ -121,7 +121,7 @@ func SimulateConsensusAuthorizeForPeerError(ctx *testframework.TestFrameworkCont
 	posList := []uint32{1000}
 	unAuthorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	peerPubkeyList = []string{PEER_PUBKEY}
-	posList = []uint32{300000}
+	posList = []uint32{200000}
 	authorizeForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	//check balance
@@ -129,7 +129,7 @@ func SimulateConsensusAuthorizeForPeerError(ctx *testframework.TestFrameworkCont
 	if !ok {
 		return false
 	}
-	ok = checkBalance(ctx, user2, INIT_ONT-300000)
+	ok = checkBalance(ctx, user2, INIT_ONT-200000)
 	if !ok {
 		return false
 	}
@@ -137,7 +137,7 @@ func SimulateConsensusAuthorizeForPeerError(ctx *testframework.TestFrameworkCont
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
 	peerPubkeyList = []string{PEER_PUBKEY}
-	posList = []uint32{200000}
+	posList = []uint32{100000}
 	unAuthorizeForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	//check authorizeInfo data
@@ -147,7 +147,7 @@ func SimulateConsensusAuthorizeForPeerError(ctx *testframework.TestFrameworkCont
 		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
 	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 0 || authorizeInfo.ConsensusPos != 100000 || authorizeInfo.WithdrawUnfreezePos != 0 ||
-		authorizeInfo.WithdrawPos != 200000 || authorizeInfo.WithdrawFreezePos != 0 {
+		authorizeInfo.WithdrawPos != 100000 || authorizeInfo.WithdrawFreezePos != 0 {
 		ctx.LogError("authorizeInfo data for user2 is wrong!")
 		return false
 	}
@@ -165,7 +165,7 @@ func SimulateConsensusAuthorizeForPeerError(ctx *testframework.TestFrameworkCont
 		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
 	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 0 || authorizeInfo.ConsensusPos != 100000 || authorizeInfo.WithdrawUnfreezePos != 0 ||
-		authorizeInfo.WithdrawPos != 0 || authorizeInfo.WithdrawFreezePos != 200000 {
+		authorizeInfo.WithdrawPos != 0 || authorizeInfo.WithdrawFreezePos != 100000 {
 		ctx.LogError("authorizeInfo data for user2 is wrong!")
 		return false
 	}
@@ -187,7 +187,7 @@ func SimulateWithDrawError(ctx *testframework.TestFrameworkContext) bool {
 	}
 
 	peerPubkeyList := []string{PEER_PUBKEY}
-	posList := []uint32{300000}
+	posList := []uint32{200000}
 	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
@@ -201,7 +201,7 @@ func SimulateWithDrawError(ctx *testframework.TestFrameworkContext) bool {
 	withdraw(ctx, user1, peerPubkeyList, withdrawList)
 	waitForBlock(ctx)
 	//check balance
-	ok = checkBalance(ctx, user1, INIT_ONT-300000)
+	ok = checkBalance(ctx, user1, INIT_ONT-200000)
 	if !ok {
 		return false
 	}
@@ -211,7 +211,7 @@ func SimulateWithDrawError(ctx *testframework.TestFrameworkContext) bool {
 	withdraw(ctx, user1, peerPubkeyList, withdrawList)
 	waitForBlock(ctx)
 	//check balance
-	ok = checkBalance(ctx, user1, INIT_ONT-300000)
+	ok = checkBalance(ctx, user1, INIT_ONT-200000)
 	if !ok {
 		return false
 	}
@@ -222,7 +222,7 @@ func SimulateWithDrawError(ctx *testframework.TestFrameworkContext) bool {
 	withdraw(ctx, user1, peerPubkeyList, withdrawList)
 	waitForBlock(ctx)
 	//check balance
-	ok = checkBalance(ctx, user1, INIT_ONT-220000)
+	ok = checkBalance(ctx, user1, INIT_ONT-120000)
 	if !ok {
 		return false
 	}
@@ -231,7 +231,7 @@ func SimulateWithDrawError(ctx *testframework.TestFrameworkContext) bool {
 	withdraw(ctx, user1, peerPubkeyList, withdrawList)
 	waitForBlock(ctx)
 	//check balance
-	ok = checkBalance(ctx, user1, INIT_ONT-220000)
+	ok = checkBalance(ctx, user1, INIT_ONT-120000)
 	if !ok {
 		return false
 	}
@@ -593,7 +593,7 @@ func SimulateTransferPenaltyError(ctx *testframework.TestFrameworkContext) bool 
 		ctx.LogError("getTotalStake error :%v", err)
 		return false
 	}
-	if totalStake.Stake != 350000+10000 {
+	if totalStake.Stake != 10000 {
 		ctx.LogError("total stake user is error")
 		return false
 	}

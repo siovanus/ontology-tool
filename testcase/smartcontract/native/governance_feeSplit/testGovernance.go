@@ -229,7 +229,7 @@ func SimulateUnConsensusToConsensus(ctx *testframework.TestFrameworkContext) boo
 	}
 
 	//select in consensus
-	posList = []uint32{300000}
+	posList = []uint32{100000}
 	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	posList = []uint32{500}
 	unAuthorizeForPeer(ctx, user2, peerPubkeyList, posList)
@@ -244,7 +244,7 @@ func SimulateUnConsensusToConsensus(ctx *testframework.TestFrameworkContext) boo
 		return false
 	}
 	if peerPoolMap.PeerPoolMap[PEER_PUBKEY].Status != governance.ConsensusStatus ||
-		peerPoolMap.PeerPoolMap[PEER_PUBKEY].TotalPos != 302500 {
+		peerPoolMap.PeerPoolMap[PEER_PUBKEY].TotalPos != 102500 {
 		fmt.Println(peerPoolMap.PeerPoolMap[PEER_PUBKEY].TotalPos)
 		ctx.LogError("peerPoolItem data 2 is wrong!")
 		return false
@@ -256,7 +256,7 @@ func SimulateUnConsensusToConsensus(ctx *testframework.TestFrameworkContext) boo
 	if err != nil {
 		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 0 || authorizeInfo.ConsensusPos != 301000 {
+	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 0 || authorizeInfo.ConsensusPos != 101000 {
 		ctx.LogError("authorizeInfo data for user1 is wrong!")
 		return false
 	}
@@ -409,14 +409,14 @@ func SimulateConsensusToUnConsensus(ctx *testframework.TestFrameworkContext) boo
 	}
 	//select in consensus
 	peerPubkeyList := []string{PEER_PUBKEY}
-	posList := []uint32{300000}
+	posList := []uint32{200000}
 	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
 
 	//select in unconsensus
-	posList = []uint32{299000}
+	posList = []uint32{199000}
 	unAuthorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	posList = []uint32{1000}
 	authorizeForPeer(ctx, user2, peerPubkeyList, posList)
@@ -442,7 +442,7 @@ func SimulateConsensusToUnConsensus(ctx *testframework.TestFrameworkContext) boo
 	if err != nil {
 		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 1000 || authorizeInfo.ConsensusPos != 0 || authorizeInfo.WithdrawFreezePos != 299000 {
+	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 1000 || authorizeInfo.ConsensusPos != 0 || authorizeInfo.WithdrawFreezePos != 199000 {
 		ctx.LogError("authorizeInfo data for user1 is wrong!")
 		return false
 	}
@@ -477,7 +477,7 @@ func SimulateConsensusToConsensus(ctx *testframework.TestFrameworkContext) bool 
 	}
 	//select in consensus
 	peerPubkeyList := []string{PEER_PUBKEY}
-	posList := []uint32{300000}
+	posList := []uint32{200000}
 	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
@@ -499,7 +499,7 @@ func SimulateConsensusToConsensus(ctx *testframework.TestFrameworkContext) bool 
 		return false
 	}
 	if peerPoolMap.PeerPoolMap[PEER_PUBKEY].Status != governance.ConsensusStatus ||
-		peerPoolMap.PeerPoolMap[PEER_PUBKEY].TotalPos != 201000 {
+		peerPoolMap.PeerPoolMap[PEER_PUBKEY].TotalPos != 101000 {
 		ctx.LogError("peerPoolItem data is wrong!")
 		return false
 	}
@@ -510,7 +510,7 @@ func SimulateConsensusToConsensus(ctx *testframework.TestFrameworkContext) bool 
 	if err != nil {
 		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 0 || authorizeInfo.ConsensusPos != 200000 || authorizeInfo.WithdrawFreezePos != 100000 {
+	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 0 || authorizeInfo.ConsensusPos != 100000 || authorizeInfo.WithdrawFreezePos != 100000 {
 		ctx.LogError("authorizeInfo data for user1 is wrong!")
 		return false
 	}
@@ -571,7 +571,7 @@ func SimulateQuitUnConsensus(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	//check balance
-	ok = checkBalance(ctx, user, 1000000000-2*INIT_ONT-350000-10000-1000)
+	ok = checkBalance(ctx, user, 1000000000-2*INIT_ONT-10000-1000)
 	if !ok {
 		return false
 	}
@@ -601,7 +601,7 @@ func SimulateQuitConsensus(ctx *testframework.TestFrameworkContext) bool {
 	}
 	//select in consensus
 	peerPubkeyList := []string{PEER_PUBKEY}
-	posList := []uint32{300000}
+	posList := []uint32{200000}
 	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
@@ -651,7 +651,7 @@ func SimulateQuitConsensus(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	//check balance
-	ok = checkBalance(ctx, user1, INIT_ONT-300000)
+	ok = checkBalance(ctx, user1, INIT_ONT-200000)
 	if !ok {
 		return false
 	}
@@ -664,7 +664,7 @@ func SimulateQuitConsensus(ctx *testframework.TestFrameworkContext) bool {
 	}
 	//user1
 	authorizeInfo, err = getAuthorizeInfo(ctx, PEER_PUBKEY, user1.Address)
-	if authorizeInfo.WithdrawUnfreezePos != 300000 {
+	if authorizeInfo.WithdrawUnfreezePos != 200000 {
 		ctx.LogError("authorizeInfo of user1 is error!")
 		return false
 	}
@@ -728,7 +728,7 @@ func SimulateBlackConsensusAndWhite(ctx *testframework.TestFrameworkContext) boo
 
 	//select in consensus
 	peerPubkeyList := []string{PEER_PUBKEY}
-	posList := []uint32{300000}
+	posList := []uint32{200000}
 	authorizeForPeer(ctx, user, peerPubkeyList, posList)
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
@@ -739,7 +739,7 @@ func SimulateBlackConsensusAndWhite(ctx *testframework.TestFrameworkContext) boo
 		ctx.LogError("getTotalStake error :%v", err)
 		return false
 	}
-	if totalStake.Stake != (350000 + 10000 + 300000) {
+	if totalStake.Stake != (10000 + 200000) {
 		ctx.LogError("total stake is error")
 		return false
 	}
@@ -780,12 +780,12 @@ func SimulateBlackConsensusAndWhite(ctx *testframework.TestFrameworkContext) boo
 	//check authorizeInfo data
 	//user
 	authorizeInfo, err := getAuthorizeInfo(ctx, PEER_PUBKEY, user.Address)
-	if authorizeInfo.WithdrawUnfreezePos != 285000 {
+	if authorizeInfo.WithdrawUnfreezePos != 190000 {
 		ctx.LogError("authorizeInfo of user is error!")
 		return false
 	}
 	//check balance
-	ok = checkBalance(ctx, user, 1000000000-2*INIT_ONT-350000-10000-300000)
+	ok = checkBalance(ctx, user, 1000000000-2*INIT_ONT-10000-200000)
 	if !ok {
 		return false
 	}
@@ -795,7 +795,7 @@ func SimulateBlackConsensusAndWhite(ctx *testframework.TestFrameworkContext) boo
 		ctx.LogError("getTotalStake error :%v", err)
 		return false
 	}
-	if totalStake.Stake != 350000+285000 {
+	if totalStake.Stake != 190000 {
 		ctx.LogError("total stake is error")
 		return false
 	}
@@ -805,7 +805,7 @@ func SimulateBlackConsensusAndWhite(ctx *testframework.TestFrameworkContext) boo
 		ctx.LogError("getPenaltyStake error :%v", err)
 		return false
 	}
-	if penaltyStake.InitPos != 10000 || penaltyStake.AuthorizePos != (300000-285000) {
+	if penaltyStake.InitPos != 10000 || penaltyStake.AuthorizePos != (200000-190000) {
 		ctx.LogError("penalty stake is error")
 		return false
 	}
@@ -825,11 +825,11 @@ func SimulateBlackConsensusAndWhite(ctx *testframework.TestFrameworkContext) boo
 	//check authorizeInfo data
 	//user
 	authorizeInfo, err = getAuthorizeInfo(ctx, PEER_PUBKEY, user.Address)
-	if authorizeInfo.WithdrawUnfreezePos != 285000 {
+	if authorizeInfo.WithdrawUnfreezePos != 190000 {
 		ctx.LogError("authorizeInfo of user is error!")
 		return false
 	}
-	ok = checkBalance(ctx, user, 1000000000-2*INIT_ONT-350000-10000-300000)
+	ok = checkBalance(ctx, user, 1000000000-2*INIT_ONT-10000-200000)
 	if !ok {
 		return false
 	}
@@ -839,7 +839,7 @@ func SimulateBlackConsensusAndWhite(ctx *testframework.TestFrameworkContext) boo
 		ctx.LogError("getTotalStake error :%v", err)
 		return false
 	}
-	if totalStake.Stake != 350000+285000 {
+	if totalStake.Stake != 190000 {
 		ctx.LogError("total stake is error")
 		return false
 	}
@@ -849,7 +849,7 @@ func SimulateBlackConsensusAndWhite(ctx *testframework.TestFrameworkContext) boo
 		ctx.LogError("getPenaltyStake error :%v", err)
 		return false
 	}
-	if penaltyStake.InitPos != 10000 || penaltyStake.AuthorizePos != (300000-285000) {
+	if penaltyStake.InitPos != 10000 || penaltyStake.AuthorizePos != (200000-190000) {
 		ctx.LogError("penalty stake is error")
 		return false
 	}
@@ -883,7 +883,7 @@ func SimulateBlackUnConsensusAndWhite(ctx *testframework.TestFrameworkContext) b
 		ctx.LogError("getTotalStake error :%v", err)
 		return false
 	}
-	if totalStake.Stake != 350000+10000 {
+	if totalStake.Stake != 10000 {
 		ctx.LogError("total stake user is error")
 		return false
 	}
@@ -909,7 +909,7 @@ func SimulateBlackUnConsensusAndWhite(ctx *testframework.TestFrameworkContext) b
 		ctx.LogError("getTotalStake error :%v", err)
 		return false
 	}
-	if totalStake.Stake != 350000+10000 {
+	if totalStake.Stake != 10000 {
 		ctx.LogError("total stake user is error")
 		return false
 	}
@@ -967,7 +967,7 @@ func SimulateBlackUnConsensusAndWhite(ctx *testframework.TestFrameworkContext) b
 		ctx.LogError("getTotalStake error :%v", err)
 		return false
 	}
-	if totalStake.Stake != 350000 {
+	if totalStake.Stake != 0 {
 		ctx.LogError("total stake user is error")
 		return false
 	}
@@ -994,7 +994,7 @@ func SimulateBlackUnConsensusAndWhite(ctx *testframework.TestFrameworkContext) b
 		return false
 	}
 	//check balance
-	ok = checkBalance(ctx, user, 1000000000-2*INIT_ONT-350000-10000)
+	ok = checkBalance(ctx, user, 1000000000-2*INIT_ONT-10000)
 	if !ok {
 		return false
 	}
@@ -1032,7 +1032,7 @@ func SimulateBlackUnConsensusAndWhite(ctx *testframework.TestFrameworkContext) b
 		ctx.LogError("getTotalStake error :%v", err)
 		return false
 	}
-	if totalStake.Stake != 350000 {
+	if totalStake.Stake != 0 {
 		ctx.LogError("total stake user is error")
 		return false
 	}
@@ -1059,7 +1059,7 @@ func SimulateBlackUnConsensusAndWhite(ctx *testframework.TestFrameworkContext) b
 		return false
 	}
 	//check balance
-	ok = checkBalance(ctx, user, 1000000000-2*INIT_ONT-350000-10000)
+	ok = checkBalance(ctx, user, 1000000000-2*INIT_ONT-10000)
 	if !ok {
 		return false
 	}
@@ -1265,7 +1265,7 @@ func SimulateTransferPenalty(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("getTotalStake error :%v", err)
 		return false
 	}
-	if totalStake.Stake != 350000+10000 {
+	if totalStake.Stake != 10000 {
 		ctx.LogError("total stake user is error")
 		return false
 	}

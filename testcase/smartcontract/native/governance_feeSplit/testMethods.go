@@ -735,37 +735,6 @@ func CommitDpos(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
-func CallSplit(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./params/CallSplit.json")
-	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
-		return false
-	}
-	multiAccount := new(MultiAccount)
-	err = json.Unmarshal(data, multiAccount)
-	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
-		return false
-	}
-	var users []*account.Account
-	var pubKeys []keypair.PublicKey
-	time.Sleep(1 * time.Second)
-	for _, path := range multiAccount.Path {
-		user, ok := getAccountByPassword(ctx, path)
-		if !ok {
-			return false
-		}
-		users = append(users, user)
-		pubKeys = append(pubKeys, user.PublicKey)
-	}
-	ok := callSplitMultiSign(ctx, pubKeys, users)
-	if !ok {
-		return false
-	}
-	waitForBlock(ctx)
-	return true
-}
-
 type UpdateConfigParam struct {
 	Path                 []string
 	N                    uint32

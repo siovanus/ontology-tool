@@ -22,8 +22,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"os/exec"
 	"time"
+	"os/exec"
 
 	"github.com/ontio/ontology-crypto/keypair"
 	sdkcom "github.com/ontio/ontology-go-sdk/common"
@@ -240,27 +240,6 @@ func setupTest(ctx *testframework.TestFrameworkContext, user *account.Account) b
 		ctx.LogError("assignOntIDsToRole failed!")
 		return false
 	}
-	waitForBlock(ctx)
-
-	peerPubkeyList := []string{
-		"0253ccfd439b29eca0fe90ca7c6eaa1f98572a054aa2d1d56e72ad96c466107a85",
-		"035eb654bad6c6409894b9b42289a43614874c7984bde6b03aaf6fc1d0486d9d45",
-		"0281d198c0dd3737a9c39191bc2d1af7d65a44261a8a64d6ef74d63f27cfb5ed92",
-		"023967bba3060bf8ade06d9bad45d02853f6c623e4d4f52d767eb56df4d364a99f",
-		"038bfc50b0e3f0e5df6d451069065cbfa7ab5d382a5839cce82e0c963edb026e94",
-		"03f1095289e7fddb882f1cb3e158acc1c30d9de606af21c97ba851821e8b6ea535",
-		"0215865baab70607f4a2413a7a9ba95ab2c3c0202d5b7731c6824eef48e899fc90",
-	}
-	posList := []uint32{
-		20000,
-		30000,
-		40000,
-		50000,
-		60000,
-		70000,
-		80000,
-	}
-	authorizeForPeer(ctx, user, peerPubkeyList, posList)
 	waitForBlock(ctx)
 
 	registerCandidate(ctx, user, PEER_PUBKEY, 10000)

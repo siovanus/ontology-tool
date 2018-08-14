@@ -78,7 +78,6 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("BlackNode", BlackNode)
 	testframework.TFramework.RegTestCase("WhiteNode", WhiteNode)
 	testframework.TFramework.RegTestCase("CommitDpos", CommitDpos)
-	testframework.TFramework.RegTestCase("CallSplit", CallSplit)
 	testframework.TFramework.RegTestCase("UpdateConfig", UpdateConfig)
 	testframework.TFramework.RegTestCase("UpdateGlobalParam", UpdateGlobalParam)
 	testframework.TFramework.RegTestCase("UpdateSplitCurve", UpdateSplitCurve)
