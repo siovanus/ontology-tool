@@ -418,6 +418,7 @@ func SimulateConsensusToUnConsensus(ctx *testframework.TestFrameworkContext) boo
 	//select in unconsensus
 	posList = []uint32{199000}
 	unAuthorizeForPeer(ctx, user1, peerPubkeyList, posList)
+	waitForBlock(ctx)
 	posList = []uint32{1000}
 	authorizeForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
@@ -432,6 +433,7 @@ func SimulateConsensusToUnConsensus(ctx *testframework.TestFrameworkContext) boo
 	}
 	if peerPoolMap.PeerPoolMap[PEER_PUBKEY].Status != governance.CandidateStatus ||
 		peerPoolMap.PeerPoolMap[PEER_PUBKEY].TotalPos != 2000 {
+		fmt.Println(peerPoolMap.PeerPoolMap[PEER_PUBKEY].TotalPos)
 		ctx.LogError("peerPoolItem data is wrong!")
 		return false
 	}
