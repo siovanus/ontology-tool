@@ -1847,3 +1847,46 @@ func GetAttributes(ctx *testframework.TestFrameworkContext) bool {
 
 	return true
 }
+
+type GetSplitFeeAddressParam struct {
+	Address string
+}
+
+func GetSplitFeeAddress(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/GetSplitFeeAddress.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	getSplitFeeAddressParam := new(GetSplitFeeAddressParam)
+	err = json.Unmarshal(data, getSplitFeeAddressParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	address, err := common.AddressFromHexString(getSplitFeeAddressParam.Address)
+	if err != nil {
+		ctx.LogError("common.AddressFromHexString failed %v", err)
+		return false
+	}
+	splitFeeAddress, err := getSplitFeeAddress(ctx, address)
+	if err != nil {
+		ctx.LogError("getSplitFeeAddress failed %v", err)
+		return false
+	}
+	fmt.Println("splitFeeAddress.Address is:", splitFeeAddress.Address)
+	fmt.Println("splitFeeAddress.Amount is:", splitFeeAddress.Amount)
+
+	return true
+}
+
+func GetSplitFee(ctx *testframework.TestFrameworkContext) bool {
+	splitFee, err := getSplitFee(ctx)
+	if err != nil {
+		ctx.LogError("getSplitFeeAddress failed %v", err)
+		return false
+	}
+	fmt.Println("splitFee is:", splitFee)
+
+	return true
+}

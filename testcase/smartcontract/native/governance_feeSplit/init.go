@@ -40,6 +40,8 @@ func TestGovernanceContract() {
 	testframework.TFramework.RegTestCase("SimulateTransferPenalty", SimulateTransferPenalty)
 	testframework.TFramework.RegTestCase("SimulateOntIDAndAuth", SimulateOntIDAndAuth)
 	testframework.TFramework.RegTestCase("SimulateUnRegisterCandidate", SimulateUnRegisterCandidate)
+	testframework.TFramework.RegTestCase("SimulateFeeSplit", SimulateFeeSplit)
+	testframework.TFramework.RegTestCase("SimulateFeeSplit2", SimulateFeeSplit2)
 }
 
 func TestGovernanceContractError() {
@@ -92,6 +94,8 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("GetTotalStake", GetTotalStake)
 	testframework.TFramework.RegTestCase("GetPenaltyStake", GetPenaltyStake)
 	testframework.TFramework.RegTestCase("GetAttributes", GetAttributes)
+	testframework.TFramework.RegTestCase("GetSplitFee", GetSplitFee)
+	testframework.TFramework.RegTestCase("GetSplitFeeAddress", GetSplitFeeAddress)
 	testframework.TFramework.RegTestCase("InBlackList", InBlackList)
 	testframework.TFramework.RegTestCase("WithdrawOng", WithdrawOng)
 	testframework.TFramework.RegTestCase("Vrf", Vrf)

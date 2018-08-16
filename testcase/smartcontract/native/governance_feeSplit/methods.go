@@ -9,6 +9,7 @@ import (
 	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/account"
 	"github.com/ontio/ontology/common"
+	"github.com/ontio/ontology/common/serialization"
 	"github.com/ontio/ontology/core/types"
 	"github.com/ontio/ontology/errors"
 	"github.com/ontio/ontology/smartcontract/service/native/auth"
@@ -205,6 +206,23 @@ func changeAuthorization(ctx *testframework.TestFrameworkContext, user *account.
 		ctx.LogError("invokeNativeContract error")
 	}
 	ctx.LogInfo("changeAuthorization txHash is :", txHash.ToHexString())
+	return true
+}
+
+func setPeerCost(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkey string, peerCost uint32) bool {
+	params := &governance.SetPeerCostParam{
+		Address:    user.Address,
+		PeerPubkey: peerPubkey,
+		PeerCost:   peerCost,
+	}
+	contractAddress := utils.GovernanceContractAddress
+	method := "setPeerCost"
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+		contractAddress, method, []interface{}{params})
+	if err != nil {
+		ctx.LogError("invokeNativeContract error")
+	}
+	ctx.LogInfo("setPeerCost txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -459,6 +477,21 @@ func transferPenalty(ctx *testframework.TestFrameworkContext, user *account.Acco
 		ctx.LogError("invokeNativeContract error")
 	}
 	ctx.LogInfo("transferPenalty txHash is :", txHash.ToHexString())
+	return true
+}
+
+func withdrawFee(ctx *testframework.TestFrameworkContext, user *account.Account) bool {
+	params := &governance.WithdrawFeeParam{
+		Address: user.Address,
+	}
+	contractAddress := utils.GovernanceContractAddress
+	method := "withdrawFee"
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+		contractAddress, method, []interface{}{params})
+	if err != nil {
+		ctx.LogError("invokeNativeContract error")
+	}
+	ctx.LogInfo("withdrawFee txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -723,7 +756,6 @@ func regIdWithPublicKey(ctx *testframework.TestFrameworkContext, user *account.A
 		ctx.LogError("invokeNativeContract error")
 	}
 	ctx.LogInfo("RegIDWithPublicKeyParam txHash is :", txHash.ToHexString())
-
 	return true
 }
 
@@ -898,4 +930,32 @@ func getAttributes(ctx *testframework.TestFrameworkContext, peerPubkey string) (
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize peerAttributes error!")
 	}
 	return peerAttributes, nil
+}
+
+func getSplitFeeAddress(ctx *testframework.TestFrameworkContext, address common.Address) (*governance.SplitFeeAddress, error) {
+	contractAddress := utils.GovernanceContractAddress
+	splitFeeAddress := new(governance.SplitFeeAddress)
+	key := ConcatKey([]byte(governance.SPLIT_FEE_ADDRESS), address[:])
+	value, err := ctx.Ont.Rpc.GetStorage(contractAddress, key)
+	if err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
+	}
+	if err := splitFeeAddress.Deserialize(bytes.NewBuffer(value)); err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize splitFeeAddress error!")
+	}
+	return splitFeeAddress, nil
+}
+
+func getSplitFee(ctx *testframework.TestFrameworkContext) (uint64, error) {
+	contractAddress := utils.GovernanceContractAddress
+	key := ConcatKey([]byte(governance.SPLIT_FEE))
+	value, err := ctx.Ont.Rpc.GetStorage(contractAddress, key)
+	if err != nil {
+		return 0, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
+	}
+	splitFee, err := serialization.ReadUint64(bytes.NewBuffer(value))
+	if err != nil {
+		return 0, errors.NewDetailErr(err, errors.ErrNoCode, "serialization.ReadUint64, deserialize splitFee error!")
+	}
+	return splitFee, nil
 }

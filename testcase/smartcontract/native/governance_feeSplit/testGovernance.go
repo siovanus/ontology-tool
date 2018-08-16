@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
+	"github.com/ontio/ontology/smartcontract/service/native/utils"
 )
 
 const (
@@ -1406,5 +1407,198 @@ func SimulateUnRegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
+	return true
+}
+
+func SimulateFeeSplit(ctx *testframework.TestFrameworkContext) bool {
+	user, ok := getDefaultAccount(ctx)
+	if !ok {
+		return false
+	}
+	user1, ok := getAccount1(ctx)
+	if !ok {
+		return false
+	}
+	user2, ok := getAccount2(ctx)
+	if !ok {
+		return false
+	}
+	user3, ok := getAccount3(ctx)
+	if !ok {
+		return false
+	}
+	ok = setupTest(ctx, user)
+	if !ok {
+		return false
+	}
+
+	peerPubkeyList := []string{PEER_PUBKEY}
+	posList := []uint32{2000}
+	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
+	posList = []uint32{1000}
+	authorizeForPeer(ctx, user2, peerPubkeyList, posList)
+	waitForBlock(ctx)
+	commitDpos(ctx, user)
+	waitForBlock(ctx)
+
+	//transfer ong to governance contract
+	_, err := ctx.Ont.Rpc.WithdrawONG(ctx.GetGasPrice(), ctx.GetGasLimit(), user)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Rpc.WithdrawONG error:%s", err)
+		return false
+	}
+	waitForBlock(ctx)
+	_, err = ctx.Ont.Rpc.Transfer(ctx.GetGasPrice(), ctx.GetGasLimit(), "ONG", user, utils.GovernanceContractAddress, 1000000000000)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Rpc.Transfer error:%s", err)
+		return false
+	}
+	waitForBlock(ctx)
+
+	commitDpos(ctx, user)
+	waitForBlock(ctx)
+
+	splitFeeAddress, err := getSplitFeeAddress(ctx, user3.Address)
+	if err != nil {
+		ctx.LogError("getSplitFeeAddress error:%s", err)
+		return false
+	}
+	if splitFeeAddress.Amount != 499999999997 {
+		ctx.LogError("splitFeeAddress error, is not 499999999997")
+	}
+
+	splitFeeAddress, err = getSplitFeeAddress(ctx, user.Address)
+	if err != nil {
+		ctx.LogError("getSplitFeeAddress error:%s", err)
+		return false
+	}
+	if splitFeeAddress.Amount != 500000000000 {
+		ctx.LogError("splitFeeAddress error, is not 500000000000")
+	}
+
+	withdrawFee(ctx, user1)
+	withdrawFee(ctx, user2)
+	withdrawFee(ctx, user3)
+	waitForBlock(ctx)
+
+	ok = checkOngBalance(ctx, user1, 0)
+	if !ok {
+		return false
+	}
+	ok = checkOngBalance(ctx, user2, 0)
+	if !ok {
+		return false
+	}
+	ok = checkOngBalance(ctx, user3, 499999999997)
+	if !ok {
+		return false
+	}
+
+	return true
+}
+
+func SimulateFeeSplit2(ctx *testframework.TestFrameworkContext) bool {
+	user, ok := getDefaultAccount(ctx)
+	if !ok {
+		return false
+	}
+	user1, ok := getAccount1(ctx)
+	if !ok {
+		return false
+	}
+	user2, ok := getAccount2(ctx)
+	if !ok {
+		return false
+	}
+	user3, ok := getAccount3(ctx)
+	if !ok {
+		return false
+	}
+	ok = setupTest(ctx, user)
+	if !ok {
+		return false
+	}
+
+	setPeerCost(ctx, user, PEER_PUBKEY, 10)
+	peerPubkeyList := []string{PEER_PUBKEY}
+	posList := []uint32{2000}
+	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
+	posList = []uint32{1000}
+	authorizeForPeer(ctx, user2, peerPubkeyList, posList)
+	waitForBlock(ctx)
+	commitDpos(ctx, user)
+	waitForBlock(ctx)
+
+	//transfer ong to governance contract
+	_, err := ctx.Ont.Rpc.WithdrawONG(ctx.GetGasPrice(), ctx.GetGasLimit(), user)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Rpc.WithdrawONG error:%s", err)
+		return false
+	}
+	waitForBlock(ctx)
+	_, err = ctx.Ont.Rpc.Transfer(ctx.GetGasPrice(), ctx.GetGasLimit(), "ONG", user, utils.GovernanceContractAddress, 1000000000000)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Rpc.Transfer error:%s", err)
+		return false
+	}
+	waitForBlock(ctx)
+
+	commitDpos(ctx, user)
+	waitForBlock(ctx)
+
+	splitFeeAddress, err := getSplitFeeAddress(ctx, user3.Address)
+	if err != nil {
+		ctx.LogError("getSplitFeeAddress error:%s", err)
+		return false
+	}
+	if splitFeeAddress.Amount != 499999999997 {
+		ctx.LogError("splitFeeAddress error, is not 499999999997")
+	}
+
+	splitFeeAddress, err = getSplitFeeAddress(ctx, user2.Address)
+	if err != nil {
+		ctx.LogError("getSplitFeeAddress error:%s", err)
+		return false
+	}
+	if splitFeeAddress.Amount != 150000000000 {
+		ctx.LogError("splitFeeAddress error, is not 150000000000")
+	}
+
+	splitFeeAddress, err = getSplitFeeAddress(ctx, user1.Address)
+	if err != nil {
+		ctx.LogError("getSplitFeeAddress error:%s", err)
+		return false
+	}
+	if splitFeeAddress.Amount != 300000000000 {
+		ctx.LogError("splitFeeAddress error, is not 300000000000")
+	}
+
+	splitFeeAddress, err = getSplitFeeAddress(ctx, user.Address)
+	if err != nil {
+		ctx.LogError("getSplitFeeAddress error:%s", err)
+		return false
+	}
+	if splitFeeAddress.Amount != 50000000000 {
+		ctx.LogError("splitFeeAddress error, is not 50000000000")
+	}
+
+	withdrawFee(ctx, user1)
+	withdrawFee(ctx, user2)
+	withdrawFee(ctx, user3)
+	waitForBlock(ctx)
+
+	ok = checkOngBalance(ctx, user1, 300000000000)
+	if !ok {
+		return false
+	}
+	ok = checkOngBalance(ctx, user2, 150000000000)
+	if !ok {
+		return false
+	}
+	ok = checkOngBalance(ctx, user3, 499999999997)
+	if !ok {
+		return false
+	}
+
 	return true
 }

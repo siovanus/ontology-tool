@@ -23,6 +23,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
+
 	"os/exec"
 
 	"github.com/ontio/ontology-crypto/keypair"
@@ -257,6 +258,19 @@ func checkBalance(ctx *testframework.TestFrameworkContext, user *account.Account
 	}
 	if userBalance.Ont != balance {
 		ctx.LogError("balance of user is %v, not %v", userBalance.Ont, balance)
+		return false
+	}
+	return true
+}
+
+func checkOngBalance(ctx *testframework.TestFrameworkContext, user *account.Account, balance uint64) bool {
+	userBalance, err := ctx.Ont.Rpc.GetBalance(user.Address)
+	if err != nil {
+		ctx.LogError("Rpc.GetBalance error:%s", err)
+		return false
+	}
+	if userBalance.Ong != balance {
+		ctx.LogError("ong balance of user is %v, not %v", userBalance.Ong, balance)
 		return false
 	}
 	return true
