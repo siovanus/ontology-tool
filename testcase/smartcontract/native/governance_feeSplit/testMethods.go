@@ -1033,7 +1033,7 @@ func GetPeerPoolMap(ctx *testframework.TestFrameworkContext) bool {
 }
 
 type GetAuthorizeInfoParam struct {
-	Path       string
+	Address    string
 	PeerPubkey string
 }
 
@@ -1049,12 +1049,13 @@ func GetAuthorizeInfo(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	user, ok := getAccount(ctx, getAuthorizeInfoParam.Path)
-	if !ok {
+
+	address, err := common.AddressFromBase58(getAuthorizeInfoParam.Address)
+	if err != nil {
+		ctx.LogError("common.AddressFromHexString failed %v", err)
 		return false
 	}
-
-	authorizeInfo, err := getAuthorizeInfo(ctx, getAuthorizeInfoParam.PeerPubkey, user.Address)
+	authorizeInfo, err := getAuthorizeInfo(ctx, getAuthorizeInfoParam.PeerPubkey, address)
 	if err != nil {
 		ctx.LogError("getAuthorizeInfo failed %v", err)
 		return false
