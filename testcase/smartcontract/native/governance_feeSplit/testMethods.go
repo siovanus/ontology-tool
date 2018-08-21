@@ -841,6 +841,47 @@ func UpdateGlobalParam(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
+type UpdateGlobalParamParam2 struct {
+	Path                 []string
+	MinAuthorizePos      uint32
+	CandidateFeeSplitNum uint32
+}
+
+func UpdateGlobalParam2(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/UpdateGlobalParam2.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	updateGlobalParamParam2 := new(UpdateGlobalParamParam2)
+	err = json.Unmarshal(data, updateGlobalParamParam2)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	var users []*account.Account
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, path := range updateGlobalParamParam2.Path {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+		pubKeys = append(pubKeys, user.PublicKey)
+	}
+	globalParam2 := &governance.GlobalParam2{
+		MinAuthorizePos:      updateGlobalParamParam2.MinAuthorizePos,
+		CandidateFeeSplitNum: updateGlobalParamParam2.CandidateFeeSplitNum,
+	}
+	ok := updateGlobalParam2MultiSign(ctx, pubKeys, users, globalParam2)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
+
 type UpdateSplitCurveParam struct {
 	Path []string
 	Yi   []uint32
@@ -952,6 +993,17 @@ func GetGlobalParam(ctx *testframework.TestFrameworkContext) bool {
 	fmt.Println("globalParam.B is:", globalParam.B)
 	fmt.Println("globalParam.Yita is:", globalParam.Yita)
 	fmt.Println("globalParam.Penalty is:", globalParam.Penalty)
+	return true
+}
+
+func GetGlobalParam2(ctx *testframework.TestFrameworkContext) bool {
+	globalParam2, err := getGlobalParam2(ctx)
+	if err != nil {
+		ctx.LogError("getGlobalParam failed %v", err)
+		return false
+	}
+	fmt.Println("globalParam2.MinAuthorizePos is:", globalParam2.MinAuthorizePos)
+	fmt.Println("globalParam2.CandidateFeeSplitNum is:", globalParam2.CandidateFeeSplitNum)
 	return true
 }
 

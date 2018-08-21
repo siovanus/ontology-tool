@@ -440,6 +440,18 @@ func updateGlobalParamMultiSign(ctx *testframework.TestFrameworkContext, pubKeys
 	return true
 }
 
+func updateGlobalParam2MultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, globalParam2 *governance.GlobalParam2) bool {
+	contractAddress := utils.GovernanceContractAddress
+	method := "updateGlobalParam2"
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+		contractAddress, method, []interface{}{globalParam2})
+	if err != nil {
+		ctx.LogError("invokeNativeContract error")
+	}
+	ctx.LogInfo("updateGlobalParam2MultiSign txHash is :", txHash.ToHexString())
+	return true
+}
+
 func updateSplitCurve(ctx *testframework.TestFrameworkContext, user *account.Account, splitCurve *governance.SplitCurve) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateSplitCurve"
@@ -785,6 +797,20 @@ func getGlobalParam(ctx *testframework.TestFrameworkContext) (*governance.Global
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize globalParam error!")
 	}
 	return globalParam, nil
+}
+
+func getGlobalParam2(ctx *testframework.TestFrameworkContext) (*governance.GlobalParam2, error) {
+	contractAddress := utils.GovernanceContractAddress
+	globalParam2 := new(governance.GlobalParam2)
+	key := []byte(governance.GLOBAL_PARAM2)
+	value, err := ctx.Ont.Rpc.GetStorage(contractAddress, key)
+	if err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
+	}
+	if err := globalParam2.Deserialize(bytes.NewBuffer(value)); err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize globalParam error!")
+	}
+	return globalParam2, nil
 }
 
 func getSplitCurve(ctx *testframework.TestFrameworkContext) (*governance.SplitCurve, error) {
