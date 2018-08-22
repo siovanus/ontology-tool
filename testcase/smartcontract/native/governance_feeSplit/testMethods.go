@@ -451,7 +451,7 @@ func RejectCandidate(ctx *testframework.TestFrameworkContext) bool {
 type ChangeAuthorizationParam struct {
 	PathList        []string
 	PeerPubkeyList  []string
-	IfAuthorizeList []bool
+	IfAuthorizeList []uint32
 }
 
 func ChangeAuthorization(ctx *testframework.TestFrameworkContext) bool {
@@ -1104,7 +1104,7 @@ func GetAuthorizeInfo(ctx *testframework.TestFrameworkContext) bool {
 
 	address, err := common.AddressFromBase58(getAuthorizeInfoParam.Address)
 	if err != nil {
-		ctx.LogError("common.AddressFromHexString failed %v", err)
+		ctx.LogError("common.AddressFromBase58 failed %v", err)
 		return false
 	}
 	authorizeInfo, err := getAuthorizeInfo(ctx, getAuthorizeInfoParam.PeerPubkey, address)
@@ -1917,9 +1917,9 @@ func GetSplitFeeAddress(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	address, err := common.AddressFromHexString(getSplitFeeAddressParam.Address)
+	address, err := common.AddressFromBase58(getSplitFeeAddressParam.Address)
 	if err != nil {
-		ctx.LogError("common.AddressFromHexString failed %v", err)
+		ctx.LogError("common.AddressFromBase58 failed %v", err)
 		return false
 	}
 	splitFeeAddress, err := getSplitFeeAddress(ctx, address)

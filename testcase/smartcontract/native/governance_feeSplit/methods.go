@@ -39,7 +39,7 @@ func registerCandidate(ctx *testframework.TestFrameworkContext, user *account.Ac
 	waitForBlock(ctx)
 
 	//let node can be authorized
-	changeAuthorization(ctx, user, peerPubkey, true)
+	changeAuthorization(ctx, user, peerPubkey, 1)
 	return true
 }
 
@@ -192,7 +192,7 @@ func rejectCandidateMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 	return true
 }
 
-func changeAuthorization(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkey string, ifAuthorize bool) bool {
+func changeAuthorization(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkey string, ifAuthorize uint32) bool {
 	params := &governance.ChangeAuthorizationParam{
 		Address:     user.Address,
 		PeerPubkey:  peerPubkey,
