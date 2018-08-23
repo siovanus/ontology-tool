@@ -481,6 +481,39 @@ func ChangeAuthorization(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
+type SetPeerCostParam struct {
+	PathList       []string
+	PeerPubkeyList []string
+	PeerCostList   []uint32
+}
+
+func SetPeerCost(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/SetPeerCost.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	setPeerCostParam := new(SetPeerCostParam)
+	err = json.Unmarshal(data, setPeerCostParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	time.Sleep(1 * time.Second)
+	for index, path := range setPeerCostParam.PathList {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		ok = setPeerCost(ctx, user, setPeerCostParam.PeerPubkeyList[index], setPeerCostParam.PeerCostList[index])
+		if !ok {
+			return false
+		}
+	}
+	waitForBlock(ctx)
+	return true
+}
+
 type AuthorizeForPeerParam struct {
 	Path           string
 	PeerPubkeyList []string

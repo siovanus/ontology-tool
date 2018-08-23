@@ -73,6 +73,7 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("ApproveCandidate", ApproveCandidate)
 	testframework.TFramework.RegTestCase("RejectCandidate", RejectCandidate)
 	testframework.TFramework.RegTestCase("ChangeAuthorization", ChangeAuthorization)
+	testframework.TFramework.RegTestCase("SetPeerCost", SetPeerCost)
 	testframework.TFramework.RegTestCase("AuthorizeForPeer", AuthorizeForPeer)
 	testframework.TFramework.RegTestCase("UnAuthorizeForPeer", UnAuthorizeForPeer)
 	testframework.TFramework.RegTestCase("Withdraw", Withdraw)
