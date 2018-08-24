@@ -23,7 +23,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"time"
-
 	"os/exec"
 
 	"github.com/ontio/ontology-crypto/keypair"

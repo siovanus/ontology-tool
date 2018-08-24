@@ -35,6 +35,7 @@ func TestGovernanceContract() {
 	testframework.TFramework.RegTestCase("SimulateBlackUnConsensusAndWhite", SimulateBlackUnConsensusAndWhite)
 	testframework.TFramework.RegTestCase("SimulateUpdateConfig", SimulateUpdateConfig)
 	testframework.TFramework.RegTestCase("SimulateUpdateGlobalParam", SimulateUpdateGlobalParam)
+	testframework.TFramework.RegTestCase("SimulateUpdateGlobalParam2", SimulateUpdateGlobalParam2)
 	testframework.TFramework.RegTestCase("SimulateUpdateSplitCurve", SimulateUpdateSplitCurve)
 	testframework.TFramework.RegTestCase("SimulateCommitDPosAuth", SimulateCommitDPosAuth)
 	testframework.TFramework.RegTestCase("SimulateTransferPenalty", SimulateTransferPenalty)
@@ -42,6 +43,8 @@ func TestGovernanceContract() {
 	testframework.TFramework.RegTestCase("SimulateUnRegisterCandidate", SimulateUnRegisterCandidate)
 	testframework.TFramework.RegTestCase("SimulateFeeSplit", SimulateFeeSplit)
 	testframework.TFramework.RegTestCase("SimulateFeeSplit2", SimulateFeeSplit2)
+	testframework.TFramework.RegTestCase("SimulateChangeInitPos", SimulateChangeInitPos)
+	testframework.TFramework.RegTestCase("SimulatePromisePos", SimulatePromisePos)
 }
 
 func TestGovernanceContractError() {
@@ -56,8 +59,11 @@ func TestGovernanceContractError() {
 	testframework.TFramework.RegTestCase("SimulateQuitNodeError", SimulateQuitNodeError)
 	testframework.TFramework.RegTestCase("SimulateUpdateConfigError", SimulateUpdateConfigError)
 	testframework.TFramework.RegTestCase("SimulateUpdateGlobalParamError", SimulateUpdateGlobalParamError)
+	testframework.TFramework.RegTestCase("SimulateUpdateGlobalParam2Error", SimulateUpdateGlobalParam2Error)
 	testframework.TFramework.RegTestCase("SimulateTransferPenaltyError", SimulateTransferPenaltyError)
 	testframework.TFramework.RegTestCase("SimulateUnRegisterCandidateError", SimulateUnRegisterCandidateError)
+	testframework.TFramework.RegTestCase("SimulateChangeMaxAuthorizationError", SimulateChangeMaxAuthorizationError)
+	testframework.TFramework.RegTestCase("SimulateSetPeerCostError", SimulateSetPeerCostError)
 }
 
 func TestGovernanceMethods() {
@@ -72,8 +78,10 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("UnRegisterCandidate", UnRegisterCandidate)
 	testframework.TFramework.RegTestCase("ApproveCandidate", ApproveCandidate)
 	testframework.TFramework.RegTestCase("RejectCandidate", RejectCandidate)
-	testframework.TFramework.RegTestCase("ChangeAuthorization", ChangeAuthorization)
+	testframework.TFramework.RegTestCase("ChangeMaxAuthorization", ChangeMaxAuthorization)
 	testframework.TFramework.RegTestCase("SetPeerCost", SetPeerCost)
+	testframework.TFramework.RegTestCase("AddInitPos", AddInitPos)
+	testframework.TFramework.RegTestCase("ReduceInitPos", ReduceInitPos)
 	testframework.TFramework.RegTestCase("AuthorizeForPeer", AuthorizeForPeer)
 	testframework.TFramework.RegTestCase("UnAuthorizeForPeer", UnAuthorizeForPeer)
 	testframework.TFramework.RegTestCase("Withdraw", Withdraw)
@@ -86,6 +94,7 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("UpdateGlobalParam2", UpdateGlobalParam2)
 	testframework.TFramework.RegTestCase("UpdateSplitCurve", UpdateSplitCurve)
 	testframework.TFramework.RegTestCase("TransferPenalty", TransferPenalty)
+	testframework.TFramework.RegTestCase("SetPromisePos", SetPromisePos)
 	testframework.TFramework.RegTestCase("GetVbftConfig", GetVbftConfig)
 	testframework.TFramework.RegTestCase("GetGlobalParam", GetGlobalParam)
 	testframework.TFramework.RegTestCase("GetGlobalParam2", GetGlobalParam2)
@@ -99,6 +108,7 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("GetAttributes", GetAttributes)
 	testframework.TFramework.RegTestCase("GetSplitFee", GetSplitFee)
 	testframework.TFramework.RegTestCase("GetSplitFeeAddress", GetSplitFeeAddress)
+	testframework.TFramework.RegTestCase("GetPromisePos", GetPromisePos)
 	testframework.TFramework.RegTestCase("InBlackList", InBlackList)
 	testframework.TFramework.RegTestCase("WithdrawOng", WithdrawOng)
 	testframework.TFramework.RegTestCase("Vrf", Vrf)

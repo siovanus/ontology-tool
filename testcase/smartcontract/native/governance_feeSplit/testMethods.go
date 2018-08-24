@@ -454,8 +454,8 @@ type ChangeAuthorizationParam struct {
 	IfAuthorizeList []uint32
 }
 
-func ChangeAuthorization(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./params/ChangeAuthorization.json")
+func ChangeMaxAuthorization(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/ChangeMaxAuthorization.json")
 	if err != nil {
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
@@ -472,7 +472,7 @@ func ChangeAuthorization(ctx *testframework.TestFrameworkContext) bool {
 		if !ok {
 			return false
 		}
-		ok = changeAuthorization(ctx, user, changeAuthorizationParam.PeerPubkeyList[index], changeAuthorizationParam.IfAuthorizeList[index])
+		ok = changeMaxAuthorization(ctx, user, changeAuthorizationParam.PeerPubkeyList[index], changeAuthorizationParam.IfAuthorizeList[index])
 		if !ok {
 			return false
 		}
@@ -509,6 +509,68 @@ func SetPeerCost(ctx *testframework.TestFrameworkContext) bool {
 		if !ok {
 			return false
 		}
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+type AddInitPosParam struct {
+	Path       string
+	PeerPubkey string
+	Pos        uint32
+}
+
+func AddInitPos(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/AddInitPos.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	addInitPosParam := new(AddInitPosParam)
+	err = json.Unmarshal(data, addInitPosParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	time.Sleep(1 * time.Second)
+	user, ok := getAccountByPassword(ctx, addInitPosParam.Path)
+	if !ok {
+		return false
+	}
+	ok = addInitPos(ctx, user, addInitPosParam.PeerPubkey, addInitPosParam.Pos)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+type ReduceInitPosParam struct {
+	Path       string
+	PeerPubkey string
+	Pos        uint32
+}
+
+func ReduceInitPos(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/ReduceInitPos.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	reduceInitPosParam := new(ReduceInitPosParam)
+	err = json.Unmarshal(data, reduceInitPosParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	time.Sleep(1 * time.Second)
+	user, ok := getAccountByPassword(ctx, reduceInitPosParam.Path)
+	if !ok {
+		return false
+	}
+	ok = reduceInitPos(ctx, user, reduceInitPosParam.PeerPubkey, reduceInitPosParam.Pos)
+	if !ok {
+		return false
 	}
 	waitForBlock(ctx)
 	return true
@@ -947,6 +1009,47 @@ func UpdateSplitCurve(ctx *testframework.TestFrameworkContext) bool {
 		Yi: updateSplitCurveParam.Yi,
 	}
 	ok := updateSplitCurveMultiSign(ctx, pubKeys, users, splitCurve)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+type SetPromisePosParam struct {
+	Path       []string
+	PeerPubkey string
+	PromisePos uint32
+}
+
+func SetPromisePos(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/SetPromisePos.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	setPromisePosParam := new(SetPromisePosParam)
+	err = json.Unmarshal(data, setPromisePosParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	var users []*account.Account
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, path := range setPromisePosParam.Path {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+		pubKeys = append(pubKeys, user.PublicKey)
+	}
+	promisePos := &governance.PromisePos{
+		PeerPubkey: setPromisePosParam.PeerPubkey,
+		PromisePos: setPromisePosParam.PromisePos,
+	}
+	ok := setPromisePosMultiSign(ctx, pubKeys, users, promisePos)
 	if !ok {
 		return false
 	}
@@ -1926,7 +2029,7 @@ func GetAttributes(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	fmt.Println("peerAttributes.PeerPubkey is:", peerAttributes.PeerPubkey)
-	fmt.Println("peerAttributes.IfAuthorize is:", peerAttributes.IfAuthorize)
+	fmt.Println("peerAttributes.MaxAuthorize is:", peerAttributes.MaxAuthorize)
 	fmt.Println("peerAttributes.OldPeerCost is:", peerAttributes.OldPeerCost)
 	fmt.Println("peerAttributes.NewPeerCost is:", peerAttributes.NewPeerCost)
 	fmt.Println("peerAttributes.SetCostView is:", peerAttributes.SetCostView)
@@ -1973,6 +2076,33 @@ func GetSplitFee(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	fmt.Println("splitFee is:", splitFee)
+
+	return true
+}
+
+type GetPromisePosParam struct {
+	PeerPubkey string
+}
+
+func GetPromisePos(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/GetPromisePos.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	getPromisePosParam := new(GetPromisePosParam)
+	err = json.Unmarshal(data, getPromisePosParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	promisePos, err := getPromisePos(ctx, getPromisePosParam.PeerPubkey)
+	if err != nil {
+		ctx.LogError("getPromisePos failed %v", err)
+		return false
+	}
+	fmt.Println("promisePos.PeerPubkey is:", promisePos.PeerPubkey)
+	fmt.Println("promisePos.PromisePos is:", promisePos.PromisePos)
 
 	return true
 }

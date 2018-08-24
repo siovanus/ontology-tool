@@ -19,6 +19,7 @@ import (
 )
 
 var OntIDVersion = byte(0)
+const PROMISE_POS = 1000000000
 
 func registerCandidate(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkey string, initPos uint32) bool {
 	params := &governance.RegisterCandidateParam{
@@ -39,7 +40,7 @@ func registerCandidate(ctx *testframework.TestFrameworkContext, user *account.Ac
 	waitForBlock(ctx)
 
 	//let node can be authorized
-	changeAuthorization(ctx, user, peerPubkey, 1)
+	changeMaxAuthorization(ctx, user, peerPubkey, PROMISE_POS)
 	return true
 }
 
@@ -192,20 +193,20 @@ func rejectCandidateMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 	return true
 }
 
-func changeAuthorization(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkey string, ifAuthorize uint32) bool {
-	params := &governance.ChangeAuthorizationParam{
-		Address:     user.Address,
-		PeerPubkey:  peerPubkey,
-		IfAuthorize: ifAuthorize,
+func changeMaxAuthorization(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkey string, maxAuthorize uint32) bool {
+	params := &governance.ChangeMaxAuthorizationParam{
+		Address:      user.Address,
+		PeerPubkey:   peerPubkey,
+		MaxAuthorize: maxAuthorize,
 	}
 	contractAddress := utils.GovernanceContractAddress
-	method := "changeAuthorization"
+	method := "changeMaxAuthorization"
 	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error")
 	}
-	ctx.LogInfo("changeAuthorization txHash is :", txHash.ToHexString())
+	ctx.LogInfo("changeMaxAuthorization txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -223,6 +224,40 @@ func setPeerCost(ctx *testframework.TestFrameworkContext, user *account.Account,
 		ctx.LogError("invokeNativeContract error")
 	}
 	ctx.LogInfo("setPeerCost txHash is :", txHash.ToHexString())
+	return true
+}
+
+func addInitPos(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkey string, pos uint32) bool {
+	params := &governance.ChangeInitPosParam{
+		Address:    user.Address,
+		PeerPubkey: peerPubkey,
+		Pos:        pos,
+	}
+	contractAddress := utils.GovernanceContractAddress
+	method := "addInitPos"
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+		contractAddress, method, []interface{}{params})
+	if err != nil {
+		ctx.LogError("invokeNativeContract error")
+	}
+	ctx.LogInfo("addInitPos txHash is :", txHash.ToHexString())
+	return true
+}
+
+func reduceInitPos(ctx *testframework.TestFrameworkContext, user *account.Account, peerPubkey string, pos uint32) bool {
+	params := &governance.ChangeInitPosParam{
+		Address:    user.Address,
+		PeerPubkey: peerPubkey,
+		Pos:        pos,
+	}
+	contractAddress := utils.GovernanceContractAddress
+	method := "reduceInitPos"
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+		contractAddress, method, []interface{}{params})
+	if err != nil {
+		ctx.LogError("invokeNativeContract error")
+	}
+	ctx.LogInfo("reduceInitPos txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -440,6 +475,18 @@ func updateGlobalParamMultiSign(ctx *testframework.TestFrameworkContext, pubKeys
 	return true
 }
 
+func updateGlobalParam2(ctx *testframework.TestFrameworkContext, user *account.Account, globalParam2 *governance.GlobalParam2) bool {
+	contractAddress := utils.GovernanceContractAddress
+	method := "updateGlobalParam2"
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+		contractAddress, method, []interface{}{globalParam2})
+	if err != nil {
+		ctx.LogError("invokeNativeContract error")
+	}
+	ctx.LogInfo("updateGlobalParam2 txHash is :", txHash.ToHexString())
+	return true
+}
+
 func updateGlobalParam2MultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, globalParam2 *governance.GlobalParam2) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateGlobalParam2"
@@ -473,6 +520,30 @@ func updateSplitCurveMultiSign(ctx *testframework.TestFrameworkContext, pubKeys 
 		ctx.LogError("invokeNativeContract error")
 	}
 	ctx.LogInfo("updateSplitCurveMultiSign txHash is :", txHash.ToHexString())
+	return true
+}
+
+func setPromisePos(ctx *testframework.TestFrameworkContext, user *account.Account, promisePos *governance.PromisePos) bool {
+	contractAddress := utils.GovernanceContractAddress
+	method := "setPromisePos"
+	txHash, err := ctx.Ont.Rpc.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+		contractAddress, method, []interface{}{promisePos})
+	if err != nil {
+		ctx.LogError("invokeNativeContract error")
+	}
+	ctx.LogInfo("setPromisePos txHash is :", txHash.ToHexString())
+	return true
+}
+
+func setPromisePosMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, promisePos *governance.PromisePos) bool {
+	contractAddress := utils.GovernanceContractAddress
+	method := "setPromisePos"
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+		contractAddress, method, []interface{}{promisePos})
+	if err != nil {
+		ctx.LogError("invokeNativeContract error")
+	}
+	ctx.LogInfo("setPromisePosMultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -524,7 +595,7 @@ func transferPenaltyMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 }
 
 func multiTransfer(ctx *testframework.TestFrameworkContext, contract common.Address, from []*account.Account, to []string, amount []uint64) bool {
-	var sts []*ont.State
+	var sts []ont.State
 	if len(from) != len(to) || len(from) != len(amount) {
 		ctx.LogError("input length error")
 		return false
@@ -535,13 +606,13 @@ func multiTransfer(ctx *testframework.TestFrameworkContext, contract common.Addr
 			ctx.LogError("common.AddressFromBase58 failed %v", err)
 			return false
 		}
-		sts = append(sts, &ont.State{
+		sts = append(sts, ont.State{
 			From:  from[i].Address,
 			To:    address,
 			Value: amount[i],
 		})
 	}
-	transfers := &ont.Transfers{
+	transfers := ont.Transfers{
 		States: sts,
 	}
 	contractAddress := contract
@@ -566,17 +637,17 @@ func multiTransfer(ctx *testframework.TestFrameworkContext, contract common.Addr
 }
 
 func transferOntMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, address common.Address, amount uint64) bool {
-	var sts []*ont.State
+	var sts []ont.State
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
 	if err != nil {
 		ctx.LogError("types.AddressFromMultiPubKeys error", err)
 	}
-	sts = append(sts, &ont.State{
+	sts = append(sts, ont.State{
 		From:  from,
 		To:    address,
 		Value: amount,
 	})
-	transfers := &ont.Transfers{
+	transfers := ont.Transfers{
 		States: sts,
 	}
 	contractAddress := utils.OntContractAddress
@@ -591,17 +662,17 @@ func transferOntMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []key
 }
 
 func transferOntMultiSignToMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, address common.Address, amount uint64) bool {
-	var sts []*ont.State
+	var sts []ont.State
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
 	if err != nil {
 		ctx.LogError("types.AddressFromMultiPubKeys error", err)
 	}
-	sts = append(sts, &ont.State{
+	sts = append(sts, ont.State{
 		From:  from,
 		To:    address,
 		Value: amount,
 	})
-	transfers := &ont.Transfers{
+	transfers := ont.Transfers{
 		States: sts,
 	}
 	contractAddress := utils.OntContractAddress
@@ -616,17 +687,17 @@ func transferOntMultiSignToMultiSign(ctx *testframework.TestFrameworkContext, pu
 }
 
 func transferOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, address common.Address, amount uint64) bool {
-	var sts []*ont.State
+	var sts []ont.State
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
 	if err != nil {
 		ctx.LogError("types.AddressFromMultiPubKeys error", err)
 	}
-	sts = append(sts, &ont.State{
+	sts = append(sts, ont.State{
 		From:  from,
 		To:    address,
 		Value: amount,
 	})
-	transfers := &ont.Transfers{
+	transfers := ont.Transfers{
 		States: sts,
 	}
 	contractAddress := utils.OngContractAddress
@@ -641,17 +712,17 @@ func transferOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []key
 }
 
 func transferOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*account.Account, address common.Address, amount uint64) bool {
-	var sts []*ont.State
+	var sts []ont.State
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
 	if err != nil {
 		ctx.LogError("types.AddressFromMultiPubKeys error", err)
 	}
-	sts = append(sts, &ont.State{
+	sts = append(sts, ont.State{
 		From:  from,
 		To:    address,
 		Value: amount,
 	})
-	transfers := &ont.Transfers{
+	transfers := ont.Transfers{
 		States: sts,
 	}
 	contractAddress := utils.OngContractAddress
@@ -807,8 +878,10 @@ func getGlobalParam2(ctx *testframework.TestFrameworkContext) (*governance.Globa
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
-	if err := globalParam2.Deserialize(bytes.NewBuffer(value)); err != nil {
-		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize globalParam error!")
+	if len(value) != 0 {
+		if err := globalParam2.Deserialize(bytes.NewBuffer(value)); err != nil {
+			return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize globalParam2 error!")
+		}
 	}
 	return globalParam2, nil
 }
@@ -952,8 +1025,10 @@ func getAttributes(ctx *testframework.TestFrameworkContext, peerPubkey string) (
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
-	if err := peerAttributes.Deserialize(bytes.NewBuffer(value)); err != nil {
-		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize peerAttributes error!")
+	if len(value) != 0 {
+		if err := peerAttributes.Deserialize(bytes.NewBuffer(value)); err != nil {
+			return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize peerAttributes error!")
+		}
 	}
 	return peerAttributes, nil
 }
@@ -984,4 +1059,22 @@ func getSplitFee(ctx *testframework.TestFrameworkContext) (uint64, error) {
 		return 0, errors.NewDetailErr(err, errors.ErrNoCode, "serialization.ReadUint64, deserialize splitFee error!")
 	}
 	return splitFee, nil
+}
+
+func getPromisePos(ctx *testframework.TestFrameworkContext, peerPubkey string) (*governance.PromisePos, error) {
+	contractAddress := utils.GovernanceContractAddress
+	peerPubkeyPrefix, err := hex.DecodeString(peerPubkey)
+	if err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "hex.DecodeString, peerPubkey format error!")
+	}
+	key := ConcatKey([]byte(governance.PROMISE_POS), peerPubkeyPrefix)
+	value, err := ctx.Ont.Rpc.GetStorage(contractAddress, key)
+	if err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
+	}
+	promisePos := new(governance.PromisePos)
+	if err := promisePos.Deserialize(bytes.NewBuffer(value)); err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize promisePos error!")
+	}
+	return promisePos, nil
 }

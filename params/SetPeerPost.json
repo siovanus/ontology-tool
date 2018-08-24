@@ -1,0 +1,5 @@
+{
+  "PathList": ["wallets/peer1/wallet.dat", "wallets/peer1/wallet.dat"],
+  "PeerPubkeyList": ["02de965de4cf08b85f03ab2da0fcf935200facdf663f01c0e635610b53599cf7d2", "037ed3642e1c16fa7a60589abd76c68e0c049e17d80c8629fc09255448b7add26f"],
+  "PeerCostList": [50, 50]
+}

@@ -1202,6 +1202,38 @@ func SimulateUpdateGlobalParam(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
+func SimulateUpdateGlobalParam2(ctx *testframework.TestFrameworkContext) bool {
+	user, ok := getDefaultAccount(ctx)
+	if !ok {
+		return false
+	}
+	ok = setupTest(ctx, user)
+	if !ok {
+		return false
+	}
+
+	globalParam2 := &governance.GlobalParam2{
+		MinAuthorizePos: 1000,
+		CandidateFeeSplitNum: 40,
+	}
+	ok = updateGlobalParam2(ctx, user, globalParam2)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	//check config
+	globalParam2, err := getGlobalParam2(ctx)
+	if err != nil {
+		ctx.LogError("getGlobalParam2 error :%v", err)
+		return false
+	}
+	if globalParam2.MinAuthorizePos != 1000 || globalParam2.CandidateFeeSplitNum != 40 {
+		ctx.LogError("globalParam2 is error")
+		return false
+	}
+	return true
+}
+
 func SimulateUpdateSplitCurve(ctx *testframework.TestFrameworkContext) bool {
 	user, ok := getDefaultAccount(ctx)
 	if !ok {
@@ -1528,6 +1560,8 @@ func SimulateFeeSplit2(ctx *testframework.TestFrameworkContext) bool {
 	waitForBlock(ctx)
 	commitDpos(ctx, user)
 	waitForBlock(ctx)
+	commitDpos(ctx, user)
+	waitForBlock(ctx)
 
 	//transfer ong to governance contract
 	_, err := ctx.Ont.Rpc.WithdrawONG(ctx.GetGasPrice(), ctx.GetGasLimit(), user)
@@ -1552,7 +1586,7 @@ func SimulateFeeSplit2(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	if splitFeeAddress.Amount != 499999999997 {
-		ctx.LogError("splitFeeAddress error, is not 499999999997")
+		ctx.LogError("splitFeeAddress error, is not 499999999997, is %v", splitFeeAddress.Amount)
 	}
 
 	splitFeeAddress, err = getSplitFeeAddress(ctx, user2.Address)
@@ -1561,7 +1595,7 @@ func SimulateFeeSplit2(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	if splitFeeAddress.Amount != 150000000000 {
-		ctx.LogError("splitFeeAddress error, is not 150000000000")
+		ctx.LogError("splitFeeAddress error, is not 150000000000, is %v", splitFeeAddress.Amount)
 	}
 
 	splitFeeAddress, err = getSplitFeeAddress(ctx, user1.Address)
@@ -1570,7 +1604,7 @@ func SimulateFeeSplit2(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	if splitFeeAddress.Amount != 300000000000 {
-		ctx.LogError("splitFeeAddress error, is not 300000000000")
+		ctx.LogError("splitFeeAddress error, is not 300000000000, is %v", splitFeeAddress.Amount)
 	}
 
 	splitFeeAddress, err = getSplitFeeAddress(ctx, user.Address)
@@ -1579,7 +1613,7 @@ func SimulateFeeSplit2(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	if splitFeeAddress.Amount != 50000000000 {
-		ctx.LogError("splitFeeAddress error, is not 50000000000")
+		ctx.LogError("splitFeeAddress error, is not 50000000000, is %v", splitFeeAddress.Amount)
 	}
 
 	withdrawFee(ctx, user1)
@@ -1597,6 +1631,167 @@ func SimulateFeeSplit2(ctx *testframework.TestFrameworkContext) bool {
 	}
 	ok = checkOngBalance(ctx, user3, 499999999997)
 	if !ok {
+		return false
+	}
+
+	return true
+}
+
+func SimulateChangeInitPos(ctx *testframework.TestFrameworkContext) bool {
+	user, ok := getDefaultAccount(ctx)
+	if !ok {
+		return false
+	}
+	user1, ok := getAccount1(ctx)
+	if !ok {
+		return false
+	}
+	ok = setupTest(ctx, user)
+	if !ok {
+		return false
+	}
+
+	reduceInitPos(ctx, user, PEER_PUBKEY, 500)
+	waitForBlock(ctx)
+	//check peerPoolItem data
+	peerPoolMap, err := getPeerPoolMap(ctx)
+	if err != nil {
+		ctx.LogError("getPeerPoolMap error :%v", err)
+		return false
+	}
+	if peerPoolMap.PeerPoolMap[PEER_PUBKEY].InitPos != 10000 {
+		ctx.LogError("reduceInitPos1 should be failed")
+		return false
+	}
+
+	peerPubkeyList := []string{PEER_PUBKEY}
+	posList := []uint32{300000}
+	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
+	waitForBlock(ctx)
+	//check peerPoolItem data
+	peerPoolMap, err = getPeerPoolMap(ctx)
+	if err != nil {
+		ctx.LogError("getPeerPoolMap error :%v", err)
+		return false
+	}
+	if peerPoolMap.PeerPoolMap[PEER_PUBKEY].TotalPos != 0 {
+		ctx.LogError("authorizeForPeer should be failed")
+		return false
+	}
+
+	addInitPos(ctx, user, PEER_PUBKEY, 10000)
+	waitForBlock(ctx)
+	peerPubkeyList = []string{PEER_PUBKEY}
+	posList = []uint32{300000}
+	authorizeForPeer(ctx, user1, peerPubkeyList, posList)
+	waitForBlock(ctx)
+	//check peerPoolItem data
+	peerPoolMap, err = getPeerPoolMap(ctx)
+	if err != nil {
+		ctx.LogError("getPeerPoolMap error :%v", err)
+		return false
+	}
+	if peerPoolMap.PeerPoolMap[PEER_PUBKEY].TotalPos != 300000 {
+		ctx.LogError("authorizeForPeer should be success")
+		return false
+	}
+
+	reduceInitPos(ctx, user, PEER_PUBKEY, 10000)
+	waitForBlock(ctx)
+	//check peerPoolItem data
+	peerPoolMap, err = getPeerPoolMap(ctx)
+	if err != nil {
+		ctx.LogError("getPeerPoolMap error :%v", err)
+		return false
+	}
+	if peerPoolMap.PeerPoolMap[PEER_PUBKEY].InitPos != 20000 {
+		ctx.LogError("reduceInitPos2 should be failed")
+		return false
+	}
+
+	reduceInitPos(ctx, user1, PEER_PUBKEY, 5000)
+	waitForBlock(ctx)
+	//check peerPoolItem data
+	peerPoolMap, err = getPeerPoolMap(ctx)
+	if err != nil {
+		ctx.LogError("getPeerPoolMap error :%v", err)
+		return false
+	}
+	if peerPoolMap.PeerPoolMap[PEER_PUBKEY].InitPos != 20000 {
+		ctx.LogError("reduceInitPos3 should be failed")
+		return false
+	}
+
+	reduceInitPos(ctx, user, PEER_PUBKEY, 5000)
+	waitForBlock(ctx)
+	//check peerPoolItem data
+	peerPoolMap, err = getPeerPoolMap(ctx)
+	if err != nil {
+		ctx.LogError("getPeerPoolMap error :%v", err)
+		return false
+	}
+	if peerPoolMap.PeerPoolMap[PEER_PUBKEY].InitPos != 15000 {
+		ctx.LogError("reduceInitPos3 should be success")
+		return false
+	}
+	return true
+}
+
+func SimulatePromisePos(ctx *testframework.TestFrameworkContext) bool {
+	user, ok := getDefaultAccount(ctx)
+	if !ok {
+		return false
+	}
+	user1, ok := getAccount1(ctx)
+	if !ok {
+		return false
+	}
+	ok = setupTest(ctx, user)
+	if !ok {
+		return false
+	}
+	promisePos := &governance.PromisePos{
+		PeerPubkey: PEER_PUBKEY,
+		PromisePos: 5000,
+	}
+	setPromisePos(ctx, user1, promisePos)
+	waitForBlock(ctx)
+	promisePos, err := getPromisePos(ctx, PEER_PUBKEY)
+	if err != nil {
+		ctx.LogError("getPromisePos error :%v", err)
+		return false
+	}
+	if promisePos.PromisePos != 10000 {
+		ctx.LogError("setPromisePos should be failed")
+		return false
+	}
+
+	promisePos = &governance.PromisePos{
+		PeerPubkey: PEER_PUBKEY,
+		PromisePos: 5000,
+	}
+	setPromisePos(ctx, user, promisePos)
+	waitForBlock(ctx)
+	promisePos, err = getPromisePos(ctx, PEER_PUBKEY)
+	if err != nil {
+		ctx.LogError("getPromisePos error :%v", err)
+		return false
+	}
+	if promisePos.PromisePos != 5000 {
+		ctx.LogError("setPromisePos should be success, promisePos.PromisePos is %v, should be 5000", promisePos.PromisePos)
+		return false
+	}
+
+	reduceInitPos(ctx, user, PEER_PUBKEY, 5000)
+	waitForBlock(ctx)
+	//check peerPoolItem data
+	peerPoolMap, err := getPeerPoolMap(ctx)
+	if err != nil {
+		ctx.LogError("getPeerPoolMap error :%v", err)
+		return false
+	}
+	if peerPoolMap.PeerPoolMap[PEER_PUBKEY].InitPos != 5000 {
+		ctx.LogError("reduceInitPos3 should be success")
 		return false
 	}
 
