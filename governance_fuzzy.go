@@ -372,11 +372,11 @@ func BlockGen(issuer *account.Account) {
 		if err != nil {
 			fmt.Println("getAuthorizeInfo error:", err)
 		}
-		if state["ont"] + authorizeInfo1.ConsensusPos + authorizeInfo1.FreezePos + authorizeInfo1.NewPos + authorizeInfo1.WithdrawPos +
-			authorizeInfo1.WithdrawFreezePos + authorizeInfo1.WithdrawUnfreezePos + authorizeInfo2.ConsensusPos +
-				authorizeInfo2.FreezePos + authorizeInfo2.NewPos + authorizeInfo2.WithdrawPos + authorizeInfo2.WithdrawFreezePos +
-					authorizeInfo2.WithdrawUnfreezePos != uint64(B) {
-						fmt.Println("balance of account is error")
+		if state["ont"]+authorizeInfo1.ConsensusPos+authorizeInfo1.FreezePos+authorizeInfo1.NewPos+authorizeInfo1.WithdrawPos+
+			authorizeInfo1.WithdrawFreezePos+authorizeInfo1.WithdrawUnfreezePos+authorizeInfo2.ConsensusPos+
+			authorizeInfo2.FreezePos+authorizeInfo2.NewPos+authorizeInfo2.WithdrawPos+authorizeInfo2.WithdrawFreezePos+
+			authorizeInfo2.WithdrawUnfreezePos != uint64(B) {
+			fmt.Println("balance of account is error")
 		}
 	}
 	state := getState(issuer.Address)
@@ -397,10 +397,10 @@ func BlockGen(issuer *account.Account) {
 		fmt.Println("getPeerPoolItem error:", err)
 	}
 	fmt.Println(state["ont"])
-	if state["ont"] + authorizeInfo1.WithdrawPos + authorizeInfo1.WithdrawFreezePos + authorizeInfo1.WithdrawUnfreezePos +
-		authorizeInfo2.WithdrawPos + authorizeInfo2.WithdrawFreezePos + authorizeInfo2.WithdrawUnfreezePos + peerPoolItem1.InitPos +
-			peerPoolItem2.InitPos != 900000000 {
-			fmt.Println("balance of issuer is error")
+	if state["ont"]+authorizeInfo1.WithdrawPos+authorizeInfo1.WithdrawFreezePos+authorizeInfo1.WithdrawUnfreezePos+
+		authorizeInfo2.WithdrawPos+authorizeInfo2.WithdrawFreezePos+authorizeInfo2.WithdrawUnfreezePos+peerPoolItem1.InitPos+
+		peerPoolItem2.InitPos != 900000000 {
+		fmt.Println("balance of issuer is error")
 	}
 }
 
@@ -779,8 +779,7 @@ func NewReduceInitPosTransaction(user *account.Account, peerPubkey string, pos u
 }
 
 func NewCommitDposTransaction(user *account.Account, gasPrice, gasLimit uint64) *types.MutableTransaction {
-	params := &governance.ApproveCandidateParam{
-	}
+	params := &governance.ApproveCandidateParam{}
 	contractAddress := utils2.GovernanceContractAddress
 	method := "commitDpos"
 	invokeCode, _ := common2.BuildNativeInvokeCode(contractAddress, 0, method, []interface{}{params})
@@ -899,8 +898,8 @@ func concatKey(args ...[]byte) []byte {
 	return temp
 }
 
-//func initLog() {
-//	//init log module
-//	logLevel := 1
-//	log.InitLog(logLevel, log.PATH, log.Stdout)
-//}
+func initLog() {
+	//init log module
+	logLevel := 1
+	log.InitLog(logLevel, log.PATH, log.Stdout)
+}

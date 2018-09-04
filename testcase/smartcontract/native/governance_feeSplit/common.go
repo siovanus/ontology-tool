@@ -22,14 +22,13 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"time"
 	"os/exec"
+	"time"
 
 	"github.com/ontio/ontology-crypto/keypair"
-	sdkcom "github.com/ontio/ontology-go-sdk/common"
+	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/common"
 	"github.com/ontio/ontology-tool/testframework"
-	"github.com/ontio/ontology/account"
 	scommon "github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/password"
 	"github.com/ontio/ontology/consensus/vbft"
@@ -38,7 +37,7 @@ import (
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
 )
 
-func getDefaultAccount(ctx *testframework.TestFrameworkContext) (*account.Account, bool) {
+func getDefaultAccount(ctx *testframework.TestFrameworkContext) (*sdk.Account, bool) {
 	user, err := ctx.GetDefaultAccount()
 	if err != nil {
 		ctx.LogError("GetDefaultAccount error:%s", err)
@@ -47,7 +46,7 @@ func getDefaultAccount(ctx *testframework.TestFrameworkContext) (*account.Accoun
 	return user, true
 }
 
-func getAccountByPassword(ctx *testframework.TestFrameworkContext, path string) (*account.Account, bool) {
+func getAccountByPassword(ctx *testframework.TestFrameworkContext, path string) (*sdk.Account, bool) {
 	wallet, err := ctx.Ont.OpenWallet(path)
 	if err != nil {
 		ctx.LogError("open wallet error:%s", err)
@@ -66,7 +65,7 @@ func getAccountByPassword(ctx *testframework.TestFrameworkContext, path string) 
 	return user, true
 }
 
-func getAccount(ctx *testframework.TestFrameworkContext, path string) (*account.Account, bool) {
+func getAccount(ctx *testframework.TestFrameworkContext, path string) (*sdk.Account, bool) {
 	wallet, err := ctx.Ont.OpenWallet(path)
 	if err != nil {
 		ctx.LogError("open wallet error:%s", err)
@@ -80,7 +79,7 @@ func getAccount(ctx *testframework.TestFrameworkContext, path string) (*account.
 	return user, true
 }
 
-func getAccount1(ctx *testframework.TestFrameworkContext) (*account.Account, bool) {
+func getAccount1(ctx *testframework.TestFrameworkContext) (*sdk.Account, bool) {
 	wallet, err := ctx.Ont.OpenWallet("./testcase/smartcontract/native/governance_feeSplit/wallet/wallet1.dat")
 	if err != nil {
 		ctx.LogError("open wallet error:%s", err)
@@ -94,7 +93,7 @@ func getAccount1(ctx *testframework.TestFrameworkContext) (*account.Account, boo
 	return user, true
 }
 
-func getAccount2(ctx *testframework.TestFrameworkContext) (*account.Account, bool) {
+func getAccount2(ctx *testframework.TestFrameworkContext) (*sdk.Account, bool) {
 	wallet, err := ctx.Ont.OpenWallet("./testcase/smartcontract/native/governance_feeSplit/wallet/wallet2.dat")
 	if err != nil {
 		ctx.LogError("open wallet error:%s", err)
@@ -108,7 +107,7 @@ func getAccount2(ctx *testframework.TestFrameworkContext) (*account.Account, boo
 	return user, true
 }
 
-func getAccount3(ctx *testframework.TestFrameworkContext) (*account.Account, bool) {
+func getAccount3(ctx *testframework.TestFrameworkContext) (*sdk.Account, bool) {
 	wallet, err := ctx.Ont.OpenWallet("./testcase/smartcontract/native/governance_feeSplit/wallet/wallet3.dat")
 	if err != nil {
 		ctx.LogError("open wallet error:%s", err)
@@ -127,27 +126,27 @@ func invokeNativeContractWithMultiSign(
 	gasPrice,
 	gasLimit uint64,
 	pubKeys []keypair.PublicKey,
-	singers []*account.Account,
+	singers []*sdk.Account,
 	cversion byte,
 	contractAddress scommon.Address,
 	method string,
 	params []interface{},
 ) (scommon.Uint256, error) {
-	tx, err := ctx.Ont.Rpc.NewNativeInvokeTransaction(gasPrice, gasLimit, cversion, contractAddress, method, params)
+	tx, err := ctx.Ont.Native.NewNativeInvokeTransaction(gasPrice, gasLimit, cversion, contractAddress, method, params)
 	if err != nil {
 		return scommon.UINT256_EMPTY, err
 	}
 	for _, singer := range singers {
-		err = sdkcom.MultiSignToTransaction(tx, uint16((5*len(pubKeys)+6)/7), pubKeys, singer)
+		err = ctx.Ont.MultiSignToTransaction(tx, uint16((5*len(pubKeys)+6)/7), pubKeys, singer)
 		if err != nil {
 			return scommon.UINT256_EMPTY, err
 		}
 	}
-	return ctx.Ont.Rpc.SendRawTransaction(tx)
+	return ctx.Ont.SendTransaction(tx)
 }
 
 func waitForBlock(ctx *testframework.TestFrameworkContext) bool {
-	_, err := ctx.Ont.Rpc.WaitForGenerateBlock(30*time.Second, 1)
+	_, err := ctx.Ont.WaitForGenerateBlock(30*time.Second, 1)
 	if err != nil {
 		ctx.LogError("WaitForGenerateBlock error:%s", err)
 		return false
@@ -163,7 +162,7 @@ func ConcatKey(args ...[]byte) []byte {
 	return temp
 }
 
-func setupTest(ctx *testframework.TestFrameworkContext, user *account.Account) bool {
+func setupTest(ctx *testframework.TestFrameworkContext, user *sdk.Account) bool {
 	cmd := exec.Command("/bin/sh", "./testcase/smartcontract/native/governance_feeSplit/clear.sh")
 	err := cmd.Start()
 	if err != nil {
@@ -186,33 +185,33 @@ func setupTest(ctx *testframework.TestFrameworkContext, user *account.Account) b
 		return false
 	}
 
-	_, err = ctx.Ont.Rpc.Transfer(ctx.GetGasPrice(), ctx.GetGasLimit(), "ONT", user, user1.Address, INIT_ONT)
+	_, err = ctx.Ont.Native.Ont.Transfer(ctx.GetGasPrice(), ctx.GetGasLimit(), user, user1.Address, INIT_ONT)
 	if err != nil {
 		ctx.LogError("Rpc.Transfer error:%s", err)
 		return false
 	}
-	_, err = ctx.Ont.Rpc.Transfer(ctx.GetGasPrice(), ctx.GetGasLimit(), "ONT", user, user2.Address, INIT_ONT)
+	_, err = ctx.Ont.Native.Ont.Transfer(ctx.GetGasPrice(), ctx.GetGasLimit(), user, user2.Address, INIT_ONT)
 	if err != nil {
 		ctx.LogError("Rpc.Transfer error:%s", err)
 		return false
 	}
 	waitForBlock(ctx)
-	user1Balance, err := ctx.Ont.Rpc.GetBalance(user1.Address)
+	user1Balance, err := ctx.Ont.Native.Ont.BalanceOf(user1.Address)
 	if err != nil {
 		ctx.LogError("Rpc.GetBalance error:%s", err)
 		return false
 	}
-	if user1Balance.Ont != INIT_ONT {
-		ctx.LogError("balance of user1 %v is error", user1Balance.Ont)
+	if user1Balance != INIT_ONT {
+		ctx.LogError("balance of user1 %v is error", user1Balance)
 		return false
 	}
-	user2Balance, err := ctx.Ont.Rpc.GetBalance(user2.Address)
+	user2Balance, err := ctx.Ont.Native.Ont.BalanceOf(user2.Address)
 	if err != nil {
 		ctx.LogError("Rpc.GetBalance error:%s", err)
 		return false
 	}
-	if user2Balance.Ont != INIT_ONT {
-		ctx.LogError("balance of user2 %v is error", user2Balance.Ont)
+	if user2Balance != INIT_ONT {
+		ctx.LogError("balance of user2 %v is error", user2Balance)
 		return false
 	}
 
@@ -249,27 +248,27 @@ func setupTest(ctx *testframework.TestFrameworkContext, user *account.Account) b
 	return true
 }
 
-func checkBalance(ctx *testframework.TestFrameworkContext, user *account.Account, balance uint64) bool {
-	userBalance, err := ctx.Ont.Rpc.GetBalance(user.Address)
+func checkBalance(ctx *testframework.TestFrameworkContext, user *sdk.Account, balance uint64) bool {
+	userBalance, err := ctx.Ont.Native.Ont.BalanceOf(user.Address)
 	if err != nil {
 		ctx.LogError("Rpc.GetBalance error:%s", err)
 		return false
 	}
-	if userBalance.Ont != balance {
-		ctx.LogError("balance of user is %v, not %v", userBalance.Ont, balance)
+	if userBalance != balance {
+		ctx.LogError("balance of user is %v, not %v", userBalance, balance)
 		return false
 	}
 	return true
 }
 
-func checkOngBalance(ctx *testframework.TestFrameworkContext, user *account.Account, balance uint64) bool {
-	userBalance, err := ctx.Ont.Rpc.GetBalance(user.Address)
+func checkOngBalance(ctx *testframework.TestFrameworkContext, user *sdk.Account, balance uint64) bool {
+	userBalance, err := ctx.Ont.Native.Ong.BalanceOf(user.Address)
 	if err != nil {
 		ctx.LogError("Rpc.GetBalance error:%s", err)
 		return false
 	}
-	if userBalance.Ong != balance {
-		ctx.LogError("ong balance of user is %v, not %v", userBalance.Ong, balance)
+	if userBalance != balance {
+		ctx.LogError("ong balance of user is %v, not %v", userBalance, balance)
 		return false
 	}
 	return true
@@ -292,12 +291,12 @@ func initVbftBlock(block *types.Block) (*vbft.Block, error) {
 }
 
 func getEvent(ctx *testframework.TestFrameworkContext, txHash scommon.Uint256) bool {
-	_, err := ctx.Ont.Rpc.WaitForGenerateBlock(30*time.Second, 1)
+	_, err := ctx.Ont.WaitForGenerateBlock(30*time.Second, 1)
 	if err != nil {
 		ctx.LogError("WaitForGenerateBlock error: %s", err)
 		return false
 	}
-	events, err := ctx.Ont.Rpc.GetSmartContractEvent(txHash)
+	events, err := ctx.Ont.GetSmartContractEvent(txHash.ToHexString())
 	if err != nil {
 		ctx.LogError("GetSmartContractEvent error: %s", err)
 		return false

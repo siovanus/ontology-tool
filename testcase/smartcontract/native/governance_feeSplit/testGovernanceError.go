@@ -19,9 +19,9 @@
 package governance_feeSplit
 
 import (
+	"fmt"
 	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
-	"fmt"
 )
 
 const (
@@ -582,7 +582,7 @@ func SimulateUpdateGlobalParam2Error(ctx *testframework.TestFrameworkContext) bo
 	}
 
 	globalParam2 := &governance.GlobalParam2{
-		MinAuthorizePos: 1000,
+		MinAuthorizePos:      1000,
 		CandidateFeeSplitNum: 40,
 	}
 	ok = updateGlobalParam2(ctx, user1, globalParam2)

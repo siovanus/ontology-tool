@@ -23,20 +23,21 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"math"
+	"time"
+
 	"github.com/ontio/ontology-crypto/keypair"
 	s "github.com/ontio/ontology-crypto/signature"
 	"github.com/ontio/ontology-crypto/vrf"
+	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/testframework"
-	"github.com/ontio/ontology/account"
 	"github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/password"
 	"github.com/ontio/ontology/consensus/vbft/config"
 	"github.com/ontio/ontology/core/types"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
-	"io/ioutil"
-	"math"
-	"time"
 )
 
 type Account struct {
@@ -286,7 +287,7 @@ func RegisterCandidate2Sign(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	address, _ := common.AddressFromBase58(registerCandidate2SignParam.Address)
-	account := &account.Account{
+	account := &sdk.Account{
 		PrivateKey: pri,
 		PublicKey:  pri.Public(),
 		Address:    address,
@@ -300,48 +301,6 @@ func RegisterCandidate2Sign(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	return true
-}
-
-type RegisterCandidateMultiSignParam struct {
-	Path1      []string
-	Path2      string
-	PeerPubkey string
-	InitPos    uint32
-}
-
-func RegisterCandidateMultiSign(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./params/RegisterCandidateMultiSign.json")
-	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
-		return false
-	}
-	registerCandidateMultiSignParam := new(RegisterCandidateMultiSignParam)
-	err = json.Unmarshal(data, registerCandidateMultiSignParam)
-	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
-		return false
-	}
-	var users []*account.Account
-	var pubKeys []keypair.PublicKey
-	time.Sleep(1 * time.Second)
-	for _, path := range registerCandidateMultiSignParam.Path1 {
-		user, ok := getAccountByPassword(ctx, path)
-		if !ok {
-			return false
-		}
-		users = append(users, user)
-		pubKeys = append(pubKeys, user.PublicKey)
-	}
-	user2, ok := getAccountByPassword(ctx, registerCandidateMultiSignParam.Path2)
-	if !ok {
-		return false
-	}
-	ok = registerCandidateMultiSign(ctx, pubKeys, users, user2, registerCandidateMultiSignParam.PeerPubkey, registerCandidateMultiSignParam.InitPos)
-	if !ok {
-		return false
-	}
-	waitForBlock(ctx)
 	return true
 }
 
@@ -391,7 +350,7 @@ func ApproveCandidate(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range approveCandidateParam.Path {
@@ -429,7 +388,7 @@ func RejectCandidate(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range rejectCandidateParam.Path {
@@ -627,7 +586,7 @@ func AuthorizeForPeerBatch(ctx *testframework.TestFrameworkContext) bool {
 	peerPubkeyList := []string{authorizeForPeerBatchParam.PeerPubkey}
 	posList := []uint32{authorizeForPeerBatchParam.Pos}
 	for i := 0; i < loop; i++ {
-		user := account.NewAccount("123")
+		user := ctx.NewAccount()
 		ok := authorizeForPeer(ctx, user, peerPubkeyList, posList)
 		if !ok {
 			return false
@@ -740,7 +699,7 @@ func BlackNode(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range blackNodeParam.Path {
@@ -776,7 +735,7 @@ func WhiteNode(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range whiteNodeParam.Path {
@@ -811,7 +770,7 @@ func CommitDpos(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range multiAccount.Path {
@@ -854,7 +813,7 @@ func UpdateConfig(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range updateConfigParam.Path {
@@ -907,7 +866,7 @@ func UpdateGlobalParam(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range updateGlobalParamParam.Path {
@@ -954,7 +913,7 @@ func UpdateGlobalParam2(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range updateGlobalParamParam2.Path {
@@ -994,7 +953,7 @@ func UpdateSplitCurve(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range updateSplitCurveParam.Path {
@@ -1034,7 +993,7 @@ func SetPromisePos(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range setPromisePosParam.Path {
@@ -1075,7 +1034,7 @@ func TransferPenalty(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferPenaltyParam.Path1 {
@@ -1450,7 +1409,7 @@ func TransferOntMultiSign(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferMultiSignParam.Path1 {
@@ -1488,7 +1447,7 @@ func TransferOngMultiSign(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferMultiSignParam.Path1 {
@@ -1532,7 +1491,7 @@ func TransferFromOngMultiSign(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferFromMultiSignParam.Path1 {
@@ -1613,7 +1572,7 @@ func TransferOntMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bo
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	var pubKeysTo []keypair.PublicKey
 	time.Sleep(1 * time.Second)
@@ -1660,7 +1619,7 @@ func TransferOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bo
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	var pubKeysTo []keypair.PublicKey
 	time.Sleep(1 * time.Second)
@@ -1713,7 +1672,7 @@ func TransferFromOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	var pubKeysTo []keypair.PublicKey
 	time.Sleep(1 * time.Second)
@@ -1767,7 +1726,7 @@ func TransferOntMultiSignAddress(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferMultiSignAddressParam.Path1 {
@@ -1815,7 +1774,7 @@ func TransferOngMultiSignAddress(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferMultiSignAddressParam.Path1 {
@@ -1869,7 +1828,7 @@ func TransferFromOngMultiSignAddress(ctx *testframework.TestFrameworkContext) bo
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferFromMultiSignAddressParam.Path1 {
@@ -1896,12 +1855,12 @@ func TransferFromOngMultiSignAddress(ctx *testframework.TestFrameworkContext) bo
 	return true
 }
 func GetVbftInfo(ctx *testframework.TestFrameworkContext) bool {
-	blkNum, err := ctx.Ont.Rpc.GetBlockCount()
+	blkNum, err := ctx.Ont.GetCurrentBlockHeight()
 	if err != nil {
 		ctx.LogError("TestGetVbftInfo GetBlockCount error:%s", err)
 		return false
 	}
-	blk, err := ctx.Ont.Rpc.GetBlockByHeight(blkNum - 1)
+	blk, err := ctx.Ont.GetBlockByHeight(blkNum - 1)
 	if err != nil {
 		ctx.LogError("TestGetVbftInfo GetBlockByHeight error:%s", err)
 		return false
@@ -1918,7 +1877,7 @@ func GetVbftInfo(ctx *testframework.TestFrameworkContext) bool {
 	} else {
 		var cfgBlock *types.Block
 		if block.Info.LastConfigBlockNum != math.MaxUint32 {
-			cfgBlock, err = ctx.Ont.Rpc.GetBlockByHeight(block.Info.LastConfigBlockNum)
+			cfgBlock, err = ctx.Ont.GetBlockByHeight(block.Info.LastConfigBlockNum)
 			if err != nil {
 				ctx.LogError("TestGetVbftInfo chainconfig GetBlockByHeight error:%s", err)
 				return false
@@ -1961,7 +1920,7 @@ func MultiTransferOnt(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	time.Sleep(1 * time.Second)
 	for _, path := range multiTransferParam.FromPath {
 		user, ok := getAccountByPassword(ctx, path)
@@ -1990,7 +1949,7 @@ func MultiTransferOng(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	var users []*account.Account
+	var users []*sdk.Account
 	time.Sleep(1 * time.Second)
 	for _, path := range multiTransferParam.FromPath {
 		user, ok := getAccountByPassword(ctx, path)

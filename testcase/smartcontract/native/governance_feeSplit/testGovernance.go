@@ -1213,7 +1213,7 @@ func SimulateUpdateGlobalParam2(ctx *testframework.TestFrameworkContext) bool {
 	}
 
 	globalParam2 := &governance.GlobalParam2{
-		MinAuthorizePos: 1000,
+		MinAuthorizePos:      1000,
 		CandidateFeeSplitNum: 40,
 	}
 	ok = updateGlobalParam2(ctx, user, globalParam2)
@@ -1474,13 +1474,13 @@ func SimulateFeeSplit(ctx *testframework.TestFrameworkContext) bool {
 	waitForBlock(ctx)
 
 	//transfer ong to governance contract
-	_, err := ctx.Ont.Rpc.WithdrawONG(ctx.GetGasPrice(), ctx.GetGasLimit(), user)
+	_, err := ctx.Ont.Native.Ong.WithdrawONG(ctx.GetGasPrice(), ctx.GetGasLimit(), user, 1000000000000)
 	if err != nil {
 		ctx.LogError("ctx.Ont.Rpc.WithdrawONG error:%s", err)
 		return false
 	}
 	waitForBlock(ctx)
-	_, err = ctx.Ont.Rpc.Transfer(ctx.GetGasPrice(), ctx.GetGasLimit(), "ONG", user, utils.GovernanceContractAddress, 1000000000000)
+	_, err = ctx.Ont.Native.Ong.Transfer(ctx.GetGasPrice(), ctx.GetGasLimit(), user, utils.GovernanceContractAddress, 1000000000000)
 	if err != nil {
 		ctx.LogError("ctx.Ont.Rpc.Transfer error:%s", err)
 		return false
@@ -1564,13 +1564,13 @@ func SimulateFeeSplit2(ctx *testframework.TestFrameworkContext) bool {
 	waitForBlock(ctx)
 
 	//transfer ong to governance contract
-	_, err := ctx.Ont.Rpc.WithdrawONG(ctx.GetGasPrice(), ctx.GetGasLimit(), user)
+	_, err := ctx.Ont.Native.Ong.WithdrawONG(ctx.GetGasPrice(), ctx.GetGasLimit(), user, 1000000000000)
 	if err != nil {
 		ctx.LogError("ctx.Ont.Rpc.WithdrawONG error:%s", err)
 		return false
 	}
 	waitForBlock(ctx)
-	_, err = ctx.Ont.Rpc.Transfer(ctx.GetGasPrice(), ctx.GetGasLimit(), "ONG", user, utils.GovernanceContractAddress, 1000000000000)
+	_, err = ctx.Ont.Native.Ong.Transfer(ctx.GetGasPrice(), ctx.GetGasLimit(), user, utils.GovernanceContractAddress, 1000000000000)
 	if err != nil {
 		ctx.LogError("ctx.Ont.Rpc.Transfer error:%s", err)
 		return false

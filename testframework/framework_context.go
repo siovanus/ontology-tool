@@ -22,18 +22,17 @@ import (
 	log4 "github.com/alecthomas/log4go"
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/common"
-	"github.com/ontio/ontology/account"
 )
 
 //TestFrameworkContext is the context for test case
 type TestFrameworkContext struct {
 	Ont       *sdk.OntologySdk //sdk to ontology
-	Wallet    account.Client   // wallet instance
+	Wallet    *sdk.Wallet      // wallet instance
 	failNowCh chan interface{}
 }
 
 //NewTestFrameworkContext return a TestFrameworkContext instance
-func NewTestFrameworkContext(ont *sdk.OntologySdk, wal account.Client, failNowCh chan interface{}) *TestFrameworkContext {
+func NewTestFrameworkContext(ont *sdk.OntologySdk, wal *sdk.Wallet, failNowCh chan interface{}) *TestFrameworkContext {
 	return &TestFrameworkContext{
 		Ont:       ont,
 		Wallet:    wal,
@@ -56,8 +55,12 @@ func (this *TestFrameworkContext) LogWarn(arg0 interface{}, args ...interface{})
 	log4.Warn(arg0, args...)
 }
 
-func (this *TestFrameworkContext) GetDefaultAccount() (*account.Account, error) {
+func (this *TestFrameworkContext) GetDefaultAccount() (*sdk.Account, error) {
 	return this.Wallet.GetDefaultAccount([]byte(common.DefConfig.Password))
+}
+
+func (this *TestFrameworkContext) NewAccount() *sdk.Account {
+	return sdk.NewAccount()
 }
 
 //FailNow will stop test, and skip all haven't not test case
