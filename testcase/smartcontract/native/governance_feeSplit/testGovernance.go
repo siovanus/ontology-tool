@@ -489,6 +489,7 @@ func SimulateConsensusToConsensus(ctx *testframework.TestFrameworkContext) bool 
 	//select in consensus
 	posList = []uint32{100000}
 	unAuthorizeForPeer(ctx, user1, peerPubkeyList, posList)
+	waitForBlock(ctx)
 	posList = []uint32{1000}
 	authorizeForPeer(ctx, user2, peerPubkeyList, posList)
 	waitForBlock(ctx)
