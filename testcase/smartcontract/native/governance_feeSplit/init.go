@@ -45,6 +45,7 @@ func TestGovernanceContract() {
 	testframework.TFramework.RegTestCase("SimulateFeeSplit2", SimulateFeeSplit2)
 	testframework.TFramework.RegTestCase("SimulateChangeInitPos", SimulateChangeInitPos)
 	testframework.TFramework.RegTestCase("SimulatePromisePos", SimulatePromisePos)
+	testframework.TFramework.RegTestCase("SimulateSetPeerCost", SimulateSetPeerCost)
 }
 
 func TestGovernanceContractError() {
@@ -63,7 +64,6 @@ func TestGovernanceContractError() {
 	testframework.TFramework.RegTestCase("SimulateTransferPenaltyError", SimulateTransferPenaltyError)
 	testframework.TFramework.RegTestCase("SimulateUnRegisterCandidateError", SimulateUnRegisterCandidateError)
 	testframework.TFramework.RegTestCase("SimulateChangeMaxAuthorizationError", SimulateChangeMaxAuthorizationError)
-	testframework.TFramework.RegTestCase("SimulateSetPeerCostError", SimulateSetPeerCostError)
 }
 
 func TestGovernanceMethods() {

@@ -19,7 +19,6 @@
 package governance_feeSplit
 
 import (
-	"fmt"
 	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
 )
@@ -764,93 +763,6 @@ func SimulateChangeMaxAuthorizationError(ctx *testframework.TestFrameworkContext
 	}
 	if peerAttributes.MaxAuthorize != PROMISE_POS {
 		ctx.LogError("peerAttributes error")
-		return false
-	}
-	return true
-}
-
-func SimulateSetPeerCostError(ctx *testframework.TestFrameworkContext) bool {
-	user, ok := getDefaultAccount(ctx)
-	if !ok {
-		return false
-	}
-	user1, ok := getAccount1(ctx)
-	if !ok {
-		return false
-	}
-	ok = setupTest(ctx, user)
-	if !ok {
-		return false
-	}
-
-	setPeerCost(ctx, user1, PEER_PUBKEY, 50)
-	waitForBlock(ctx)
-	peerAttributes, err := getAttributes(ctx, PEER_PUBKEY)
-	if err != nil {
-		ctx.LogError("getAttributes failed %v", err)
-		return false
-	}
-	if peerAttributes.OldPeerCost != 100 || peerAttributes.NewPeerCost != 100 || peerAttributes.SetCostView != 0 {
-		fmt.Println(peerAttributes.OldPeerCost)
-		fmt.Println(peerAttributes.NewPeerCost)
-		fmt.Println(peerAttributes.SetCostView)
-		ctx.LogError("peerAttributes1 error")
-		return false
-	}
-
-	setPeerCost(ctx, user, PEER_PUBKEY, 50)
-	waitForBlock(ctx)
-	peerAttributes, err = getAttributes(ctx, PEER_PUBKEY)
-	if err != nil {
-		ctx.LogError("getAttributes failed %v", err)
-		return false
-	}
-	if peerAttributes.OldPeerCost != 100 || peerAttributes.NewPeerCost != 50 || peerAttributes.SetCostView != 1 {
-		ctx.LogError("peerAttributes2 error")
-		return false
-	}
-
-	setPeerCost(ctx, user, PEER_PUBKEY, 40)
-	waitForBlock(ctx)
-	peerAttributes, err = getAttributes(ctx, PEER_PUBKEY)
-	if err != nil {
-		ctx.LogError("getAttributes failed %v", err)
-		return false
-	}
-	if peerAttributes.OldPeerCost != 100 || peerAttributes.NewPeerCost != 40 || peerAttributes.SetCostView != 1 {
-		ctx.LogError("peerAttributes3 error")
-		return false
-	}
-
-	commitDpos(ctx, user)
-	waitForBlock(ctx)
-
-	setPeerCost(ctx, user, PEER_PUBKEY, 50)
-	waitForBlock(ctx)
-	peerAttributes, err = getAttributes(ctx, PEER_PUBKEY)
-	if err != nil {
-		ctx.LogError("getAttributes failed %v", err)
-		return false
-	}
-	if peerAttributes.OldPeerCost != 100 || peerAttributes.NewPeerCost != 50 || peerAttributes.SetCostView != 2 {
-		ctx.LogError("peerAttributes4 error")
-		return false
-	}
-
-	commitDpos(ctx, user)
-	waitForBlock(ctx)
-	commitDpos(ctx, user)
-	waitForBlock(ctx)
-
-	setPeerCost(ctx, user, PEER_PUBKEY, 60)
-	waitForBlock(ctx)
-	peerAttributes, err = getAttributes(ctx, PEER_PUBKEY)
-	if err != nil {
-		ctx.LogError("getAttributes failed %v", err)
-		return false
-	}
-	if peerAttributes.OldPeerCost != 50 || peerAttributes.NewPeerCost != 60 || peerAttributes.SetCostView != 4 {
-		ctx.LogError("peerAttributes5 error")
 		return false
 	}
 	return true

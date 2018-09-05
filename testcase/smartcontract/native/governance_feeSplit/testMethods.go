@@ -1989,9 +1989,9 @@ func GetAttributes(ctx *testframework.TestFrameworkContext) bool {
 	}
 	fmt.Println("peerAttributes.PeerPubkey is:", peerAttributes.PeerPubkey)
 	fmt.Println("peerAttributes.MaxAuthorize is:", peerAttributes.MaxAuthorize)
-	fmt.Println("peerAttributes.OldPeerCost is:", peerAttributes.OldPeerCost)
-	fmt.Println("peerAttributes.NewPeerCost is:", peerAttributes.NewPeerCost)
-	fmt.Println("peerAttributes.SetCostView is:", peerAttributes.SetCostView)
+	fmt.Println("peerAttributes.T2PeerCost is:", peerAttributes.T2PeerCost)
+	fmt.Println("peerAttributes.T1PeerCost is:", peerAttributes.T1PeerCost)
+	fmt.Println("peerAttributes.TPeerCost is:", peerAttributes.TPeerCost)
 
 	return true
 }

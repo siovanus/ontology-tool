@@ -1798,3 +1798,114 @@ func SimulatePromisePos(ctx *testframework.TestFrameworkContext) bool {
 
 	return true
 }
+
+func SimulateSetPeerCost(ctx *testframework.TestFrameworkContext) bool {
+	user, ok := getDefaultAccount(ctx)
+	if !ok {
+		return false
+	}
+	user1, ok := getAccount1(ctx)
+	if !ok {
+		return false
+	}
+	ok = setupTest(ctx, user)
+	if !ok {
+		return false
+	}
+
+	setPeerCost(ctx, user1, PEER_PUBKEY, 50)
+	waitForBlock(ctx)
+	peerAttributes, err := getAttributes(ctx, PEER_PUBKEY)
+	if err != nil {
+		ctx.LogError("getAttributes failed %v", err)
+		return false
+	}
+	if peerAttributes.T2PeerCost != 100 || peerAttributes.T1PeerCost != 100 || peerAttributes.TPeerCost != 100 {
+		ctx.LogError("peerAttributes1 error")
+		return false
+	}
+
+	setPeerCost(ctx, user, PEER_PUBKEY, 50)
+	waitForBlock(ctx)
+	peerAttributes, err = getAttributes(ctx, PEER_PUBKEY)
+	if err != nil {
+		ctx.LogError("getAttributes failed %v", err)
+		return false
+	}
+	if peerAttributes.T2PeerCost != 50 || peerAttributes.T1PeerCost != 100 || peerAttributes.TPeerCost != 100 {
+		ctx.LogError("peerAttributes2 error")
+		return false
+	}
+
+	setPeerCost(ctx, user, PEER_PUBKEY, 40)
+	waitForBlock(ctx)
+	peerAttributes, err = getAttributes(ctx, PEER_PUBKEY)
+	if err != nil {
+		ctx.LogError("getAttributes failed %v", err)
+		return false
+	}
+	if peerAttributes.T2PeerCost != 40 || peerAttributes.T1PeerCost != 100 || peerAttributes.TPeerCost != 100 {
+		ctx.LogError("peerAttributes3 error")
+		return false
+	}
+
+	commitDpos(ctx, user)
+	waitForBlock(ctx)
+
+	setPeerCost(ctx, user, PEER_PUBKEY, 50)
+	waitForBlock(ctx)
+	peerAttributes, err = getAttributes(ctx, PEER_PUBKEY)
+	if err != nil {
+		ctx.LogError("getAttributes failed %v", err)
+		return false
+	}
+	if peerAttributes.T2PeerCost != 50 || peerAttributes.T1PeerCost != 40 || peerAttributes.TPeerCost != 100 {
+		fmt.Println(peerAttributes.T2PeerCost)
+		fmt.Println(peerAttributes.T1PeerCost)
+		fmt.Println(peerAttributes.TPeerCost)
+		ctx.LogError("peerAttributes4 error")
+		return false
+	}
+
+	commitDpos(ctx, user)
+	waitForBlock(ctx)
+
+	setPeerCost(ctx, user, PEER_PUBKEY, 60)
+	waitForBlock(ctx)
+	peerAttributes, err = getAttributes(ctx, PEER_PUBKEY)
+	if err != nil {
+		ctx.LogError("getAttributes failed %v", err)
+		return false
+	}
+	if peerAttributes.T2PeerCost != 60 || peerAttributes.T1PeerCost != 50 || peerAttributes.TPeerCost != 40 {
+		ctx.LogError("peerAttributes5 error")
+		return false
+	}
+
+	commitDpos(ctx, user)
+	waitForBlock(ctx)
+
+	peerAttributes, err = getAttributes(ctx, PEER_PUBKEY)
+	if err != nil {
+		ctx.LogError("getAttributes failed %v", err)
+		return false
+	}
+	if peerAttributes.T2PeerCost != 60 || peerAttributes.T1PeerCost != 60 || peerAttributes.TPeerCost != 50 {
+		ctx.LogError("peerAttributes6 error")
+		return false
+	}
+
+	commitDpos(ctx, user)
+	waitForBlock(ctx)
+
+	peerAttributes, err = getAttributes(ctx, PEER_PUBKEY)
+	if err != nil {
+		ctx.LogError("getAttributes failed %v", err)
+		return false
+	}
+	if peerAttributes.T2PeerCost != 60 || peerAttributes.T1PeerCost != 60 || peerAttributes.TPeerCost != 60 {
+		ctx.LogError("peerAttributes7 error")
+		return false
+	}
+	return true
+}
