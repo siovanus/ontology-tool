@@ -372,9 +372,9 @@ func BlockGen(issuer *account.Account) {
 		if err != nil {
 			fmt.Println("getAuthorizeInfo error:", err)
 		}
-		if state["ont"]+authorizeInfo1.ConsensusPos+authorizeInfo1.FreezePos+authorizeInfo1.NewPos+authorizeInfo1.WithdrawPos+
-			authorizeInfo1.WithdrawFreezePos+authorizeInfo1.WithdrawUnfreezePos+authorizeInfo2.ConsensusPos+
-			authorizeInfo2.FreezePos+authorizeInfo2.NewPos+authorizeInfo2.WithdrawPos+authorizeInfo2.WithdrawFreezePos+
+		if state["ont"]+authorizeInfo1.ConsensusPos+authorizeInfo1.CandidatePos+authorizeInfo1.NewPos+authorizeInfo1.WithdrawConsensusPos+
+			authorizeInfo1.WithdrawCandidatePos+authorizeInfo1.WithdrawUnfreezePos+authorizeInfo2.ConsensusPos+
+			authorizeInfo2.CandidatePos+authorizeInfo2.NewPos+authorizeInfo2.WithdrawConsensusPos+authorizeInfo2.WithdrawCandidatePos+
 			authorizeInfo2.WithdrawUnfreezePos != uint64(B) {
 			fmt.Println("balance of account is error")
 		}
@@ -397,8 +397,8 @@ func BlockGen(issuer *account.Account) {
 		fmt.Println("getPeerPoolItem error:", err)
 	}
 	fmt.Println(state["ont"])
-	if state["ont"]+authorizeInfo1.WithdrawPos+authorizeInfo1.WithdrawFreezePos+authorizeInfo1.WithdrawUnfreezePos+
-		authorizeInfo2.WithdrawPos+authorizeInfo2.WithdrawFreezePos+authorizeInfo2.WithdrawUnfreezePos+peerPoolItem1.InitPos+
+	if state["ont"]+authorizeInfo1.WithdrawConsensusPos+authorizeInfo1.WithdrawCandidatePos+authorizeInfo1.WithdrawUnfreezePos+
+		authorizeInfo2.WithdrawConsensusPos+authorizeInfo2.WithdrawCandidatePos+authorizeInfo2.WithdrawUnfreezePos+peerPoolItem1.InitPos+
 		peerPoolItem2.InitPos != 900000000 {
 		fmt.Println("balance of issuer is error")
 	}

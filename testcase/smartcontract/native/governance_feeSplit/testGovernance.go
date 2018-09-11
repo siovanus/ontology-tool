@@ -257,7 +257,7 @@ func SimulateUnConsensusToConsensus(ctx *testframework.TestFrameworkContext) boo
 	if err != nil {
 		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 0 || authorizeInfo.ConsensusPos != 101000 {
+	if authorizeInfo.NewPos != 0 || authorizeInfo.CandidatePos != 0 || authorizeInfo.ConsensusPos != 101000 {
 		ctx.LogError("authorizeInfo data for user1 is wrong!")
 		return false
 	}
@@ -266,7 +266,7 @@ func SimulateUnConsensusToConsensus(ctx *testframework.TestFrameworkContext) boo
 	if err != nil {
 		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 0 || authorizeInfo.ConsensusPos != 1500 || authorizeInfo.WithdrawUnfreezePos != 500 {
+	if authorizeInfo.NewPos != 0 || authorizeInfo.CandidatePos != 0 || authorizeInfo.ConsensusPos != 1500 || authorizeInfo.WithdrawUnfreezePos != 500 {
 		ctx.LogError("authorizeInfo data for user2 is wrong!")
 		return false
 	}
@@ -375,7 +375,7 @@ func SimulateUnConsensusToUnConsensus(ctx *testframework.TestFrameworkContext) b
 	if err != nil {
 		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 1500 || authorizeInfo.ConsensusPos != 0 {
+	if authorizeInfo.NewPos != 0 || authorizeInfo.CandidatePos != 1500 || authorizeInfo.ConsensusPos != 0 {
 		ctx.LogError("authorizeInfo data for user1 is wrong!")
 		return false
 	}
@@ -384,7 +384,7 @@ func SimulateUnConsensusToUnConsensus(ctx *testframework.TestFrameworkContext) b
 	if err != nil {
 		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 1000 || authorizeInfo.ConsensusPos != 0 || authorizeInfo.WithdrawUnfreezePos != 1000 {
+	if authorizeInfo.NewPos != 0 || authorizeInfo.CandidatePos != 1000 || authorizeInfo.ConsensusPos != 0 || authorizeInfo.WithdrawUnfreezePos != 1000 {
 		ctx.LogError("authorizeInfo data for user2 is wrong!")
 		return false
 	}
@@ -445,7 +445,7 @@ func SimulateConsensusToUnConsensus(ctx *testframework.TestFrameworkContext) boo
 	if err != nil {
 		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 1000 || authorizeInfo.ConsensusPos != 0 || authorizeInfo.WithdrawFreezePos != 199000 {
+	if authorizeInfo.NewPos != 0 || authorizeInfo.CandidatePos != 1000 || authorizeInfo.ConsensusPos != 0 || authorizeInfo.WithdrawCandidatePos != 199000 {
 		ctx.LogError("authorizeInfo data for user1 is wrong!")
 		return false
 	}
@@ -454,7 +454,7 @@ func SimulateConsensusToUnConsensus(ctx *testframework.TestFrameworkContext) boo
 	if err != nil {
 		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 1000 || authorizeInfo.ConsensusPos != 0 {
+	if authorizeInfo.NewPos != 0 || authorizeInfo.CandidatePos != 1000 || authorizeInfo.ConsensusPos != 0 {
 		ctx.LogError("authorizeInfo data for user2 is wrong!")
 		return false
 	}
@@ -514,7 +514,7 @@ func SimulateConsensusToConsensus(ctx *testframework.TestFrameworkContext) bool 
 	if err != nil {
 		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 0 || authorizeInfo.ConsensusPos != 100000 || authorizeInfo.WithdrawFreezePos != 100000 {
+	if authorizeInfo.NewPos != 0 || authorizeInfo.CandidatePos != 0 || authorizeInfo.ConsensusPos != 100000 || authorizeInfo.WithdrawCandidatePos != 100000 {
 		ctx.LogError("authorizeInfo data for user1 is wrong!")
 		return false
 	}
@@ -523,7 +523,7 @@ func SimulateConsensusToConsensus(ctx *testframework.TestFrameworkContext) bool 
 	if err != nil {
 		ctx.LogError("getAuthorizeInfo error :%v", err)
 	}
-	if authorizeInfo.NewPos != 0 || authorizeInfo.FreezePos != 0 || authorizeInfo.ConsensusPos != 1000 {
+	if authorizeInfo.NewPos != 0 || authorizeInfo.CandidatePos != 0 || authorizeInfo.ConsensusPos != 1000 {
 		ctx.LogError("authorizeInfo data for user2 is wrong!")
 		return false
 	}

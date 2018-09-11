@@ -1211,10 +1211,10 @@ func GetAuthorizeInfo(ctx *testframework.TestFrameworkContext) bool {
 	fmt.Println("authorizeInfo.PeerPubkey is:", authorizeInfo.PeerPubkey)
 	fmt.Println("authorizeInfo.Address is:", authorizeInfo.Address.ToBase58())
 	fmt.Println("authorizeInfo.ConsensusPos is:", authorizeInfo.ConsensusPos)
-	fmt.Println("authorizeInfo.FreezePos is:", authorizeInfo.FreezePos)
+	fmt.Println("authorizeInfo.CandidatePos is:", authorizeInfo.CandidatePos)
 	fmt.Println("authorizeInfo.NewPos is:", authorizeInfo.NewPos)
-	fmt.Println("authorizeInfo.WithdrawPos is:", authorizeInfo.WithdrawPos)
-	fmt.Println("authorizeInfo.WithdrawFreezePos is:", authorizeInfo.WithdrawFreezePos)
+	fmt.Println("authorizeInfo.WithdrawConsensusPos is:", authorizeInfo.WithdrawConsensusPos)
+	fmt.Println("authorizeInfo.WithdrawCandidatePos is:", authorizeInfo.WithdrawCandidatePos)
 	fmt.Println("authorizeInfo.WithdrawUnfreezePos is:", authorizeInfo.WithdrawUnfreezePos)
 	return true
 }
