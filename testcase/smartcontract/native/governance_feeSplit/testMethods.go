@@ -978,7 +978,7 @@ func UpdateSplitCurve(ctx *testframework.TestFrameworkContext) bool {
 type SetPromisePosParam struct {
 	Path       []string
 	PeerPubkey string
-	PromisePos uint32
+	PromisePos uint64
 }
 
 func SetPromisePos(ctx *testframework.TestFrameworkContext) bool {

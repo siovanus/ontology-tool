@@ -1120,6 +1120,9 @@ func SimulateUpdateConfig(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	waitForBlock(ctx)
+	commitDpos(ctx, user)
+	waitForBlock(ctx)
+
 	//check config
 	config, err = getVbftConfig(ctx)
 	if err != nil {
