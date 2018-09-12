@@ -46,6 +46,7 @@ func TestGovernanceContract() {
 	testframework.TFramework.RegTestCase("SimulateChangeInitPos", SimulateChangeInitPos)
 	testframework.TFramework.RegTestCase("SimulatePromisePos", SimulatePromisePos)
 	testframework.TFramework.RegTestCase("SimulateSetPeerCost", SimulateSetPeerCost)
+	testframework.TFramework.RegTestCase("SimulateAddConsensusPeer", SimulateAddConsensusPeer)
 }
 
 func TestGovernanceContractError() {

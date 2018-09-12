@@ -1912,3 +1912,69 @@ func SimulateSetPeerCost(ctx *testframework.TestFrameworkContext) bool {
 	}
 	return true
 }
+
+func SimulateAddConsensusPeer(ctx *testframework.TestFrameworkContext) bool {
+	user, ok := getDefaultAccount(ctx)
+	if !ok {
+		return false
+	}
+	ok = setupTest(ctx, user)
+	if !ok {
+		return false
+	}
+
+	//check consensus peer
+	peerPoolMap, err := getPeerPoolMap(ctx)
+	if err != nil {
+		ctx.LogError("getPeerPoolMap error :%v", err)
+		return false
+	}
+	count := 0
+	for _, v := range peerPoolMap.PeerPoolMap {
+		if v.Status == governance.ConsensusStatus {
+			count += 1
+		}
+	}
+	if count != 7 {
+		ctx.LogError("consensus node num 1 is wrong")
+		return false
+	}
+
+	//update vbft config
+	config := &governance.Configuration{
+		N:                    8,
+		C:                    2,
+		K:                    8,
+		L:                    128,
+		BlockMsgDelay:        5000,
+		HashMsgDelay:         5000,
+		PeerHandshakeTimeout: 15,
+		MaxBlockChangeView:   10000,
+	}
+	ok = updateConfig(ctx, user, config)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	commitDpos(ctx, user)
+	waitForBlock(ctx)
+
+	//check consensus peer
+	peerPoolMap, err = getPeerPoolMap(ctx)
+	if err != nil {
+		ctx.LogError("getPeerPoolMap error :%v", err)
+		return false
+	}
+	count = 0
+	for _, v := range peerPoolMap.PeerPoolMap {
+		if v.Status == governance.ConsensusStatus {
+			count += 1
+		}
+	}
+	if count != 8 {
+		ctx.LogError("consensus node num 2 is wrong")
+		return false
+	}
+
+	return true
+}
