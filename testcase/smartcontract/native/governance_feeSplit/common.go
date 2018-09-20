@@ -22,8 +22,8 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"time"
 	"os/exec"
+	"time"
 
 	"github.com/ontio/ontology-crypto/keypair"
 	sdk "github.com/ontio/ontology-go-sdk"

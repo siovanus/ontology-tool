@@ -407,10 +407,10 @@ func RejectCandidate(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
-type ChangeAuthorizationParam struct {
-	PathList        []string
-	PeerPubkeyList  []string
-	IfAuthorizeList []uint32
+type ChangeMaxAuthorizationParam struct {
+	PathList         []string
+	PeerPubkeyList   []string
+	MaxAuthorizeList []uint32
 }
 
 func ChangeMaxAuthorization(ctx *testframework.TestFrameworkContext) bool {
@@ -419,19 +419,19 @@ func ChangeMaxAuthorization(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
 	}
-	changeAuthorizationParam := new(ChangeAuthorizationParam)
-	err = json.Unmarshal(data, changeAuthorizationParam)
+	changeMaxAuthorizationParam := new(ChangeMaxAuthorizationParam)
+	err = json.Unmarshal(data, changeMaxAuthorizationParam)
 	if err != nil {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
-	for index, path := range changeAuthorizationParam.PathList {
+	for index, path := range changeMaxAuthorizationParam.PathList {
 		user, ok := getAccountByPassword(ctx, path)
 		if !ok {
 			return false
 		}
-		ok = changeMaxAuthorization(ctx, user, changeAuthorizationParam.PeerPubkeyList[index], changeAuthorizationParam.IfAuthorizeList[index])
+		ok = changeMaxAuthorization(ctx, user, changeMaxAuthorizationParam.PeerPubkeyList[index], changeMaxAuthorizationParam.MaxAuthorizeList[index])
 		if !ok {
 			return false
 		}
@@ -977,8 +977,8 @@ func UpdateSplitCurve(ctx *testframework.TestFrameworkContext) bool {
 
 type SetPromisePosParam struct {
 	Path       []string
-	PeerPubkey string
-	PromisePos uint64
+	PeerPubkey []string
+	PromisePos []uint64
 }
 
 func SetPromisePos(ctx *testframework.TestFrameworkContext) bool {
@@ -1004,13 +1004,15 @@ func SetPromisePos(ctx *testframework.TestFrameworkContext) bool {
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	promisePos := &governance.PromisePos{
-		PeerPubkey: setPromisePosParam.PeerPubkey,
-		PromisePos: setPromisePosParam.PromisePos,
-	}
-	ok := setPromisePosMultiSign(ctx, pubKeys, users, promisePos)
-	if !ok {
-		return false
+	for index, peerPubkey := range setPromisePosParam.PeerPubkey {
+		promisePos := &governance.PromisePos{
+			PeerPubkey: peerPubkey,
+			PromisePos: setPromisePosParam.PromisePos[index],
+		}
+		ok := setPromisePosMultiSign(ctx, pubKeys, users, promisePos)
+		if !ok {
+			return false
+		}
 	}
 	waitForBlock(ctx)
 	return true
