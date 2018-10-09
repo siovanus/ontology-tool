@@ -1685,6 +1685,8 @@ func SimulateChangeInitPos(ctx *testframework.TestFrameworkContext) bool {
 
 	addInitPos(ctx, user, PEER_PUBKEY, 10000)
 	waitForBlock(ctx)
+	changeMaxAuthorization(ctx, user, PEER_PUBKEY, 400000)
+	waitForBlock(ctx)
 	peerPubkeyList = []string{PEER_PUBKEY}
 	posList = []uint32{300000}
 	authorizeForPeer(ctx, user1, peerPubkeyList, posList)

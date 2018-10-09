@@ -19,7 +19,7 @@ import (
 
 var OntIDVersion = byte(0)
 
-const PROMISE_POS = 1000000000
+const PROMISE_POS = 200000
 
 func registerCandidate(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPubkey string, initPos uint32) bool {
 	params := &governance.RegisterCandidateParam{
