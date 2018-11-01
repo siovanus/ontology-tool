@@ -7,6 +7,7 @@ import (
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/errors"
+	"github.com/ontio/ontology/smartcontract/service/native/governance"
 	"github.com/ontio/ontology/smartcontract/service/native/side_chain"
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
 )
@@ -103,6 +104,16 @@ func getSideChain(ctx *testframework.TestFrameworkContext, sideChainID string) (
 	return sideChain, nil
 }
 
+func getSideChainID(ctx *testframework.TestFrameworkContext) ([]byte, error) {
+	contractAddress := utils.GovernanceContractAddress
+	key := ConcatKey([]byte("sideChainID"))
+	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	if err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
+	}
+	return value, nil
+}
+
 func getSideChainNodeInfo(ctx *testframework.TestFrameworkContext, sideChainID string) (*side_chain.SideChainNodeInfo, error) {
 	contractAddress := utils.SideChainGovernanceContractAddress
 	sideChainNodeInfo := new(side_chain.SideChainNodeInfo)
@@ -117,4 +128,20 @@ func getSideChainNodeInfo(ctx *testframework.TestFrameworkContext, sideChainID s
 		}
 	}
 	return sideChainNodeInfo, nil
+}
+
+func getSideChainPeerPoolMap(ctx *testframework.TestFrameworkContext) (*governance.PeerPoolMap, error) {
+	contractAddress := utils.GovernanceContractAddress
+	peerPoolMap := &governance.PeerPoolMap{
+		PeerPoolMap: make(map[string]*governance.PeerPoolItem),
+	}
+	key := []byte(governance.PEER_POOL)
+	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	if err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
+	}
+	if err := peerPoolMap.Deserialize(bytes.NewBuffer(value)); err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize peerPoolMap error!")
+	}
+	return peerPoolMap, nil
 }

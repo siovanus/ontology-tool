@@ -197,6 +197,16 @@ func GetSideChain(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
+func GetSideChainID(ctx *testframework.TestFrameworkContext) bool {
+	sideChainID, err := getSideChainID(ctx)
+	if err != nil {
+		ctx.LogError("getSideChainID error %v", err)
+		return false
+	}
+	fmt.Println("SideChainID of side chain is: ", sideChainID)
+	return true
+}
+
 func GetSideChainNodeInfo(ctx *testframework.TestFrameworkContext) bool {
 	data, err := ioutil.ReadFile("./side_chain_params/GetSideChainNodeInfo.json")
 	if err != nil {
@@ -216,5 +226,24 @@ func GetSideChainNodeInfo(ctx *testframework.TestFrameworkContext) bool {
 	}
 	fmt.Println("SideChainID of side chain is: ", sideChainNodeInfo.SideChainID)
 	fmt.Println("NodeInfoMap of side chain is: ", sideChainNodeInfo.NodeInfoMap)
+	return true
+}
+
+func GetSideChainPeerPoolMap(ctx *testframework.TestFrameworkContext) bool {
+	peerPoolMap, err := getSideChainPeerPoolMap(ctx)
+	if err != nil {
+		ctx.LogError("getPeerPoolMap failed %v", err)
+		return false
+	}
+
+	for _, v := range peerPoolMap.PeerPoolMap {
+		fmt.Println("###########################################")
+		fmt.Println("peerPoolItem.Index is:", v.Index)
+		fmt.Println("peerPoolItem.PeerPubkey is:", v.PeerPubkey)
+		fmt.Println("peerPoolItem.Address is:", v.Address.ToBase58())
+		fmt.Println("peerPoolItem.Status is:", v.Status)
+		fmt.Println("peerPoolItem.InitPos is:", v.InitPos)
+		fmt.Println("peerPoolItem.TotalPos is:", v.TotalPos)
+	}
 	return true
 }
