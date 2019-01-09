@@ -167,7 +167,7 @@ func RegisterNodeToSideChain(ctx *testframework.TestFrameworkContext) bool {
 }
 
 type SideChainID struct {
-	SideChainID string
+	SideChainID uint32
 }
 
 func GetSideChain(ctx *testframework.TestFrameworkContext) bool {
@@ -194,16 +194,6 @@ func GetSideChain(ctx *testframework.TestFrameworkContext) bool {
 	fmt.Println("Deposit of side chain is: ", sideChain.Deposit)
 	fmt.Println("OngPool of side chain is: ", sideChain.OngPool)
 	fmt.Println("Ratio of side chain is: ", sideChain.Ratio)
-	return true
-}
-
-func GetSideChainID(ctx *testframework.TestFrameworkContext) bool {
-	sideChainID, err := getSideChainID(ctx)
-	if err != nil {
-		ctx.LogError("getSideChainID error %v", err)
-		return false
-	}
-	fmt.Println("SideChainID of side chain is: ", sideChainID)
 	return true
 }
 

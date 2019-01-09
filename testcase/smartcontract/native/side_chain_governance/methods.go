@@ -7,11 +7,12 @@ import (
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/common"
-	"github.com/ontio/ontology/core/states"
 	"github.com/ontio/ontology/errors"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
 	"github.com/ontio/ontology/smartcontract/service/native/side_chain"
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
+	"fmt"
+	"encoding/hex"
 )
 
 var OntIDVersion = byte(0)
@@ -90,40 +91,35 @@ func registerNodeToSideChain(ctx *testframework.TestFrameworkContext, user *sdk.
 	return true
 }
 
-func getSideChain(ctx *testframework.TestFrameworkContext, sideChainID string) (*side_chain.SideChain, error) {
+func getSideChain(ctx *testframework.TestFrameworkContext, sideChainID uint32) (*side_chain.SideChain, error) {
+	sideChainIDBytes, err := governance.GetUint32Bytes(sideChainID)
+	if err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode,"getUint32Bytes error")
+	}
 	contractAddress := utils.SideChainGovernanceContractAddress
 	sideChain := new(side_chain.SideChain)
-	key := ConcatKey([]byte(side_chain.SIDE_CHAIN), []byte(sideChainID))
+	key := ConcatKey([]byte(side_chain.SIDE_CHAIN), sideChainIDBytes)
+	fmt.Println(hex.EncodeToString(key))
 	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
-	vStore, err := states.GetValueFromRawStorageItem(value)
-	if err != nil {
-		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getSideChain, deserialize from raw storage item err")
-	}
 	if len(value) != 0 {
-		if err := sideChain.Deserialize(common.NewZeroCopySource(vStore)); err != nil {
+		if err := sideChain.Deserialize(common.NewZeroCopySource(value)); err != nil {
 			return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize sideChain error!")
 		}
 	}
 	return sideChain, nil
 }
 
-func getSideChainID(ctx *testframework.TestFrameworkContext) ([]byte, error) {
-	contractAddress := utils.GovernanceContractAddress
-	key := ConcatKey([]byte("sideChainID"))
-	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+func getSideChainNodeInfo(ctx *testframework.TestFrameworkContext, sideChainID uint32) (*side_chain.SideChainNodeInfo, error) {
+	sideChainIDBytes, err := governance.GetUint32Bytes(sideChainID)
 	if err != nil {
-		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode,"getUint32Bytes error")
 	}
-	return value, nil
-}
-
-func getSideChainNodeInfo(ctx *testframework.TestFrameworkContext, sideChainID string) (*side_chain.SideChainNodeInfo, error) {
 	contractAddress := utils.SideChainGovernanceContractAddress
 	sideChainNodeInfo := new(side_chain.SideChainNodeInfo)
-	key := ConcatKey([]byte(side_chain.SIDE_CHAIN_NODE_INFO), []byte(sideChainID))
+	key := ConcatKey([]byte(side_chain.SIDE_CHAIN_NODE_INFO), sideChainIDBytes)
 	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
