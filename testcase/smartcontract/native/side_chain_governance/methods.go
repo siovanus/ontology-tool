@@ -6,6 +6,8 @@ import (
 	"github.com/ontio/ontology-crypto/keypair"
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/testframework"
+	"github.com/ontio/ontology/common"
+	"github.com/ontio/ontology/core/states"
 	"github.com/ontio/ontology/errors"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
 	"github.com/ontio/ontology/smartcontract/service/native/side_chain"
@@ -14,7 +16,7 @@ import (
 
 var OntIDVersion = byte(0)
 
-func registerSideChain(ctx *testframework.TestFrameworkContext, user *sdk.Account, sideChainID string, ratio uint32,
+func registerSideChain(ctx *testframework.TestFrameworkContext, user *sdk.Account, sideChainID uint32, ratio uint32,
 	deposit uint64, ongPool uint64) bool {
 	params := &side_chain.RegisterSideChainParam{
 		SideChainID: sideChainID,
@@ -39,7 +41,7 @@ func registerSideChain(ctx *testframework.TestFrameworkContext, user *sdk.Accoun
 }
 
 func approveSideChainMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account,
-	sideChainID string) bool {
+	sideChainID uint32) bool {
 	params := &side_chain.SideChainIDParam{
 		SideChainID: sideChainID,
 	}
@@ -55,7 +57,7 @@ func approveSideChainMultiSign(ctx *testframework.TestFrameworkContext, pubKeys 
 }
 
 func rejectSideChainMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account,
-	sideChainID string) bool {
+	sideChainID uint32) bool {
 	params := &side_chain.SideChainIDParam{
 		SideChainID: sideChainID,
 	}
@@ -70,7 +72,7 @@ func rejectSideChainMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 	return true
 }
 
-func registerNodeToSideChain(ctx *testframework.TestFrameworkContext, user *sdk.Account, sideChainID string, peerPubkey string) bool {
+func registerNodeToSideChain(ctx *testframework.TestFrameworkContext, user *sdk.Account, sideChainID uint32, peerPubkey string) bool {
 	params := &side_chain.NodeToSideChainParams{
 		PeerPubkey:  peerPubkey,
 		Address:     user.Address,
@@ -96,8 +98,12 @@ func getSideChain(ctx *testframework.TestFrameworkContext, sideChainID string) (
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
+	vStore, err := states.GetValueFromRawStorageItem(value)
+	if err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getSideChain, deserialize from raw storage item err")
+	}
 	if len(value) != 0 {
-		if err := sideChain.Deserialize(bytes.NewBuffer(value)); err != nil {
+		if err := sideChain.Deserialize(common.NewZeroCopySource(vStore)); err != nil {
 			return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize sideChain error!")
 		}
 	}

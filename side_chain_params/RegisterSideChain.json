@@ -1,6 +1,6 @@
 {
    "Path": "wallets/peer1/wallet.dat",
-   "SideChainID": "123456",
+   "SideChainID": 123456,
    "Ratio": 1,
    "Deposit": 1000000000000,
    "OngPool": 1000000000000

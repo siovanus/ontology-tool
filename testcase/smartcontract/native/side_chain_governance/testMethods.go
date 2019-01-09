@@ -31,7 +31,7 @@ import (
 
 type RegisterSideChainParam struct {
 	Path        string
-	SideChainID string
+	SideChainID uint32
 	Ratio       uint32
 	Deposit     uint64
 	OngPool     uint64
@@ -64,7 +64,7 @@ func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 
 type ApproveSideChainParam struct {
 	Path        []string
-	SideChainID string
+	SideChainID uint32
 }
 
 func ApproveSideChain(ctx *testframework.TestFrameworkContext) bool {
@@ -100,7 +100,7 @@ func ApproveSideChain(ctx *testframework.TestFrameworkContext) bool {
 
 type RejectSideChainParam struct {
 	Path        []string
-	SideChainID string
+	SideChainID uint32
 }
 
 func RejectSideChain(ctx *testframework.TestFrameworkContext) bool {
@@ -135,7 +135,7 @@ func RejectSideChain(ctx *testframework.TestFrameworkContext) bool {
 }
 
 type RegisterNodeToSideChainParam struct {
-	SideChainID string
+	SideChainID uint32
 	PeerPubkey  []string
 	Path        []string
 }
