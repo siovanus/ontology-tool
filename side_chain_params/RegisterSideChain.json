@@ -1,6 +1,8 @@
 {
-   "Path": "wallets/peer1/wallet.dat",
+   "Path": "wallets/admin/wallet.dat",
    "Ratio": 1,
-   "Deposit": 1000000000000,
-   "OngPool": 1000000000000
+   "Deposit": 0,
+   "OngPool": 10000000000000,
+   "SideChainRpc": "http://138.91.6.125:30336"
+
 }

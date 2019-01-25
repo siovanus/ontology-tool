@@ -3,6 +3,8 @@ package side_chain_governance
 import (
 	"bytes"
 
+	"encoding/hex"
+	"fmt"
 	"github.com/ontio/ontology-crypto/keypair"
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/testframework"
@@ -11,21 +13,20 @@ import (
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
 	"github.com/ontio/ontology/smartcontract/service/native/side_chain"
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
-	"fmt"
-	"encoding/hex"
 )
 
 var OntIDVersion = byte(0)
 
 func registerSideChain(ctx *testframework.TestFrameworkContext, user *sdk.Account, ratio uint32,
-	deposit uint64, ongPool uint64) bool {
+	deposit uint64, ongPool uint64, genesisBlockHeader []byte) bool {
 	params := &side_chain.RegisterSideChainParam{
-		Address:     user.Address,
-		Ratio:       ratio,
-		Deposit:     deposit,
-		OngPool:     ongPool,
-		Caller:      []byte("did:ont:" + user.Address.ToBase58()),
-		KeyNo:       1,
+		Address:            user.Address,
+		Ratio:              ratio,
+		Deposit:            deposit,
+		OngPool:            ongPool,
+		GenesisBlockHeader: genesisBlockHeader,
+		Caller:             []byte("did:ont:" + user.Address.ToBase58()),
+		KeyNo:              1,
 	}
 	method := "registerSideChain"
 	contractAddress := utils.SideChainGovernanceContractAddress
@@ -93,7 +94,7 @@ func registerNodeToSideChain(ctx *testframework.TestFrameworkContext, user *sdk.
 func getSideChain(ctx *testframework.TestFrameworkContext, sideChainID uint32) (*side_chain.SideChain, error) {
 	sideChainIDBytes, err := governance.GetUint32Bytes(sideChainID)
 	if err != nil {
-		return nil, errors.NewDetailErr(err, errors.ErrNoCode,"getUint32Bytes error")
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getUint32Bytes error")
 	}
 	contractAddress := utils.SideChainGovernanceContractAddress
 	sideChain := new(side_chain.SideChain)
@@ -114,7 +115,7 @@ func getSideChain(ctx *testframework.TestFrameworkContext, sideChainID uint32) (
 func getSideChainNodeInfo(ctx *testframework.TestFrameworkContext, sideChainID uint32) (*side_chain.SideChainNodeInfo, error) {
 	sideChainIDBytes, err := governance.GetUint32Bytes(sideChainID)
 	if err != nil {
-		return nil, errors.NewDetailErr(err, errors.ErrNoCode,"getUint32Bytes error")
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getUint32Bytes error")
 	}
 	contractAddress := utils.SideChainGovernanceContractAddress
 	sideChainNodeInfo := new(side_chain.SideChainNodeInfo)

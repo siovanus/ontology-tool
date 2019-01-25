@@ -27,14 +27,15 @@ import (
 	"github.com/ontio/ontology-crypto/keypair"
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/testframework"
+	"hash/fnv"
 )
 
 type RegisterSideChainParam struct {
-	Path        string
-	SideChainID uint32
-	Ratio       uint32
-	Deposit     uint64
-	OngPool     uint64
+	Path         string
+	Ratio        uint32
+	Deposit      uint64
+	OngPool      uint64
+	SideChainRpc string
 }
 
 func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
@@ -54,7 +55,15 @@ func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	ok = registerSideChain(ctx, user, registerSideChainParam.Ratio, registerSideChainParam.Deposit, registerSideChainParam.OngPool)
+	sideSdk := sdk.NewOntologySdk()
+	sideSdk.NewRpcClient().SetAddress(registerSideChainParam.SideChainRpc)
+	genesisBlock, err := sideSdk.GetSideChainBlockByHeight(0)
+	if err != nil {
+		ctx.LogError("get side chain genesis block error: %s", err)
+		return false
+	}
+	genesisBlockHeader :=genesisBlock.Header.ToArray()
+	ok = registerSideChain(ctx, user, registerSideChainParam.Ratio, registerSideChainParam.Deposit, registerSideChainParam.OngPool, genesisBlockHeader)
 	if !ok {
 		return false
 	}
@@ -63,7 +72,7 @@ func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 
 type ApproveSideChainParam struct {
 	Path        []string
-	SideChainID uint32
+	SideChainID string
 }
 
 func ApproveSideChain(ctx *testframework.TestFrameworkContext) bool {
@@ -89,7 +98,9 @@ func ApproveSideChain(ctx *testframework.TestFrameworkContext) bool {
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	ok := approveSideChainMultiSign(ctx, pubKeys, users, approveSideChainParam.SideChainID)
+	hash := fnv.New32a()
+	hash.Write([]byte(approveSideChainParam.SideChainID))
+	ok := approveSideChainMultiSign(ctx, pubKeys, users, hash.Sum32())
 	if !ok {
 		return false
 	}
@@ -99,7 +110,7 @@ func ApproveSideChain(ctx *testframework.TestFrameworkContext) bool {
 
 type RejectSideChainParam struct {
 	Path        []string
-	SideChainID uint32
+	SideChainID string
 }
 
 func RejectSideChain(ctx *testframework.TestFrameworkContext) bool {
@@ -125,7 +136,9 @@ func RejectSideChain(ctx *testframework.TestFrameworkContext) bool {
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	ok := rejectSideChainMultiSign(ctx, pubKeys, users, rejectSideChainParam.SideChainID)
+	hash := fnv.New32a()
+	hash.Write([]byte(rejectSideChainParam.SideChainID))
+	ok := rejectSideChainMultiSign(ctx, pubKeys, users, hash.Sum32())
 	if !ok {
 		return false
 	}
@@ -134,7 +147,7 @@ func RejectSideChain(ctx *testframework.TestFrameworkContext) bool {
 }
 
 type RegisterNodeToSideChainParam struct {
-	SideChainID uint32
+	SideChainID string
 	PeerPubkey  []string
 	Path        []string
 }
@@ -152,12 +165,14 @@ func RegisterNodeToSideChain(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	time.Sleep(1 * time.Second)
+	hash := fnv.New32a()
+	hash.Write([]byte(registerNodeToSideChainParam.SideChainID))
 	for index, peerPubkey := range registerNodeToSideChainParam.PeerPubkey {
 		user, ok := getAccountByPassword(ctx, registerNodeToSideChainParam.Path[index])
 		if !ok {
 			return false
 		}
-		ok = registerNodeToSideChain(ctx, user, registerNodeToSideChainParam.SideChainID, peerPubkey)
+		ok = registerNodeToSideChain(ctx, user, hash.Sum32(), peerPubkey)
 		if !ok {
 			return false
 		}
@@ -166,7 +181,7 @@ func RegisterNodeToSideChain(ctx *testframework.TestFrameworkContext) bool {
 }
 
 type SideChainID struct {
-	SideChainID uint32
+	SideChainID string
 }
 
 func GetSideChain(ctx *testframework.TestFrameworkContext) bool {
@@ -181,7 +196,9 @@ func GetSideChain(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	sideChain, err := getSideChain(ctx, sideChainID.SideChainID)
+	hash := fnv.New32a()
+	hash.Write([]byte(sideChainID.SideChainID))
+	sideChain, err := getSideChain(ctx, hash.Sum32())
 	if err != nil {
 		ctx.LogError("getSideChain error %v", err)
 		return false
@@ -208,7 +225,9 @@ func GetSideChainNodeInfo(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
-	sideChainNodeInfo, err := getSideChainNodeInfo(ctx, sideChainID.SideChainID)
+	hash := fnv.New32a()
+	hash.Write([]byte(sideChainID.SideChainID))
+	sideChainNodeInfo, err := getSideChainNodeInfo(ctx, hash.Sum32())
 	if err != nil {
 		ctx.LogError("getSideChain error %v", err)
 		return false
