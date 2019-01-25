@@ -54,8 +54,7 @@ func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	ok = registerSideChain(ctx, user, registerSideChainParam.SideChainID, registerSideChainParam.Ratio,
-		registerSideChainParam.Deposit, registerSideChainParam.OngPool)
+	ok = registerSideChain(ctx, user, registerSideChainParam.Ratio, registerSideChainParam.Deposit, registerSideChainParam.OngPool)
 	if !ok {
 		return false
 	}

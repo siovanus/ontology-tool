@@ -17,10 +17,9 @@ import (
 
 var OntIDVersion = byte(0)
 
-func registerSideChain(ctx *testframework.TestFrameworkContext, user *sdk.Account, sideChainID uint32, ratio uint32,
+func registerSideChain(ctx *testframework.TestFrameworkContext, user *sdk.Account, ratio uint32,
 	deposit uint64, ongPool uint64) bool {
 	params := &side_chain.RegisterSideChainParam{
-		SideChainID: sideChainID,
 		Address:     user.Address,
 		Ratio:       ratio,
 		Deposit:     deposit,
