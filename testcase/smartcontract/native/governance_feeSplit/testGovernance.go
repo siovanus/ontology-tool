@@ -1740,6 +1740,7 @@ func SimulateChangeInitPos(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("reduceInitPos3 should be success")
 		return false
 	}
+	commitDpos(ctx, user)
 	return true
 }
 
