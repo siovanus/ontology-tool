@@ -57,6 +57,6 @@ func main() {
 	if Methods != "" {
 		methods = strings.Split(Methods, ",")
 	}
-	//Start run test case
+
 	ontologytool.OntTool.Start(methods)
 }

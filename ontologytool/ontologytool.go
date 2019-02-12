@@ -135,14 +135,12 @@ func (this *OntologyTool) onFinish(methodsList []string) {
 	log4.Info("===============================================================")
 }
 
-//onBeforeTestCaseStart invoke before single test case
 func (this *OntologyTool) onBeforeMethodStart(index int, methodName string) {
 	log4.Info("===============================================================")
 	log4.Info("%d. Start Method:%s", index, methodName)
 	log4.Info("---------------------------------------------------------------")
 }
 
-//onBeforeTestCaseStart invoke after single test case
 func (this *OntologyTool) onAfterMethodFinish(index int, methodName string, res bool) {
 	if res {
 		log4.Info("Run Method:%s success.", methodName)
@@ -153,7 +151,6 @@ func (this *OntologyTool) onAfterMethodFinish(index int, methodName string, res 
 	log4.Info("")
 }
 
-//getTestCaseByName return test case by test case name
 func (this *OntologyTool) getMethodByName(name string) Method {
 	return this.methodsMap[name]
 }

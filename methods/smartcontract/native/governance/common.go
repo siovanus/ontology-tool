@@ -38,17 +38,17 @@ import (
 func getAccountByPassword(sdk *sdk.OntologySdk, path string) (*sdk.Account, bool) {
 	wallet, err := sdk.OpenWallet(path)
 	if err != nil {
-		log4.Error("open wallet error:%s", err)
+		log4.Error("open wallet error:", err)
 		return nil, false
 	}
 	pwd, err := password.GetPassword()
 	if err != nil {
-		log4.Error("getPassword error:%s", err)
+		log4.Error("getPassword error:", err)
 		return nil, false
 	}
 	user, err := wallet.GetDefaultAccount(pwd)
 	if err != nil {
-		log4.Error("getDefaultAccount error:%s", err)
+		log4.Error("getDefaultAccount error:", err)
 		return nil, false
 	}
 	return user, true
@@ -57,12 +57,12 @@ func getAccountByPassword(sdk *sdk.OntologySdk, path string) (*sdk.Account, bool
 func getAccount(sdk *sdk.OntologySdk, path string) (*sdk.Account, bool) {
 	wallet, err := sdk.OpenWallet(path)
 	if err != nil {
-		log4.Error("open wallet error:%s", err)
+		log4.Error("open wallet error:", err)
 		return nil, false
 	}
 	user, err := wallet.GetDefaultAccount([]byte(common.DefConfig.Password))
 	if err != nil {
-		log4.Error("getDefaultAccount error:%s", err)
+		log4.Error("getDefaultAccount error:", err)
 		return nil, false
 	}
 	return user, true
@@ -95,7 +95,7 @@ func invokeNativeContractWithMultiSign(
 func waitForBlock(sdk *sdk.OntologySdk) bool {
 	_, err := sdk.WaitForGenerateBlock(30*time.Second, 1)
 	if err != nil {
-		log4.Error("WaitForGenerateBlock error:%s", err)
+		log4.Error("WaitForGenerateBlock error:", err)
 		return false
 	}
 	return true
