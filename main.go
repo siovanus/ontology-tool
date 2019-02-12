@@ -25,8 +25,8 @@ import (
 
 	log4 "github.com/alecthomas/log4go"
 	"github.com/ontio/ontology-tool/common"
+	"github.com/ontio/ontology-tool/core"
 	_ "github.com/ontio/ontology-tool/methods"
-	"github.com/ontio/ontology-tool/ontologytool"
 )
 
 var (
@@ -58,5 +58,5 @@ func main() {
 		methods = strings.Split(Methods, ",")
 	}
 
-	ontologytool.OntTool.Start(methods)
+	core.OntTool.Start(methods)
 }

@@ -16,7 +16,7 @@
  * along with The ontology.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package ontologytool
+package core
 
 import (
 	log4 "github.com/alecthomas/log4go"
