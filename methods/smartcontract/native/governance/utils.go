@@ -4,10 +4,11 @@ import (
 	"bytes"
 	"encoding/hex"
 
+	log4 "github.com/alecthomas/log4go"
 	"github.com/ontio/ontology-crypto/keypair"
 	sdk "github.com/ontio/ontology-go-sdk"
-	"github.com/ontio/ontology-tool/testframework"
-	"github.com/ontio/ontology/common"
+	"github.com/ontio/ontology-tool/common"
+	ontcommon "github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/serialization"
 	"github.com/ontio/ontology/core/types"
 	"github.com/ontio/ontology/errors"
@@ -21,7 +22,7 @@ var OntIDVersion = byte(0)
 
 const PROMISE_POS = 200000
 
-func registerCandidate(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPubkey string, initPos uint32) bool {
+func registerCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string, initPos uint32) bool {
 	params := &governance.RegisterCandidateParam{
 		PeerPubkey: peerPubkey,
 		Address:    user.Address,
@@ -31,20 +32,20 @@ func registerCandidate(ctx *testframework.TestFrameworkContext, user *sdk.Accoun
 	}
 	method := "registerCandidate"
 	contractAddress := utils.GovernanceContractAddress
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("registerCandidate txHash is :", txHash.ToHexString())
-	waitForBlock(ctx)
+	log4.Info("registerCandidate txHash is :", txHash.ToHexString())
+	waitForBlock(ontSdk)
 
 	//let node can be authorized
-	changeMaxAuthorization(ctx, user, peerPubkey, PROMISE_POS)
+	changeMaxAuthorization(ontSdk, user, peerPubkey, PROMISE_POS)
 	return true
 }
 
-func registerCandidate2Sign(ctx *testframework.TestFrameworkContext, ontid *sdk.Account, user *sdk.Account, peerPubkey string, initPos uint32) bool {
+func registerCandidate2Sign(ontSdk *sdk.OntologySdk, ontid *sdk.Account, user *sdk.Account, peerPubkey string, initPos uint32) bool {
 	params := &governance.RegisterCandidateParam{
 		PeerPubkey: peerPubkey,
 		Address:    user.Address,
@@ -54,107 +55,107 @@ func registerCandidate2Sign(ctx *testframework.TestFrameworkContext, ontid *sdk.
 	}
 	method := "registerCandidate"
 	contractAddress := utils.GovernanceContractAddress
-	tx, err := ctx.Ont.Native.NewNativeInvokeTransaction(ctx.GetGasPrice(), ctx.GetGasLimit(), OntIDVersion, contractAddress, method, []interface{}{params})
+	tx, err := ontSdk.Native.NewNativeInvokeTransaction(common.DefConfig.GasPrice, common.DefConfig.GasLimit, OntIDVersion, contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("NewNativeInvokeTransaction error")
+		log4.Error("NewNativeInvokeTransaction error")
 		return false
 	}
-	err = ctx.Ont.SignToTransaction(tx, user)
+	err = ontSdk.SignToTransaction(tx, user)
 	if err != nil {
-		ctx.LogError("SignToTransaction error")
+		log4.Error("SignToTransaction error")
 		return false
 	}
-	err = ctx.Ont.SignToTransaction(tx, ontid)
+	err = ontSdk.SignToTransaction(tx, ontid)
 	if err != nil {
-		ctx.LogError("SignToTransaction error")
+		log4.Error("SignToTransaction error")
 		return false
 	}
-	txHash, err := ctx.Ont.SendTransaction(tx)
+	txHash, err := ontSdk.SendTransaction(tx)
 	if err != nil {
-		ctx.LogError("SendRawTransaction error", err)
+		log4.Error("SendRawTransaction error", err)
 		return false
 	}
-	ctx.LogInfo("registerCandidate2Sign txHash is :", txHash.ToHexString())
+	log4.Info("registerCandidate2Sign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func unRegisterCandidate(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPubkey string) bool {
+func unRegisterCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string) bool {
 	params := &governance.UnRegisterCandidateParam{
 		PeerPubkey: peerPubkey,
 		Address:    user.Address,
 	}
 	method := "unRegisterCandidate"
 	contractAddress := utils.GovernanceContractAddress
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("unRegisterCandidate txHash is :", txHash.ToHexString())
+	log4.Info("unRegisterCandidate txHash is :", txHash.ToHexString())
 	return true
 }
 
-func approveCandidate(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPubkey string) bool {
+func approveCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string) bool {
 	params := &governance.ApproveCandidateParam{
 		PeerPubkey: peerPubkey,
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "approveCandidate"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("approveCandidate txHash is :", txHash.ToHexString())
+	log4.Info("approveCandidate txHash is :", txHash.ToHexString())
 	return true
 }
 
-func approveCandidateMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, peerPubkey string) bool {
+func approveCandidateMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, peerPubkey string) bool {
 	params := &governance.ApproveCandidateParam{
 		PeerPubkey: peerPubkey,
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "approveCandidate"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("approveCandidateMultiSign txHash is :", txHash.ToHexString())
+	log4.Info("approveCandidateMultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func rejectCandidate(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPubkey string) bool {
+func rejectCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string) bool {
 	params := &governance.RejectCandidateParam{
 		PeerPubkey: peerPubkey,
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "rejectCandidate"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("rejectCandidate txHash is :", txHash.ToHexString())
+	log4.Info("rejectCandidate txHash is :", txHash.ToHexString())
 	return true
 }
 
-func rejectCandidateMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, peerPubkey string) bool {
+func rejectCandidateMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, peerPubkey string) bool {
 	params := &governance.RejectCandidateParam{
 		PeerPubkey: peerPubkey,
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "rejectCandidate"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("rejectCandidateMultiSign txHash is :", txHash.ToHexString())
+	log4.Info("rejectCandidateMultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func changeMaxAuthorization(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPubkey string, maxAuthorize uint32) bool {
+func changeMaxAuthorization(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string, maxAuthorize uint32) bool {
 	params := &governance.ChangeMaxAuthorizationParam{
 		Address:      user.Address,
 		PeerPubkey:   peerPubkey,
@@ -162,16 +163,16 @@ func changeMaxAuthorization(ctx *testframework.TestFrameworkContext, user *sdk.A
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "changeMaxAuthorization"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("changeMaxAuthorization txHash is :", txHash.ToHexString())
+	log4.Info("changeMaxAuthorization txHash is :", txHash.ToHexString())
 	return true
 }
 
-func setPeerCost(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPubkey string, peerCost uint32) bool {
+func setPeerCost(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string, peerCost uint32) bool {
 	params := &governance.SetPeerCostParam{
 		Address:    user.Address,
 		PeerPubkey: peerPubkey,
@@ -179,16 +180,16 @@ func setPeerCost(ctx *testframework.TestFrameworkContext, user *sdk.Account, pee
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "setPeerCost"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("setPeerCost txHash is :", txHash.ToHexString())
+	log4.Info("setPeerCost txHash is :", txHash.ToHexString())
 	return true
 }
 
-func addInitPos(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPubkey string, pos uint32) bool {
+func addInitPos(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string, pos uint32) bool {
 	params := &governance.ChangeInitPosParam{
 		Address:    user.Address,
 		PeerPubkey: peerPubkey,
@@ -196,16 +197,16 @@ func addInitPos(ctx *testframework.TestFrameworkContext, user *sdk.Account, peer
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "addInitPos"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("addInitPos txHash is :", txHash.ToHexString())
+	log4.Info("addInitPos txHash is :", txHash.ToHexString())
 	return true
 }
 
-func reduceInitPos(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPubkey string, pos uint32) bool {
+func reduceInitPos(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string, pos uint32) bool {
 	params := &governance.ChangeInitPosParam{
 		Address:    user.Address,
 		PeerPubkey: peerPubkey,
@@ -213,16 +214,16 @@ func reduceInitPos(ctx *testframework.TestFrameworkContext, user *sdk.Account, p
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "reduceInitPos"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("reduceInitPos txHash is :", txHash.ToHexString())
+	log4.Info("reduceInitPos txHash is :", txHash.ToHexString())
 	return true
 }
 
-func authorizeForPeer(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPubkeyList []string, posList []uint32) bool {
+func authorizeForPeer(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkeyList []string, posList []uint32) bool {
 	params := &governance.AuthorizeForPeerParam{
 		Address:        user.Address,
 		PeerPubkeyList: peerPubkeyList,
@@ -230,16 +231,16 @@ func authorizeForPeer(ctx *testframework.TestFrameworkContext, user *sdk.Account
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "authorizeForPeer"
-	_, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	_, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	//ctx.LogInfo("authorizeForPeer txHash is :", txHash.ToHexString())
+	//log4.Info("authorizeForPeer txHash is :", txHash.ToHexString())
 	return true
 }
 
-func unAuthorizeForPeer(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPubkeyList []string, posList []uint32) bool {
+func unAuthorizeForPeer(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkeyList []string, posList []uint32) bool {
 	params := &governance.AuthorizeForPeerParam{
 		Address:        user.Address,
 		PeerPubkeyList: peerPubkeyList,
@@ -247,16 +248,16 @@ func unAuthorizeForPeer(ctx *testframework.TestFrameworkContext, user *sdk.Accou
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "unAuthorizeForPeer"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("unAuthorizeForPeer txHash is :", txHash.ToHexString())
+	log4.Info("unAuthorizeForPeer txHash is :", txHash.ToHexString())
 	return true
 }
 
-func withdraw(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPubkeyList []string, withdrawList []uint32) bool {
+func withdraw(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkeyList []string, withdrawList []uint32) bool {
 	params := &governance.WithdrawParam{
 		Address:        user.Address,
 		PeerPubkeyList: peerPubkeyList,
@@ -264,311 +265,311 @@ func withdraw(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPu
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "withdraw"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("withdraw txHash is :", txHash.ToHexString())
+	log4.Info("withdraw txHash is :", txHash.ToHexString())
 	return true
 }
 
-func withdrawOng(ctx *testframework.TestFrameworkContext, user *sdk.Account) bool {
+func withdrawOng(ontSdk *sdk.OntologySdk, user *sdk.Account) bool {
 	params := &governance.WithdrawOngParam{
 		Address: user.Address,
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "withdrawOng"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("withdrawOng txHash is :", txHash.ToHexString())
+	log4.Info("withdrawOng txHash is :", txHash.ToHexString())
 	return true
 }
 
 type commitDposParam struct {
 }
 
-func commitDpos(ctx *testframework.TestFrameworkContext, user *sdk.Account) bool {
+func commitDpos(ontSdk *sdk.OntologySdk, user *sdk.Account) bool {
 	params := &commitDposParam{}
 	contractAddress := utils.GovernanceContractAddress
 	method := "commitDpos"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("commitDpos txHash is :", txHash.ToHexString())
+	log4.Info("commitDpos txHash is :", txHash.ToHexString())
 	return true
 }
 
-func commitDposMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account) bool {
+func commitDposMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "commitDpos"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("commitDposMultiSign txHash is :", txHash.ToHexString())
+	log4.Info("commitDposMultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func quitNode(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPubkey string) bool {
+func quitNode(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string) bool {
 	params := &governance.QuitNodeParam{
 		PeerPubkey: peerPubkey,
 		Address:    user.Address,
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "quitNode"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("quitNode txHash is :", txHash.ToHexString())
+	log4.Info("quitNode txHash is :", txHash.ToHexString())
 	return true
 }
 
-func blackNode(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPubkeyList []string) bool {
+func blackNode(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkeyList []string) bool {
 	params := &governance.BlackNodeParam{
 		PeerPubkeyList: peerPubkeyList,
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "blackNode"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("blackNode txHash is :", txHash.ToHexString())
+	log4.Info("blackNode txHash is :", txHash.ToHexString())
 	return true
 }
 
-func blackNodeMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, peerPubkeyList []string) bool {
+func blackNodeMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, peerPubkeyList []string) bool {
 	params := &governance.BlackNodeParam{
 		PeerPubkeyList: peerPubkeyList,
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "blackNode"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("blackNodeMultiSign txHash is :", txHash.ToHexString())
+	log4.Info("blackNodeMultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func whiteNode(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPubkey string) bool {
+func whiteNode(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string) bool {
 	params := &governance.WhiteNodeParam{
 		PeerPubkey: peerPubkey,
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "whiteNode"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("whiteNode txHash is :", txHash.ToHexString())
+	log4.Info("whiteNode txHash is :", txHash.ToHexString())
 	return true
 }
 
-func whiteNodeMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, peerPubkey string) bool {
+func whiteNodeMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, peerPubkey string) bool {
 	params := &governance.WhiteNodeParam{
 		PeerPubkey: peerPubkey,
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "whiteNode"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("whiteNodeMultiSign txHash is :", txHash.ToHexString())
+	log4.Info("whiteNodeMultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func updateConfig(ctx *testframework.TestFrameworkContext, user *sdk.Account, config *governance.Configuration) bool {
+func updateConfig(ontSdk *sdk.OntologySdk, user *sdk.Account, config *governance.Configuration) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateConfig"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{config})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("updateConfig txHash is :", txHash.ToHexString())
+	log4.Info("updateConfig txHash is :", txHash.ToHexString())
 	return true
 }
 
-func updateConfigMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, config *governance.Configuration) bool {
+func updateConfigMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, config *governance.Configuration) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateConfig"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{config})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("updateConfigMultiSign txHash is :", txHash.ToHexString())
+	log4.Info("updateConfigMultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func updateGlobalParam(ctx *testframework.TestFrameworkContext, user *sdk.Account, globalParam *governance.GlobalParam) bool {
+func updateGlobalParam(ontSdk *sdk.OntologySdk, user *sdk.Account, globalParam *governance.GlobalParam) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateGlobalParam"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{globalParam})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("updateGlobalParam txHash is :", txHash.ToHexString())
+	log4.Info("updateGlobalParam txHash is :", txHash.ToHexString())
 	return true
 }
 
-func updateGlobalParamMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, globalParam *governance.GlobalParam) bool {
+func updateGlobalParamMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, globalParam *governance.GlobalParam) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateGlobalParam"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{globalParam})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("updateGlobalParamMultiSign txHash is :", txHash.ToHexString())
+	log4.Info("updateGlobalParamMultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func updateGlobalParam2(ctx *testframework.TestFrameworkContext, user *sdk.Account, globalParam2 *governance.GlobalParam2) bool {
+func updateGlobalParam2(ontSdk *sdk.OntologySdk, user *sdk.Account, globalParam2 *governance.GlobalParam2) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateGlobalParam2"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{globalParam2})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("updateGlobalParam2 txHash is :", txHash.ToHexString())
+	log4.Info("updateGlobalParam2 txHash is :", txHash.ToHexString())
 	return true
 }
 
-func updateGlobalParam2MultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, globalParam2 *governance.GlobalParam2) bool {
+func updateGlobalParam2MultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, globalParam2 *governance.GlobalParam2) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateGlobalParam2"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{globalParam2})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("updateGlobalParam2MultiSign txHash is :", txHash.ToHexString())
+	log4.Info("updateGlobalParam2MultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func updateSplitCurve(ctx *testframework.TestFrameworkContext, user *sdk.Account, splitCurve *governance.SplitCurve) bool {
+func updateSplitCurve(ontSdk *sdk.OntologySdk, user *sdk.Account, splitCurve *governance.SplitCurve) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateSplitCurve"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{splitCurve})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("updateSplitCurve txHash is :", txHash.ToHexString())
+	log4.Info("updateSplitCurve txHash is :", txHash.ToHexString())
 	return true
 }
 
-func updateSplitCurveMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, splitCurve *governance.SplitCurve) bool {
+func updateSplitCurveMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, splitCurve *governance.SplitCurve) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateSplitCurve"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{splitCurve})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("updateSplitCurveMultiSign txHash is :", txHash.ToHexString())
+	log4.Info("updateSplitCurveMultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func setPromisePos(ctx *testframework.TestFrameworkContext, user *sdk.Account, promisePos *governance.PromisePos) bool {
+func setPromisePos(ontSdk *sdk.OntologySdk, user *sdk.Account, promisePos *governance.PromisePos) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "setPromisePos"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{promisePos})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("setPromisePos txHash is :", txHash.ToHexString())
+	log4.Info("setPromisePos txHash is :", txHash.ToHexString())
 	return true
 }
 
-func setPromisePosMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, promisePos *governance.PromisePos) bool {
+func setPromisePosMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, promisePos *governance.PromisePos) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "setPromisePos"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{promisePos})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("setPromisePosMultiSign txHash is :", txHash.ToHexString())
+	log4.Info("setPromisePosMultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func transferPenalty(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPubkey string, address common.Address) bool {
+func transferPenalty(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string, address ontcommon.Address) bool {
 	params := &governance.TransferPenaltyParam{
 		PeerPubkey: peerPubkey,
 		Address:    address,
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "transferPenalty"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("transferPenalty txHash is :", txHash.ToHexString())
+	log4.Info("transferPenalty txHash is :", txHash.ToHexString())
 	return true
 }
 
-func withdrawFee(ctx *testframework.TestFrameworkContext, user *sdk.Account) bool {
+func withdrawFee(ontSdk *sdk.OntologySdk, user *sdk.Account) bool {
 	params := &governance.WithdrawFeeParam{
 		Address: user.Address,
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "withdrawFee"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("withdrawFee txHash is :", txHash.ToHexString())
+	log4.Info("withdrawFee txHash is :", txHash.ToHexString())
 	return true
 }
 
-func transferPenaltyMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, peerPubkey string, address common.Address) bool {
+func transferPenaltyMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, peerPubkey string, address ontcommon.Address) bool {
 	params := &governance.TransferPenaltyParam{
 		PeerPubkey: peerPubkey,
 		Address:    address,
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "transferPenalty"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("transferPenaltyMultiSign txHash is :", txHash.ToHexString())
+	log4.Info("transferPenaltyMultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func multiTransfer(ctx *testframework.TestFrameworkContext, contract common.Address, from []*sdk.Account, to []string, amount []uint64) bool {
+func multiTransfer(ontSdk *sdk.OntologySdk, contract ontcommon.Address, from []*sdk.Account, to []string, amount []uint64) bool {
 	var sts []ont.State
 	if len(from) != len(to) || len(from) != len(amount) {
-		ctx.LogError("input length error")
+		log4.Error("input length error")
 		return false
 	}
 	for i := 0; i < len(from); i++ {
-		address, err := common.AddressFromBase58(to[i])
+		address, err := ontcommon.AddressFromBase58(to[i])
 		if err != nil {
-			ctx.LogError("common.AddressFromBase58 failed %v", err)
+			log4.Error("common.AddressFromBase58 failed %v", err)
 			return false
 		}
 		sts = append(sts, ont.State{
@@ -582,30 +583,30 @@ func multiTransfer(ctx *testframework.TestFrameworkContext, contract common.Addr
 	}
 	contractAddress := contract
 	method := "transfer"
-	tx, err := ctx.Ont.Native.NewNativeInvokeTransaction(ctx.GetGasPrice(), ctx.GetGasLimit(), OntIDVersion, contractAddress, method, []interface{}{transfers})
+	tx, err := ontSdk.Native.NewNativeInvokeTransaction(common.DefConfig.GasPrice, common.DefConfig.GasLimit, OntIDVersion, contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		return false
 	}
 	for _, singer := range from {
-		err = ctx.Ont.SignToTransaction(tx, singer)
+		err = ontSdk.SignToTransaction(tx, singer)
 		if err != nil {
 			return false
 		}
 	}
-	txHash, err := ctx.Ont.SendTransaction(tx)
+	txHash, err := ontSdk.SendTransaction(tx)
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 		return false
 	}
-	ctx.LogInfo("multiTransfer txHash is :", txHash.ToHexString())
+	log4.Info("multiTransfer txHash is :", txHash.ToHexString())
 	return true
 }
 
-func transferOntMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, address common.Address, amount uint64) bool {
+func transferOntMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, address ontcommon.Address, amount uint64) bool {
 	var sts []ont.State
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
 	if err != nil {
-		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+		log4.Error("types.AddressFromMultiPubKeys error", err)
 	}
 	sts = append(sts, ont.State{
 		From:  from,
@@ -617,20 +618,20 @@ func transferOntMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []key
 	}
 	contractAddress := utils.OntContractAddress
 	method := "transfer"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("transferOntMultiSign txHash is :", txHash.ToHexString())
+	log4.Info("transferOntMultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func transferOntMultiSignToMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, address common.Address, amount uint64) bool {
+func transferOntMultiSignToMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, address ontcommon.Address, amount uint64) bool {
 	var sts []ont.State
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
 	if err != nil {
-		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+		log4.Error("types.AddressFromMultiPubKeys error", err)
 	}
 	sts = append(sts, ont.State{
 		From:  from,
@@ -642,20 +643,20 @@ func transferOntMultiSignToMultiSign(ctx *testframework.TestFrameworkContext, pu
 	}
 	contractAddress := utils.OntContractAddress
 	method := "transfer"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("transferOntMultiSignToMultiSign txHash is :", txHash.ToHexString())
+	log4.Info("transferOntMultiSignToMultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func transferOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, address common.Address, amount uint64) bool {
+func transferOngMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, address ontcommon.Address, amount uint64) bool {
 	var sts []ont.State
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
 	if err != nil {
-		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+		log4.Error("types.AddressFromMultiPubKeys error", err)
 	}
 	sts = append(sts, ont.State{
 		From:  from,
@@ -667,20 +668,20 @@ func transferOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []key
 	}
 	contractAddress := utils.OngContractAddress
 	method := "transfer"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("transferOngMultiSign txHash is :", txHash.ToHexString())
+	log4.Info("transferOngMultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func transferOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, address common.Address, amount uint64) bool {
+func transferOngMultiSignToMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, address ontcommon.Address, amount uint64) bool {
 	var sts []ont.State
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
 	if err != nil {
-		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+		log4.Error("types.AddressFromMultiPubKeys error", err)
 	}
 	sts = append(sts, ont.State{
 		From:  from,
@@ -692,19 +693,19 @@ func transferOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext, pu
 	}
 	contractAddress := utils.OngContractAddress
 	method := "transfer"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("transferOngMultiSignToMultiSign txHash is :", txHash.ToHexString())
+	log4.Info("transferOngMultiSignToMultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func transferFromOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, address common.Address, amount uint64) bool {
+func transferFromOngMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, address ontcommon.Address, amount uint64) bool {
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
 	if err != nil {
-		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+		log4.Error("types.AddressFromMultiPubKeys error", err)
 	}
 	params := &ont.TransferFrom{
 		Sender: from,
@@ -714,19 +715,19 @@ func transferFromOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 	}
 	contractAddress := utils.OngContractAddress
 	method := "transferFrom"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("transferFromOngMultiSign txHash is :", txHash.ToHexString())
+	log4.Info("transferFromOngMultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func transferFromOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, address common.Address, amount uint64) bool {
+func transferFromOngMultiSignToMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, address ontcommon.Address, amount uint64) bool {
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
 	if err != nil {
-		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+		log4.Error("types.AddressFromMultiPubKeys error", err)
 	}
 	params := &ont.TransferFrom{
 		Sender: from,
@@ -736,16 +737,16 @@ func transferFromOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext
 	}
 	contractAddress := utils.OngContractAddress
 	method := "transferFrom"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("transferFromOngMultiSignToMultiSign txHash is :", txHash.ToHexString())
+	log4.Info("transferFromOngMultiSignToMultiSign txHash is :", txHash.ToHexString())
 	return true
 }
 
-func assignFuncsToRole(ctx *testframework.TestFrameworkContext, user *sdk.Account, contract common.Address, role string, function string) bool {
+func assignFuncsToRole(ontSdk *sdk.OntologySdk, user *sdk.Account, contract ontcommon.Address, role string, function string) bool {
 	params := &auth.FuncsToRoleParam{
 		ContractAddr: contract,
 		AdminOntID:   []byte("did:ont:" + user.Address.ToBase58()),
@@ -755,16 +756,16 @@ func assignFuncsToRole(ctx *testframework.TestFrameworkContext, user *sdk.Accoun
 	}
 	method := "assignFuncsToRole"
 	contractAddress := utils.AuthContractAddress
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("assignFuncsToRole txHash is :", txHash.ToHexString())
+	log4.Info("assignFuncsToRole txHash is :", txHash.ToHexString())
 	return true
 }
 
-func assignOntIDsToRole(ctx *testframework.TestFrameworkContext, user *sdk.Account, contract common.Address, role string, ontids []string) bool {
+func assignOntIDsToRole(ontSdk *sdk.OntologySdk, user *sdk.Account, contract ontcommon.Address, role string, ontids []string) bool {
 	params := &auth.OntIDsToRoleParam{
 		ContractAddr: contract,
 		AdminOntID:   []byte("did:ont:" + user.Address.ToBase58()),
@@ -777,12 +778,12 @@ func assignOntIDsToRole(ctx *testframework.TestFrameworkContext, user *sdk.Accou
 	}
 	contractAddress := utils.AuthContractAddress
 	method := "assignOntIDsToRole"
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("assignOntIDsToRole txHash is :", txHash.ToHexString())
+	log4.Info("assignOntIDsToRole txHash is :", txHash.ToHexString())
 	return true
 }
 
@@ -791,27 +792,27 @@ type RegIDWithPublicKeyParam struct {
 	Pubkey []byte
 }
 
-func regIdWithPublicKey(ctx *testframework.TestFrameworkContext, user *sdk.Account) bool {
+func regIdWithPublicKey(ontSdk *sdk.OntologySdk, user *sdk.Account) bool {
 	params := RegIDWithPublicKeyParam{
 		OntID:  []byte("did:ont:" + user.Address.ToBase58()),
 		Pubkey: keypair.SerializePublicKey(user.PublicKey),
 	}
 	method := "regIDWithPublicKey"
 	contractAddress := utils.OntIDContractAddress
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
+		log4.Error("invokeNativeContract error :", err)
 	}
-	ctx.LogInfo("RegIDWithPublicKeyParam txHash is :", txHash.ToHexString())
+	log4.Info("RegIDWithPublicKeyParam txHash is :", txHash.ToHexString())
 	return true
 }
 
-func getVbftConfig(ctx *testframework.TestFrameworkContext) (*governance.Configuration, error) {
+func getVbftConfig(ontSdk *sdk.OntologySdk) (*governance.Configuration, error) {
 	contractAddress := utils.GovernanceContractAddress
 	config := new(governance.Configuration)
 	key := []byte(governance.VBFT_CONFIG)
-	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
@@ -821,11 +822,11 @@ func getVbftConfig(ctx *testframework.TestFrameworkContext) (*governance.Configu
 	return config, nil
 }
 
-func getGlobalParam(ctx *testframework.TestFrameworkContext) (*governance.GlobalParam, error) {
+func getGlobalParam(ontSdk *sdk.OntologySdk) (*governance.GlobalParam, error) {
 	contractAddress := utils.GovernanceContractAddress
 	globalParam := new(governance.GlobalParam)
 	key := []byte(governance.GLOBAL_PARAM)
-	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
@@ -835,11 +836,11 @@ func getGlobalParam(ctx *testframework.TestFrameworkContext) (*governance.Global
 	return globalParam, nil
 }
 
-func getGlobalParam2(ctx *testframework.TestFrameworkContext) (*governance.GlobalParam2, error) {
+func getGlobalParam2(ontSdk *sdk.OntologySdk) (*governance.GlobalParam2, error) {
 	contractAddress := utils.GovernanceContractAddress
 	globalParam2 := new(governance.GlobalParam2)
 	key := []byte(governance.GLOBAL_PARAM2)
-	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
@@ -851,11 +852,11 @@ func getGlobalParam2(ctx *testframework.TestFrameworkContext) (*governance.Globa
 	return globalParam2, nil
 }
 
-func getSplitCurve(ctx *testframework.TestFrameworkContext) (*governance.SplitCurve, error) {
+func getSplitCurve(ontSdk *sdk.OntologySdk) (*governance.SplitCurve, error) {
 	contractAddress := utils.GovernanceContractAddress
 	splitCurve := new(governance.SplitCurve)
 	key := []byte(governance.SPLIT_CURVE)
-	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
@@ -865,11 +866,11 @@ func getSplitCurve(ctx *testframework.TestFrameworkContext) (*governance.SplitCu
 	return splitCurve, nil
 }
 
-func getGovernanceView(ctx *testframework.TestFrameworkContext) (*governance.GovernanceView, error) {
+func getGovernanceView(ontSdk *sdk.OntologySdk) (*governance.GovernanceView, error) {
 	contractAddress := utils.GovernanceContractAddress
 	governanceView := new(governance.GovernanceView)
 	key := []byte(governance.GOVERNANCE_VIEW)
-	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
@@ -879,17 +880,17 @@ func getGovernanceView(ctx *testframework.TestFrameworkContext) (*governance.Gov
 	return governanceView, nil
 }
 
-func getView(ctx *testframework.TestFrameworkContext) (uint32, error) {
-	governanceView, err := getGovernanceView(ctx)
+func getView(ontSdk *sdk.OntologySdk) (uint32, error) {
+	governanceView, err := getGovernanceView(ontSdk)
 	if err != nil {
 		return 0, errors.NewDetailErr(err, errors.ErrNoCode, "getGovernanceView error")
 	}
 	return governanceView.View, nil
 }
 
-func getPeerPoolMap(ctx *testframework.TestFrameworkContext) (*governance.PeerPoolMap, error) {
+func getPeerPoolMap(ontSdk *sdk.OntologySdk) (*governance.PeerPoolMap, error) {
 	contractAddress := utils.GovernanceContractAddress
-	view, err := getView(ctx)
+	view, err := getView(ontSdk)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getView error")
 	}
@@ -901,7 +902,7 @@ func getPeerPoolMap(ctx *testframework.TestFrameworkContext) (*governance.PeerPo
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "GetUint32Bytes, get viewBytes error!")
 	}
 	key := ConcatKey([]byte(governance.PEER_POOL), viewBytes)
-	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
@@ -911,7 +912,7 @@ func getPeerPoolMap(ctx *testframework.TestFrameworkContext) (*governance.PeerPo
 	return peerPoolMap, nil
 }
 
-func getAuthorizeInfo(ctx *testframework.TestFrameworkContext, peerPubkey string, address common.Address) (*governance.AuthorizeInfo, error) {
+func getAuthorizeInfo(ontSdk *sdk.OntologySdk, peerPubkey string, address ontcommon.Address) (*governance.AuthorizeInfo, error) {
 	contractAddress := utils.GovernanceContractAddress
 	peerPubkeyPrefix, err := hex.DecodeString(peerPubkey)
 	if err != nil {
@@ -919,7 +920,7 @@ func getAuthorizeInfo(ctx *testframework.TestFrameworkContext, peerPubkey string
 	}
 	authorizeInfo := new(governance.AuthorizeInfo)
 	key := ConcatKey([]byte(governance.AUTHORIZE_INFO_POOL), peerPubkeyPrefix, address[:])
-	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
@@ -929,14 +930,14 @@ func getAuthorizeInfo(ctx *testframework.TestFrameworkContext, peerPubkey string
 	return authorizeInfo, nil
 }
 
-func inBlackList(ctx *testframework.TestFrameworkContext, peerPubkey string) (bool, error) {
+func inBlackList(ontSdk *sdk.OntologySdk, peerPubkey string) (bool, error) {
 	contractAddress := utils.GovernanceContractAddress
 	peerPubkeyPrefix, err := hex.DecodeString(peerPubkey)
 	if err != nil {
 		return false, errors.NewDetailErr(err, errors.ErrNoCode, "hex.DecodeString, peerPubkey format error!")
 	}
 	key := ConcatKey([]byte(governance.BLACK_LIST), peerPubkeyPrefix)
-	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return false, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
@@ -946,11 +947,11 @@ func inBlackList(ctx *testframework.TestFrameworkContext, peerPubkey string) (bo
 	return false, nil
 }
 
-func getTotalStake(ctx *testframework.TestFrameworkContext, address common.Address) (*governance.TotalStake, error) {
+func getTotalStake(ontSdk *sdk.OntologySdk, address ontcommon.Address) (*governance.TotalStake, error) {
 	contractAddress := utils.GovernanceContractAddress
 	totalStake := new(governance.TotalStake)
 	key := ConcatKey([]byte(governance.TOTAL_STAKE), address[:])
-	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
@@ -960,7 +961,7 @@ func getTotalStake(ctx *testframework.TestFrameworkContext, address common.Addre
 	return totalStake, nil
 }
 
-func getPenaltyStake(ctx *testframework.TestFrameworkContext, peerPubkey string) (*governance.PenaltyStake, error) {
+func getPenaltyStake(ontSdk *sdk.OntologySdk, peerPubkey string) (*governance.PenaltyStake, error) {
 	contractAddress := utils.GovernanceContractAddress
 	peerPubkeyPrefix, err := hex.DecodeString(peerPubkey)
 	if err != nil {
@@ -968,7 +969,7 @@ func getPenaltyStake(ctx *testframework.TestFrameworkContext, peerPubkey string)
 	}
 	penaltyStake := new(governance.PenaltyStake)
 	key := ConcatKey([]byte(governance.PENALTY_STAKE), peerPubkeyPrefix)
-	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
@@ -978,7 +979,7 @@ func getPenaltyStake(ctx *testframework.TestFrameworkContext, peerPubkey string)
 	return penaltyStake, nil
 }
 
-func getAttributes(ctx *testframework.TestFrameworkContext, peerPubkey string) (*governance.PeerAttributes, error) {
+func getAttributes(ontSdk *sdk.OntologySdk, peerPubkey string) (*governance.PeerAttributes, error) {
 	contractAddress := utils.GovernanceContractAddress
 	peerPubkeyPrefix, err := hex.DecodeString(peerPubkey)
 	if err != nil {
@@ -986,7 +987,7 @@ func getAttributes(ctx *testframework.TestFrameworkContext, peerPubkey string) (
 	}
 	peerAttributes := new(governance.PeerAttributes)
 	key := ConcatKey([]byte(governance.PEER_ATTRIBUTES), peerPubkeyPrefix)
-	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
@@ -998,11 +999,11 @@ func getAttributes(ctx *testframework.TestFrameworkContext, peerPubkey string) (
 	return peerAttributes, nil
 }
 
-func getSplitFeeAddress(ctx *testframework.TestFrameworkContext, address common.Address) (*governance.SplitFeeAddress, error) {
+func getSplitFeeAddress(ontSdk *sdk.OntologySdk, address ontcommon.Address) (*governance.SplitFeeAddress, error) {
 	contractAddress := utils.GovernanceContractAddress
 	splitFeeAddress := new(governance.SplitFeeAddress)
 	key := ConcatKey([]byte(governance.SPLIT_FEE_ADDRESS), address[:])
-	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
@@ -1012,10 +1013,10 @@ func getSplitFeeAddress(ctx *testframework.TestFrameworkContext, address common.
 	return splitFeeAddress, nil
 }
 
-func getSplitFee(ctx *testframework.TestFrameworkContext) (uint64, error) {
+func getSplitFee(ontSdk *sdk.OntologySdk) (uint64, error) {
 	contractAddress := utils.GovernanceContractAddress
 	key := ConcatKey([]byte(governance.SPLIT_FEE))
-	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return 0, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
@@ -1026,14 +1027,14 @@ func getSplitFee(ctx *testframework.TestFrameworkContext) (uint64, error) {
 	return splitFee, nil
 }
 
-func getPromisePos(ctx *testframework.TestFrameworkContext, peerPubkey string) (*governance.PromisePos, error) {
+func getPromisePos(ontSdk *sdk.OntologySdk, peerPubkey string) (*governance.PromisePos, error) {
 	contractAddress := utils.GovernanceContractAddress
 	peerPubkeyPrefix, err := hex.DecodeString(peerPubkey)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "hex.DecodeString, peerPubkey format error!")
 	}
 	key := ConcatKey([]byte(governance.PROMISE_POS), peerPubkeyPrefix)
-	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}

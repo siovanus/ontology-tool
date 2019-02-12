@@ -24,22 +24,21 @@ import (
 	"time"
 
 	log4 "github.com/alecthomas/log4go"
-	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/common"
 	_ "github.com/ontio/ontology-tool/methods"
-	"github.com/ontio/ontology-tool/testframework"
+	"github.com/ontio/ontology-tool/ontologytool"
 )
 
 var (
-	TestConfig string //Test config file
-	LogConfig  string //Log config file
-	TestCases  string //TestCase list in cmdline
+	Config    string //config file
+	LogConfig string //Log config file
+	Methods   string //Methods list in cmdline
 )
 
 func init() {
-	flag.StringVar(&TestConfig, "cfg", "./config_test.json", "Config of ontology-tool")
+	flag.StringVar(&Config, "cfg", "./config.json", "Config of ontology-tool")
 	flag.StringVar(&LogConfig, "lfg", "./log4go.xml", "Log config of ontology-tool")
-	flag.StringVar(&TestCases, "t", "", "Test case to run. use ',' to split test case")
+	flag.StringVar(&Methods, "t", "", "methods to run. use ',' to split methods")
 	flag.Parse()
 }
 
@@ -48,25 +47,16 @@ func main() {
 	log4.LoadConfiguration(LogConfig)
 	defer time.Sleep(time.Second)
 
-	err := common.DefConfig.Init(TestConfig)
+	err := common.DefConfig.Init(Config)
 	if err != nil {
 		log4.Error("DefConfig.Init error:%s", err)
 		return
 	}
 
-	ontSdk := sdk.NewOntologySdk()
-	ontSdk.NewRpcClient().SetAddress(common.DefConfig.JsonRpcAddress)
-	wallet, err := ontSdk.OpenWallet(common.DefConfig.WalletFile)
-	if err != nil {
-		log4.Error("OpenOrCreateWallet %s error:%s", common.DefConfig.WalletFile, err)
-		return
+	methods := make([]string, 0)
+	if Methods != "" {
+		methods = strings.Split(Methods, ",")
 	}
-	testCases := make([]string, 0)
-	if TestCases != "" {
-		testCases = strings.Split(TestCases, ",")
-	}
-	testframework.TFramework.SetOntSdk(ontSdk)
-	testframework.TFramework.SetWallet(wallet)
 	//Start run test case
-	testframework.TFramework.Start(testCases)
+	ontologytool.OntTool.Start(methods)
 }

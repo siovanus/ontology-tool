@@ -27,11 +27,11 @@ import (
 	"math"
 	"time"
 
+	log4 "github.com/alecthomas/log4go"
 	"github.com/ontio/ontology-crypto/keypair"
 	s "github.com/ontio/ontology-crypto/signature"
 	"github.com/ontio/ontology-crypto/vrf"
 	sdk "github.com/ontio/ontology-go-sdk"
-	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/password"
 	"github.com/ontio/ontology/consensus/vbft/config"
@@ -44,53 +44,53 @@ type Account struct {
 	Path string
 }
 
-func RegIdWithPublicKey(ctx *testframework.TestFrameworkContext) bool {
+func RegIdWithPublicKey(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/RegIdWithPublicKey.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	account := new(Account)
 	err = json.Unmarshal(data, account)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
-	user, ok := getAccountByPassword(ctx, account.Path)
+	user, ok := getAccountByPassword(ontSdk, account.Path)
 	if !ok {
 		return false
 	}
-	ok = regIdWithPublicKey(ctx, user)
+	ok = regIdWithPublicKey(ontSdk, user)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
-func AssignFuncsToRole(ctx *testframework.TestFrameworkContext) bool {
+func AssignFuncsToRole(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/AssignFuncsToRole.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	account := new(Account)
 	err = json.Unmarshal(data, account)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
-	user, ok := getAccountByPassword(ctx, account.Path)
+	user, ok := getAccountByPassword(ontSdk, account.Path)
 	if !ok {
 		return false
 	}
-	ok = assignFuncsToRole(ctx, user, utils.GovernanceContractAddress, "TrionesCandidatePeerOwner", "registerCandidate")
+	ok = assignFuncsToRole(ontSdk, user, utils.GovernanceContractAddress, "TrionesCandidatePeerOwner", "registerCandidate")
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -101,33 +101,33 @@ type AssignFuncsToRoleAnyParam struct {
 	Function        string
 }
 
-func AssignFuncsToRoleAny(ctx *testframework.TestFrameworkContext) bool {
+func AssignFuncsToRoleAny(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/AssignFuncsToRoleAny.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	assignFuncsToRoleAnyParam := new(AssignFuncsToRoleAnyParam)
 	err = json.Unmarshal(data, assignFuncsToRoleAnyParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
-	user, ok := getAccountByPassword(ctx, assignFuncsToRoleAnyParam.Path)
+	user, ok := getAccountByPassword(ontSdk, assignFuncsToRoleAnyParam.Path)
 	if !ok {
 		return false
 	}
 	contractAddress, err := getAddressByHexString(assignFuncsToRoleAnyParam.ContractAddress)
 	if err != nil {
-		ctx.LogError("getAddressByHexString failed %v", err)
+		log4.Error("getAddressByHexString failed %v", err)
 		return false
 	}
-	ok = assignFuncsToRole(ctx, user, contractAddress, assignFuncsToRoleAnyParam.Role, assignFuncsToRoleAnyParam.Function)
+	ok = assignFuncsToRole(ontSdk, user, contractAddress, assignFuncsToRoleAnyParam.Role, assignFuncsToRoleAnyParam.Function)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -136,28 +136,28 @@ type AssignOntIDsToRoleParam struct {
 	Ontid []string
 }
 
-func AssignOntIDsToRole(ctx *testframework.TestFrameworkContext) bool {
+func AssignOntIDsToRole(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/AssignOntIDsToRole.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	assignOntIDsToRoleParam := new(AssignOntIDsToRoleParam)
 	err = json.Unmarshal(data, assignOntIDsToRoleParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
-	user1, ok := getAccountByPassword(ctx, assignOntIDsToRoleParam.Path1)
+	user1, ok := getAccountByPassword(ontSdk, assignOntIDsToRoleParam.Path1)
 	if !ok {
 		return false
 	}
-	ok = assignOntIDsToRole(ctx, user1, utils.GovernanceContractAddress, "TrionesCandidatePeerOwner", assignOntIDsToRoleParam.Ontid)
+	ok = assignOntIDsToRole(ontSdk, user1, utils.GovernanceContractAddress, "TrionesCandidatePeerOwner", assignOntIDsToRoleParam.Ontid)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -168,33 +168,33 @@ type AssignOntIDsToRoleAnyParam struct {
 	Ontid           []string
 }
 
-func AssignOntIDsToRoleAny(ctx *testframework.TestFrameworkContext) bool {
+func AssignOntIDsToRoleAny(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/AssignOntIDsToRoleAny.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	assignOntIDsToRoleAnyParam := new(AssignOntIDsToRoleAnyParam)
 	err = json.Unmarshal(data, assignOntIDsToRoleAnyParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
-	user1, ok := getAccountByPassword(ctx, assignOntIDsToRoleAnyParam.Path1)
+	user1, ok := getAccountByPassword(ontSdk, assignOntIDsToRoleAnyParam.Path1)
 	if !ok {
 		return false
 	}
 	contractAddress, err := getAddressByHexString(assignOntIDsToRoleAnyParam.ContractAddress)
 	if err != nil {
-		ctx.LogError("getAddressByHexString failed %v", err)
+		log4.Error("getAddressByHexString failed %v", err)
 		return false
 	}
-	ok = assignOntIDsToRole(ctx, user1, contractAddress, assignOntIDsToRoleAnyParam.Role, assignOntIDsToRoleAnyParam.Ontid)
+	ok = assignOntIDsToRole(ontSdk, user1, contractAddress, assignOntIDsToRoleAnyParam.Role, assignOntIDsToRoleAnyParam.Ontid)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -204,30 +204,30 @@ type RegisterCandidateParam struct {
 	InitPos    []uint32
 }
 
-func RegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
+func RegisterCandidate(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/RegisterCandidate.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	registerCandidateParam := new(RegisterCandidateParam)
 	err = json.Unmarshal(data, registerCandidateParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
 	for i := 0; i < len(registerCandidateParam.PeerPubkey); i++ {
-		user, ok := getAccountByPassword(ctx, registerCandidateParam.Path[i])
+		user, ok := getAccountByPassword(ontSdk, registerCandidateParam.Path[i])
 		if !ok {
 			return false
 		}
-		ok = registerCandidate(ctx, user, registerCandidateParam.PeerPubkey[i], registerCandidateParam.InitPos[i])
+		ok = registerCandidate(ontSdk, user, registerCandidateParam.PeerPubkey[i], registerCandidateParam.InitPos[i])
 		if !ok {
 			return false
 		}
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -240,20 +240,20 @@ type RegisterCandidate2SignParam struct {
 	InitPos    uint32
 }
 
-func RegisterCandidate2Sign(ctx *testframework.TestFrameworkContext) bool {
+func RegisterCandidate2Sign(ontSdk *sdk.OntologySdk) bool {
 	//"+UADcReBcLq0pn/2Grmz+UJsKl3ryop8pgRVHbQVgTBfT0lho06Svh4eQLSmC93j"
 	//"AG9W6c7nNhaiywcyVPgW9hQKvUYQr5iLvk"
 	//"IfxFV0Fer5LknIyCLP2P2w==2"
 
 	data, err := ioutil.ReadFile("./params/RegisterCandidate2Sign.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	registerCandidate2SignParam := new(RegisterCandidate2SignParam)
 	err = json.Unmarshal(data, registerCandidate2SignParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 
@@ -272,7 +272,7 @@ func RegisterCandidate2Sign(ctx *testframework.TestFrameworkContext) bool {
 	time.Sleep(1 * time.Second)
 	pwd, err := password.GetPassword()
 	if err != nil {
-		ctx.LogError("getPassword error:%s", err)
+		log4.Error("getPassword error:%s", err)
 		return false
 	}
 	pri, err := keypair.DecryptWithCustomScrypt(&res, pwd, &keypair.ScryptParam{
@@ -283,7 +283,7 @@ func RegisterCandidate2Sign(ctx *testframework.TestFrameworkContext) bool {
 	})
 	//pri, err := keypair.DecryptPrivateKey(&res, pwd)
 	if err != nil {
-		ctx.LogError("error: ", err)
+		log4.Error("error: ", err)
 		return false
 	}
 	address, _ := common.AddressFromBase58(registerCandidate2SignParam.Address)
@@ -293,11 +293,11 @@ func RegisterCandidate2Sign(ctx *testframework.TestFrameworkContext) bool {
 		Address:    address,
 		SigScheme:  s.SHA256withECDSA,
 	}
-	user, ok := getAccountByPassword(ctx, registerCandidate2SignParam.Path)
+	user, ok := getAccountByPassword(ontSdk, registerCandidate2SignParam.Path)
 	if !ok {
 		return false
 	}
-	ok = registerCandidate2Sign(ctx, account, user, registerCandidate2SignParam.PeerPubkey, registerCandidate2SignParam.InitPos)
+	ok = registerCandidate2Sign(ontSdk, account, user, registerCandidate2SignParam.PeerPubkey, registerCandidate2SignParam.InitPos)
 	if !ok {
 		return false
 	}
@@ -309,27 +309,27 @@ type UnRegisterCandidateParam struct {
 	PeerPubkey string
 }
 
-func UnRegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
+func UnRegisterCandidate(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/UnRegisterCandidate.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	unRegisterCandidateParam := new(UnRegisterCandidateParam)
 	err = json.Unmarshal(data, unRegisterCandidateParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
-	user, ok := getAccountByPassword(ctx, unRegisterCandidateParam.Path)
+	user, ok := getAccountByPassword(ontSdk, unRegisterCandidateParam.Path)
 	if !ok {
 		return false
 	}
-	ok = unRegisterCandidate(ctx, user, unRegisterCandidateParam.PeerPubkey)
+	ok = unRegisterCandidate(ontSdk, user, unRegisterCandidateParam.PeerPubkey)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -338,23 +338,23 @@ type ApproveCandidateParam struct {
 	PeerPubkey []string
 }
 
-func ApproveCandidate(ctx *testframework.TestFrameworkContext) bool {
+func ApproveCandidate(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/ApproveCandidate.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	approveCandidateParam := new(ApproveCandidateParam)
 	err = json.Unmarshal(data, approveCandidateParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range approveCandidateParam.Path {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -362,12 +362,12 @@ func ApproveCandidate(ctx *testframework.TestFrameworkContext) bool {
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
 	for _, peerPubkey := range approveCandidateParam.PeerPubkey {
-		ok := approveCandidateMultiSign(ctx, pubKeys, users, peerPubkey)
+		ok := approveCandidateMultiSign(ontSdk, pubKeys, users, peerPubkey)
 		if !ok {
 			return false
 		}
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -376,34 +376,34 @@ type RejectCandidateParam struct {
 	PeerPubkey string
 }
 
-func RejectCandidate(ctx *testframework.TestFrameworkContext) bool {
+func RejectCandidate(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/RejectCandidate.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	rejectCandidateParam := new(RejectCandidateParam)
 	err = json.Unmarshal(data, rejectCandidateParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range rejectCandidateParam.Path {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	ok := rejectCandidateMultiSign(ctx, pubKeys, users, rejectCandidateParam.PeerPubkey)
+	ok := rejectCandidateMultiSign(ontSdk, pubKeys, users, rejectCandidateParam.PeerPubkey)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -413,30 +413,30 @@ type ChangeMaxAuthorizationParam struct {
 	MaxAuthorizeList []uint32
 }
 
-func ChangeMaxAuthorization(ctx *testframework.TestFrameworkContext) bool {
+func ChangeMaxAuthorization(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/ChangeMaxAuthorization.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	changeMaxAuthorizationParam := new(ChangeMaxAuthorizationParam)
 	err = json.Unmarshal(data, changeMaxAuthorizationParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
 	for index, path := range changeMaxAuthorizationParam.PathList {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
-		ok = changeMaxAuthorization(ctx, user, changeMaxAuthorizationParam.PeerPubkeyList[index], changeMaxAuthorizationParam.MaxAuthorizeList[index])
+		ok = changeMaxAuthorization(ontSdk, user, changeMaxAuthorizationParam.PeerPubkeyList[index], changeMaxAuthorizationParam.MaxAuthorizeList[index])
 		if !ok {
 			return false
 		}
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -446,30 +446,30 @@ type SetPeerCostParam struct {
 	PeerCostList   []uint32
 }
 
-func SetPeerCost(ctx *testframework.TestFrameworkContext) bool {
+func SetPeerCost(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/SetPeerCost.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	setPeerCostParam := new(SetPeerCostParam)
 	err = json.Unmarshal(data, setPeerCostParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
 	for index, path := range setPeerCostParam.PathList {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
-		ok = setPeerCost(ctx, user, setPeerCostParam.PeerPubkeyList[index], setPeerCostParam.PeerCostList[index])
+		ok = setPeerCost(ontSdk, user, setPeerCostParam.PeerPubkeyList[index], setPeerCostParam.PeerCostList[index])
 		if !ok {
 			return false
 		}
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -479,28 +479,28 @@ type AddInitPosParam struct {
 	Pos        uint32
 }
 
-func AddInitPos(ctx *testframework.TestFrameworkContext) bool {
+func AddInitPos(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/AddInitPos.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	addInitPosParam := new(AddInitPosParam)
 	err = json.Unmarshal(data, addInitPosParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
-	user, ok := getAccountByPassword(ctx, addInitPosParam.Path)
+	user, ok := getAccountByPassword(ontSdk, addInitPosParam.Path)
 	if !ok {
 		return false
 	}
-	ok = addInitPos(ctx, user, addInitPosParam.PeerPubkey, addInitPosParam.Pos)
+	ok = addInitPos(ontSdk, user, addInitPosParam.PeerPubkey, addInitPosParam.Pos)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -510,28 +510,28 @@ type ReduceInitPosParam struct {
 	Pos        uint32
 }
 
-func ReduceInitPos(ctx *testframework.TestFrameworkContext) bool {
+func ReduceInitPos(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/ReduceInitPos.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	reduceInitPosParam := new(ReduceInitPosParam)
 	err = json.Unmarshal(data, reduceInitPosParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
-	user, ok := getAccountByPassword(ctx, reduceInitPosParam.Path)
+	user, ok := getAccountByPassword(ontSdk, reduceInitPosParam.Path)
 	if !ok {
 		return false
 	}
-	ok = reduceInitPos(ctx, user, reduceInitPosParam.PeerPubkey, reduceInitPosParam.Pos)
+	ok = reduceInitPos(ontSdk, user, reduceInitPosParam.PeerPubkey, reduceInitPosParam.Pos)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -541,51 +541,51 @@ type AuthorizeForPeerParam struct {
 	PosList        []uint32
 }
 
-func AuthorizeForPeer(ctx *testframework.TestFrameworkContext) bool {
+func AuthorizeForPeer(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/AuthorizeForPeer.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	authorizeForPeerParam := new(AuthorizeForPeerParam)
 	err = json.Unmarshal(data, authorizeForPeerParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
-	user, ok := getAccount(ctx, authorizeForPeerParam.Path)
+	user, ok := getAccount(ontSdk, authorizeForPeerParam.Path)
 	if !ok {
 		return false
 	}
-	ok = authorizeForPeer(ctx, user, authorizeForPeerParam.PeerPubkeyList, authorizeForPeerParam.PosList)
+	ok = authorizeForPeer(ontSdk, user, authorizeForPeerParam.PeerPubkeyList, authorizeForPeerParam.PosList)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
-func UnAuthorizeForPeer(ctx *testframework.TestFrameworkContext) bool {
+func UnAuthorizeForPeer(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/UnAuthorizeForPeer.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	authorizeForPeerParam := new(AuthorizeForPeerParam)
 	err = json.Unmarshal(data, authorizeForPeerParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
-	user, ok := getAccount(ctx, authorizeForPeerParam.Path)
+	user, ok := getAccount(ontSdk, authorizeForPeerParam.Path)
 	if !ok {
 		return false
 	}
-	ok = unAuthorizeForPeer(ctx, user, authorizeForPeerParam.PeerPubkeyList, authorizeForPeerParam.PosList)
+	ok = unAuthorizeForPeer(ontSdk, user, authorizeForPeerParam.PeerPubkeyList, authorizeForPeerParam.PosList)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -595,27 +595,27 @@ type WithdrawParam struct {
 	WithdrawList   []uint32
 }
 
-func Withdraw(ctx *testframework.TestFrameworkContext) bool {
+func Withdraw(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/Withdraw.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	withdrawParam := new(WithdrawParam)
 	err = json.Unmarshal(data, withdrawParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
-	user, ok := getAccountByPassword(ctx, withdrawParam.Path)
+	user, ok := getAccountByPassword(ontSdk, withdrawParam.Path)
 	if !ok {
 		return false
 	}
-	ok = withdraw(ctx, user, withdrawParam.PeerPubkeyList, withdrawParam.WithdrawList)
+	ok = withdraw(ontSdk, user, withdrawParam.PeerPubkeyList, withdrawParam.WithdrawList)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -624,30 +624,30 @@ type QuitNodeParam struct {
 	PeerPubkey []string
 }
 
-func QuitNode(ctx *testframework.TestFrameworkContext) bool {
+func QuitNode(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/QuitNode.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	quitNodeParam := new(QuitNodeParam)
 	err = json.Unmarshal(data, quitNodeParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
 	for i := 0; i < len(quitNodeParam.Path); i++ {
-		user, ok := getAccountByPassword(ctx, quitNodeParam.Path[i])
+		user, ok := getAccountByPassword(ontSdk, quitNodeParam.Path[i])
 		if !ok {
 			return false
 		}
-		ok = quitNode(ctx, user, quitNodeParam.PeerPubkey[i])
+		ok = quitNode(ontSdk, user, quitNodeParam.PeerPubkey[i])
 		if !ok {
 			return false
 		}
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -656,34 +656,34 @@ type BlackNodeParam struct {
 	PeerPubkeyList []string
 }
 
-func BlackNode(ctx *testframework.TestFrameworkContext) bool {
+func BlackNode(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/BlackNode.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	blackNodeParam := new(BlackNodeParam)
 	err = json.Unmarshal(data, blackNodeParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range blackNodeParam.Path {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	ok := blackNodeMultiSign(ctx, pubKeys, users, blackNodeParam.PeerPubkeyList)
+	ok := blackNodeMultiSign(ontSdk, pubKeys, users, blackNodeParam.PeerPubkeyList)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -692,34 +692,34 @@ type WhiteNodeParam struct {
 	PeerPubkey string
 }
 
-func WhiteNode(ctx *testframework.TestFrameworkContext) bool {
+func WhiteNode(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/WhiteNode.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	whiteNodeParam := new(WhiteNodeParam)
 	err = json.Unmarshal(data, whiteNodeParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range whiteNodeParam.Path {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	ok := whiteNodeMultiSign(ctx, pubKeys, users, whiteNodeParam.PeerPubkey)
+	ok := whiteNodeMultiSign(ontSdk, pubKeys, users, whiteNodeParam.PeerPubkey)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -727,34 +727,34 @@ type MultiAccount struct {
 	Path []string
 }
 
-func CommitDpos(ctx *testframework.TestFrameworkContext) bool {
+func CommitDpos(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/CommitDpos.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	multiAccount := new(MultiAccount)
 	err = json.Unmarshal(data, multiAccount)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range multiAccount.Path {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	ok := commitDposMultiSign(ctx, pubKeys, users)
+	ok := commitDposMultiSign(ontSdk, pubKeys, users)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -770,23 +770,23 @@ type UpdateConfigParam struct {
 	MaxBlockChangeView   uint32
 }
 
-func UpdateConfig(ctx *testframework.TestFrameworkContext) bool {
+func UpdateConfig(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/UpdateConfig.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	updateConfigParam := new(UpdateConfigParam)
 	err = json.Unmarshal(data, updateConfigParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range updateConfigParam.Path {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -803,11 +803,11 @@ func UpdateConfig(ctx *testframework.TestFrameworkContext) bool {
 		PeerHandshakeTimeout: updateConfigParam.PeerHandshakeTimeout,
 		MaxBlockChangeView:   updateConfigParam.MaxBlockChangeView,
 	}
-	ok := updateConfigMultiSign(ctx, pubKeys, users, config)
+	ok := updateConfigMultiSign(ontSdk, pubKeys, users, config)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -823,23 +823,23 @@ type UpdateGlobalParamParam struct {
 	Penalty      uint32
 }
 
-func UpdateGlobalParam(ctx *testframework.TestFrameworkContext) bool {
+func UpdateGlobalParam(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/UpdateGlobalParam.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	updateGlobalParamParam := new(UpdateGlobalParamParam)
 	err = json.Unmarshal(data, updateGlobalParamParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range updateGlobalParamParam.Path {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -856,11 +856,11 @@ func UpdateGlobalParam(ctx *testframework.TestFrameworkContext) bool {
 		Yita:         updateGlobalParamParam.Yita,
 		Penalty:      updateGlobalParamParam.Penalty,
 	}
-	ok := updateGlobalParamMultiSign(ctx, pubKeys, users, globalParam)
+	ok := updateGlobalParamMultiSign(ontSdk, pubKeys, users, globalParam)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -870,23 +870,23 @@ type UpdateGlobalParamParam2 struct {
 	CandidateFeeSplitNum uint32
 }
 
-func UpdateGlobalParam2(ctx *testframework.TestFrameworkContext) bool {
+func UpdateGlobalParam2(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/UpdateGlobalParam2.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	updateGlobalParamParam2 := new(UpdateGlobalParamParam2)
 	err = json.Unmarshal(data, updateGlobalParamParam2)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range updateGlobalParamParam2.Path {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -897,11 +897,11 @@ func UpdateGlobalParam2(ctx *testframework.TestFrameworkContext) bool {
 		MinAuthorizePos:      updateGlobalParamParam2.MinAuthorizePos,
 		CandidateFeeSplitNum: updateGlobalParamParam2.CandidateFeeSplitNum,
 	}
-	ok := updateGlobalParam2MultiSign(ctx, pubKeys, users, globalParam2)
+	ok := updateGlobalParam2MultiSign(ontSdk, pubKeys, users, globalParam2)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -910,23 +910,23 @@ type UpdateSplitCurveParam struct {
 	Yi   []uint32
 }
 
-func UpdateSplitCurve(ctx *testframework.TestFrameworkContext) bool {
+func UpdateSplitCurve(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/UpdateSplitCurve.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	updateSplitCurveParam := new(UpdateSplitCurveParam)
 	err = json.Unmarshal(data, updateSplitCurveParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range updateSplitCurveParam.Path {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -936,11 +936,11 @@ func UpdateSplitCurve(ctx *testframework.TestFrameworkContext) bool {
 	splitCurve := &governance.SplitCurve{
 		Yi: updateSplitCurveParam.Yi,
 	}
-	ok := updateSplitCurveMultiSign(ctx, pubKeys, users, splitCurve)
+	ok := updateSplitCurveMultiSign(ontSdk, pubKeys, users, splitCurve)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -950,23 +950,23 @@ type SetPromisePosParam struct {
 	PromisePos []uint64
 }
 
-func SetPromisePos(ctx *testframework.TestFrameworkContext) bool {
+func SetPromisePos(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/SetPromisePos.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	setPromisePosParam := new(SetPromisePosParam)
 	err = json.Unmarshal(data, setPromisePosParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range setPromisePosParam.Path {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -978,12 +978,12 @@ func SetPromisePos(ctx *testframework.TestFrameworkContext) bool {
 			PeerPubkey: peerPubkey,
 			PromisePos: setPromisePosParam.PromisePos[index],
 		}
-		ok := setPromisePosMultiSign(ctx, pubKeys, users, promisePos)
+		ok := setPromisePosMultiSign(ontSdk, pubKeys, users, promisePos)
 		if !ok {
 			return false
 		}
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -993,45 +993,45 @@ type TransferPenaltyParam struct {
 	Path2      string
 }
 
-func TransferPenalty(ctx *testframework.TestFrameworkContext) bool {
+func TransferPenalty(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferPenalty.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	transferPenaltyParam := new(TransferPenaltyParam)
 	err = json.Unmarshal(data, transferPenaltyParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferPenaltyParam.Path1 {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	user1, ok := getAccount(ctx, transferPenaltyParam.Path2)
+	user1, ok := getAccount(ontSdk, transferPenaltyParam.Path2)
 	if !ok {
 		return false
 	}
-	ok = transferPenaltyMultiSign(ctx, pubKeys, users, transferPenaltyParam.PeerPubkey, user1.Address)
+	ok = transferPenaltyMultiSign(ontSdk, pubKeys, users, transferPenaltyParam.PeerPubkey, user1.Address)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
-func GetVbftConfig(ctx *testframework.TestFrameworkContext) bool {
-	config, err := getVbftConfig(ctx)
+func GetVbftConfig(ontSdk *sdk.OntologySdk) bool {
+	config, err := getVbftConfig(ontSdk)
 	if err != nil {
-		ctx.LogError("getVbftConfig failed %v", err)
+		log4.Error("getVbftConfig failed %v", err)
 		return false
 	}
 	fmt.Println("config.N is:", config.N)
@@ -1045,10 +1045,10 @@ func GetVbftConfig(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
-func GetGlobalParam(ctx *testframework.TestFrameworkContext) bool {
-	globalParam, err := getGlobalParam(ctx)
+func GetGlobalParam(ontSdk *sdk.OntologySdk) bool {
+	globalParam, err := getGlobalParam(ontSdk)
 	if err != nil {
-		ctx.LogError("getGlobalParam failed %v", err)
+		log4.Error("getGlobalParam failed %v", err)
 		return false
 	}
 	fmt.Println("globalParam.CandidateFee is:", globalParam.CandidateFee)
@@ -1062,10 +1062,10 @@ func GetGlobalParam(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
-func GetGlobalParam2(ctx *testframework.TestFrameworkContext) bool {
-	globalParam2, err := getGlobalParam2(ctx)
+func GetGlobalParam2(ontSdk *sdk.OntologySdk) bool {
+	globalParam2, err := getGlobalParam2(ontSdk)
 	if err != nil {
-		ctx.LogError("getGlobalParam failed %v", err)
+		log4.Error("getGlobalParam failed %v", err)
 		return false
 	}
 	fmt.Println("globalParam2.MinAuthorizePos is:", globalParam2.MinAuthorizePos)
@@ -1073,20 +1073,20 @@ func GetGlobalParam2(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
-func GetSplitCurve(ctx *testframework.TestFrameworkContext) bool {
-	splitCurve, err := getSplitCurve(ctx)
+func GetSplitCurve(ontSdk *sdk.OntologySdk) bool {
+	splitCurve, err := getSplitCurve(ontSdk)
 	if err != nil {
-		ctx.LogError("getSplitCurve failed %v", err)
+		log4.Error("getSplitCurve failed %v", err)
 		return false
 	}
 	fmt.Println("splitCurve.Yi is", splitCurve.Yi)
 	return true
 }
 
-func GetGovernanceView(ctx *testframework.TestFrameworkContext) bool {
-	governanceView, err := getGovernanceView(ctx)
+func GetGovernanceView(ontSdk *sdk.OntologySdk) bool {
+	governanceView, err := getGovernanceView(ontSdk)
 	if err != nil {
-		ctx.LogError("getGovernanceView failed %v", err)
+		log4.Error("getGovernanceView failed %v", err)
 		return false
 	}
 	fmt.Println("governanceView.View is:", governanceView.View)
@@ -1099,22 +1099,22 @@ type GetPeerPoolItemParam struct {
 	PeerPubkey string
 }
 
-func GetPeerPoolItem(ctx *testframework.TestFrameworkContext) bool {
+func GetPeerPoolItem(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/GetPeerPoolItem.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	getPeerPoolItemParam := new(GetPeerPoolItemParam)
 	err = json.Unmarshal(data, getPeerPoolItemParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 
-	peerPoolMap, err := getPeerPoolMap(ctx)
+	peerPoolMap, err := getPeerPoolMap(ontSdk)
 	if err != nil {
-		ctx.LogError("getPeerPoolMap failed %v", err)
+		log4.Error("getPeerPoolMap failed %v", err)
 		return false
 	}
 
@@ -1131,10 +1131,10 @@ func GetPeerPoolItem(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
-func GetPeerPoolMap(ctx *testframework.TestFrameworkContext) bool {
-	peerPoolMap, err := getPeerPoolMap(ctx)
+func GetPeerPoolMap(ontSdk *sdk.OntologySdk) bool {
+	peerPoolMap, err := getPeerPoolMap(ontSdk)
 	if err != nil {
-		ctx.LogError("getPeerPoolMap failed %v", err)
+		log4.Error("getPeerPoolMap failed %v", err)
 		return false
 	}
 
@@ -1155,27 +1155,27 @@ type GetAuthorizeInfoParam struct {
 	PeerPubkey string
 }
 
-func GetAuthorizeInfo(ctx *testframework.TestFrameworkContext) bool {
+func GetAuthorizeInfo(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/GetAuthorizeInfo.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	getAuthorizeInfoParam := new(GetAuthorizeInfoParam)
 	err = json.Unmarshal(data, getAuthorizeInfoParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 
 	address, err := common.AddressFromBase58(getAuthorizeInfoParam.Address)
 	if err != nil {
-		ctx.LogError("common.AddressFromBase58 failed %v", err)
+		log4.Error("common.AddressFromBase58 failed %v", err)
 		return false
 	}
-	authorizeInfo, err := getAuthorizeInfo(ctx, getAuthorizeInfoParam.PeerPubkey, address)
+	authorizeInfo, err := getAuthorizeInfo(ontSdk, getAuthorizeInfoParam.PeerPubkey, address)
 	if err != nil {
-		ctx.LogError("getAuthorizeInfo failed %v", err)
+		log4.Error("getAuthorizeInfo failed %v", err)
 		return false
 	}
 
@@ -1194,26 +1194,26 @@ type GetTotalStakeParam struct {
 	Path string
 }
 
-func GetTotalStake(ctx *testframework.TestFrameworkContext) bool {
+func GetTotalStake(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/GetTotalStake.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	getTotalStakeParam := new(GetTotalStakeParam)
 	err = json.Unmarshal(data, getTotalStakeParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
-	user, ok := getAccount(ctx, getTotalStakeParam.Path)
+	user, ok := getAccount(ontSdk, getTotalStakeParam.Path)
 	if !ok {
 		return false
 	}
 
-	totalStake, err := getTotalStake(ctx, user.Address)
+	totalStake, err := getTotalStake(ontSdk, user.Address)
 	if err != nil {
-		ctx.LogError("getTotalStake failed %v", err)
+		log4.Error("getTotalStake failed %v", err)
 		return false
 	}
 
@@ -1227,22 +1227,22 @@ type GetPenaltyStakeParam struct {
 	PeerPubkey string
 }
 
-func GetPenaltyStake(ctx *testframework.TestFrameworkContext) bool {
+func GetPenaltyStake(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/GetPenaltyStake.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	getPenaltyStakeParam := new(GetPenaltyStakeParam)
 	err = json.Unmarshal(data, getPenaltyStakeParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 
-	penaltyStake, err := getPenaltyStake(ctx, getPenaltyStakeParam.PeerPubkey)
+	penaltyStake, err := getPenaltyStake(ontSdk, getPenaltyStakeParam.PeerPubkey)
 	if err != nil {
-		ctx.LogError("getPenaltyStake failed %v", err)
+		log4.Error("getPenaltyStake failed %v", err)
 		return false
 	}
 
@@ -1258,22 +1258,22 @@ type InBlackListParam struct {
 	PeerPubkey string
 }
 
-func InBlackList(ctx *testframework.TestFrameworkContext) bool {
+func InBlackList(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/InBlackList.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	inBlackListParam := new(InBlackListParam)
 	err = json.Unmarshal(data, inBlackListParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 
-	inBlackList, err := inBlackList(ctx, inBlackListParam.PeerPubkey)
+	inBlackList, err := inBlackList(ontSdk, inBlackListParam.PeerPubkey)
 	if err != nil {
-		ctx.LogError("getPenaltyStake failed %v", err)
+		log4.Error("getPenaltyStake failed %v", err)
 		return false
 	}
 
@@ -1286,27 +1286,27 @@ type WithdrawOngParam struct {
 	PeerPubkey string
 }
 
-func WithdrawOng(ctx *testframework.TestFrameworkContext) bool {
+func WithdrawOng(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/WithdrawOng.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	withdrawOngParam := new(WithdrawOngParam)
 	err = json.Unmarshal(data, withdrawOngParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
-	user, ok := getAccount(ctx, withdrawOngParam.Path)
+	user, ok := getAccount(ontSdk, withdrawOngParam.Path)
 	if !ok {
 		return false
 	}
-	ok = withdrawOng(ctx, user)
+	ok = withdrawOng(ontSdk, user)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -1319,19 +1319,19 @@ type vrfData struct {
 	PrevVrf  []byte `json:"prev_vrf"`
 }
 
-func Vrf(ctx *testframework.TestFrameworkContext) bool {
+func Vrf(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/Vrf.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	vrfParam := new(VrfParam)
 	err = json.Unmarshal(data, vrfParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
-	user, ok := getAccount(ctx, vrfParam.Path)
+	user, ok := getAccount(ontSdk, vrfParam.Path)
 	if !ok {
 		return false
 	}
@@ -1341,23 +1341,23 @@ func Vrf(ctx *testframework.TestFrameworkContext) bool {
 		PrevVrf:  keypair.SerializePublicKey(user.PublicKey),
 	})
 	if err != nil {
-		ctx.LogError("json.Unmarshal vrf payload failed %v", err)
+		log4.Error("json.Unmarshal vrf payload failed %v", err)
 		return false
 	}
 
 	value, proof, err := vrf.Vrf(user.PrivateKey, data)
 	if err != nil {
-		ctx.LogError("vrf computation failed %v", err)
+		log4.Error("vrf computation failed %v", err)
 		return false
 	}
 
 	if ok, err := vrf.Verify(user.PublicKey, data, value, proof); err != nil || !ok {
-		ctx.LogError("vrf verify failed: %v", err)
+		log4.Error("vrf verify failed: %v", err)
 		return false
 	}
 
-	ctx.LogInfo("vrf value: %s", hex.EncodeToString(value))
-	ctx.LogInfo("vrf proof: %s", hex.EncodeToString(proof))
+	log4.Info("vrf value: %s", hex.EncodeToString(value))
+	log4.Info("vrf proof: %s", hex.EncodeToString(proof))
 
 	return true
 }
@@ -1368,23 +1368,23 @@ type TransferMultiSignParam struct {
 	Amount []uint64
 }
 
-func TransferOntMultiSign(ctx *testframework.TestFrameworkContext) bool {
+func TransferOntMultiSign(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferOntMultiSign.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	transferMultiSignParam := new(TransferMultiSignParam)
 	err = json.Unmarshal(data, transferMultiSignParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferMultiSignParam.Path1 {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1393,36 +1393,36 @@ func TransferOntMultiSign(ctx *testframework.TestFrameworkContext) bool {
 	}
 	time.Sleep(1 * time.Second)
 	for index, path2 := range transferMultiSignParam.Path2 {
-		user2, ok := getAccountByPassword(ctx, path2)
+		user2, ok := getAccountByPassword(ontSdk, path2)
 		if !ok {
 			return false
 		}
-		ok = transferOntMultiSign(ctx, pubKeys, users, user2.Address, transferMultiSignParam.Amount[index])
+		ok = transferOntMultiSign(ontSdk, pubKeys, users, user2.Address, transferMultiSignParam.Amount[index])
 		if !ok {
 			return false
 		}
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
-func TransferOngMultiSign(ctx *testframework.TestFrameworkContext) bool {
+func TransferOngMultiSign(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferOngMultiSign.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	transferMultiSignParam := new(TransferMultiSignParam)
 	err = json.Unmarshal(data, transferMultiSignParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferMultiSignParam.Path1 {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1431,16 +1431,16 @@ func TransferOngMultiSign(ctx *testframework.TestFrameworkContext) bool {
 	}
 	time.Sleep(1 * time.Second)
 	for index, path2 := range transferMultiSignParam.Path2 {
-		user2, ok := getAccountByPassword(ctx, path2)
+		user2, ok := getAccountByPassword(ontSdk, path2)
 		if !ok {
 			return false
 		}
-		ok = transferOngMultiSign(ctx, pubKeys, users, user2.Address, transferMultiSignParam.Amount[index])
+		ok = transferOngMultiSign(ontSdk, pubKeys, users, user2.Address, transferMultiSignParam.Amount[index])
 		if !ok {
 			return false
 		}
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -1450,23 +1450,23 @@ type TransferFromMultiSignParam struct {
 	Amount []uint64
 }
 
-func TransferFromOngMultiSign(ctx *testframework.TestFrameworkContext) bool {
+func TransferFromOngMultiSign(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferFromOngMultiSign.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	transferFromMultiSignParam := new(TransferFromMultiSignParam)
 	err = json.Unmarshal(data, transferFromMultiSignParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferFromMultiSignParam.Path1 {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1475,16 +1475,16 @@ func TransferFromOngMultiSign(ctx *testframework.TestFrameworkContext) bool {
 	}
 	time.Sleep(1 * time.Second)
 	for index, path2 := range transferFromMultiSignParam.Path2 {
-		user2, ok := getAccountByPassword(ctx, path2)
+		user2, ok := getAccountByPassword(ontSdk, path2)
 		if !ok {
 			return false
 		}
-		ok = transferFromOngMultiSign(ctx, pubKeys, users, user2.Address, transferFromMultiSignParam.Amount[index])
+		ok = transferFromOngMultiSign(ontSdk, pubKeys, users, user2.Address, transferFromMultiSignParam.Amount[index])
 		if !ok {
 			return false
 		}
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -1492,16 +1492,16 @@ type GetAddressMultiSignParam struct {
 	PubKeys []string
 }
 
-func GetAddressMultiSign(ctx *testframework.TestFrameworkContext) bool {
+func GetAddressMultiSign(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/GetAddressMultiSign.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	getAddressMultiSignParam := new(GetAddressMultiSignParam)
 	err = json.Unmarshal(data, getAddressMultiSignParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var pubKeys []keypair.PublicKey
@@ -1509,17 +1509,17 @@ func GetAddressMultiSign(ctx *testframework.TestFrameworkContext) bool {
 	for _, v := range getAddressMultiSignParam.PubKeys {
 		vByte, err := hex.DecodeString(v)
 		if err != nil {
-			ctx.LogError("hex.DecodeString failed %v", err)
+			log4.Error("hex.DecodeString failed %v", err)
 		}
 		k, err := keypair.DeserializePublicKey(vByte)
 		if err != nil {
-			ctx.LogError("keypair.DeserializePublicKey failed %v", err)
+			log4.Error("keypair.DeserializePublicKey failed %v", err)
 		}
 		pubKeys = append(pubKeys, k)
 	}
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
 	if err != nil {
-		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+		log4.Error("types.AddressFromMultiPubKeys error", err)
 	}
 	fmt.Println("address is:", from.ToBase58())
 	return true
@@ -1531,16 +1531,16 @@ type TransferMultiSignToMultiSignParam struct {
 	Amount  uint64
 }
 
-func TransferOntMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bool {
+func TransferOntMultiSignToMultiSign(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferOntMultiSignToMultiSign.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	transferMultiSignToMultiSignParam := new(TransferMultiSignToMultiSignParam)
 	err = json.Unmarshal(data, transferMultiSignToMultiSignParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -1548,7 +1548,7 @@ func TransferOntMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bo
 	var pubKeysTo []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferMultiSignToMultiSignParam.Path1 {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1558,36 +1558,36 @@ func TransferOntMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bo
 	for _, v := range transferMultiSignToMultiSignParam.PubKeys {
 		vByte, err := hex.DecodeString(v)
 		if err != nil {
-			ctx.LogError("hex.DecodeString failed %v", err)
+			log4.Error("hex.DecodeString failed %v", err)
 		}
 		k, err := keypair.DeserializePublicKey(vByte)
 		if err != nil {
-			ctx.LogError("keypair.DeserializePublicKey failed %v", err)
+			log4.Error("keypair.DeserializePublicKey failed %v", err)
 		}
 		pubKeysTo = append(pubKeysTo, k)
 	}
 	to, err := types.AddressFromMultiPubKeys(pubKeysTo, int((5*len(pubKeysTo)+6)/7))
 	if err != nil {
-		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+		log4.Error("types.AddressFromMultiPubKeys error", err)
 	}
-	ok := transferOntMultiSignToMultiSign(ctx, pubKeys, users, to, transferMultiSignToMultiSignParam.Amount)
+	ok := transferOntMultiSignToMultiSign(ontSdk, pubKeys, users, to, transferMultiSignToMultiSignParam.Amount)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
-func TransferOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bool {
+func TransferOngMultiSignToMultiSign(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferOngMultiSignToMultiSign.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	transferMultiSignToMultiSignParam := new(TransferMultiSignToMultiSignParam)
 	err = json.Unmarshal(data, transferMultiSignToMultiSignParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -1595,7 +1595,7 @@ func TransferOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bo
 	var pubKeysTo []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferMultiSignToMultiSignParam.Path1 {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1605,23 +1605,23 @@ func TransferOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bo
 	for _, v := range transferMultiSignToMultiSignParam.PubKeys {
 		vByte, err := hex.DecodeString(v)
 		if err != nil {
-			ctx.LogError("hex.DecodeString failed %v", err)
+			log4.Error("hex.DecodeString failed %v", err)
 		}
 		k, err := keypair.DeserializePublicKey(vByte)
 		if err != nil {
-			ctx.LogError("keypair.DeserializePublicKey failed %v", err)
+			log4.Error("keypair.DeserializePublicKey failed %v", err)
 		}
 		pubKeysTo = append(pubKeysTo, k)
 	}
 	to, err := types.AddressFromMultiPubKeys(pubKeysTo, int((5*len(pubKeysTo)+6)/7))
 	if err != nil {
-		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+		log4.Error("types.AddressFromMultiPubKeys error", err)
 	}
-	ok := transferOngMultiSignToMultiSign(ctx, pubKeys, users, to, transferMultiSignToMultiSignParam.Amount)
+	ok := transferOngMultiSignToMultiSign(ontSdk, pubKeys, users, to, transferMultiSignToMultiSignParam.Amount)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -1631,16 +1631,16 @@ type TransferFromMultiSignToMultiSignParam struct {
 	Amount  uint64
 }
 
-func TransferFromOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext) bool {
+func TransferFromOngMultiSignToMultiSign(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferFromOngMultiSignToMultiSign.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	transferFromMultiSignToMultiSignParam := new(TransferFromMultiSignToMultiSignParam)
 	err = json.Unmarshal(data, transferFromMultiSignToMultiSignParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -1648,7 +1648,7 @@ func TransferFromOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext
 	var pubKeysTo []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferFromMultiSignToMultiSignParam.Path1 {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1658,23 +1658,23 @@ func TransferFromOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext
 	for _, v := range transferFromMultiSignToMultiSignParam.PubKeys {
 		vByte, err := hex.DecodeString(v)
 		if err != nil {
-			ctx.LogError("hex.DecodeString failed %v", err)
+			log4.Error("hex.DecodeString failed %v", err)
 		}
 		k, err := keypair.DeserializePublicKey(vByte)
 		if err != nil {
-			ctx.LogError("keypair.DeserializePublicKey failed %v", err)
+			log4.Error("keypair.DeserializePublicKey failed %v", err)
 		}
 		pubKeysTo = append(pubKeysTo, k)
 	}
 	to, err := types.AddressFromMultiPubKeys(pubKeysTo, int((5*len(pubKeysTo)+6)/7))
 	if err != nil {
-		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+		log4.Error("types.AddressFromMultiPubKeys error", err)
 	}
-	ok := transferFromOngMultiSignToMultiSign(ctx, pubKeys, users, to, transferFromMultiSignToMultiSignParam.Amount)
+	ok := transferFromOngMultiSignToMultiSign(ontSdk, pubKeys, users, to, transferFromMultiSignToMultiSignParam.Amount)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -1685,23 +1685,23 @@ type TransferMultiSignAddressParam struct {
 	Amount  []uint64
 }
 
-func TransferOntMultiSignAddress(ctx *testframework.TestFrameworkContext) bool {
+func TransferOntMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferOntMultiSignAddress.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	transferMultiSignAddressParam := new(TransferMultiSignAddressParam)
 	err = json.Unmarshal(data, transferMultiSignAddressParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferMultiSignAddressParam.Path1 {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1710,46 +1710,46 @@ func TransferOntMultiSignAddress(ctx *testframework.TestFrameworkContext) bool {
 	for _, v := range transferMultiSignAddressParam.PubKeys {
 		vByte, err := hex.DecodeString(v)
 		if err != nil {
-			ctx.LogError("hex.DecodeString failed %v", err)
+			log4.Error("hex.DecodeString failed %v", err)
 		}
 		k, err := keypair.DeserializePublicKey(vByte)
 		if err != nil {
-			ctx.LogError("keypair.DeserializePublicKey failed %v", err)
+			log4.Error("keypair.DeserializePublicKey failed %v", err)
 		}
 		pubKeys = append(pubKeys, k)
 	}
 	for index, address := range transferMultiSignAddressParam.Address {
 		addr, err := common.AddressFromBase58(address)
 		if err != nil {
-			ctx.LogError("common.AddressFromBase58 failed %v", err)
+			log4.Error("common.AddressFromBase58 failed %v", err)
 			return false
 		}
-		ok := transferOntMultiSign(ctx, pubKeys, users, addr, transferMultiSignAddressParam.Amount[index])
+		ok := transferOntMultiSign(ontSdk, pubKeys, users, addr, transferMultiSignAddressParam.Amount[index])
 		if !ok {
 			return false
 		}
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
-func TransferOngMultiSignAddress(ctx *testframework.TestFrameworkContext) bool {
+func TransferOngMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferOngMultiSignAddress.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	transferMultiSignAddressParam := new(TransferMultiSignAddressParam)
 	err = json.Unmarshal(data, transferMultiSignAddressParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferMultiSignAddressParam.Path1 {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1758,26 +1758,26 @@ func TransferOngMultiSignAddress(ctx *testframework.TestFrameworkContext) bool {
 	for _, v := range transferMultiSignAddressParam.PubKeys {
 		vByte, err := hex.DecodeString(v)
 		if err != nil {
-			ctx.LogError("hex.DecodeString failed %v", err)
+			log4.Error("hex.DecodeString failed %v", err)
 		}
 		k, err := keypair.DeserializePublicKey(vByte)
 		if err != nil {
-			ctx.LogError("keypair.DeserializePublicKey failed %v", err)
+			log4.Error("keypair.DeserializePublicKey failed %v", err)
 		}
 		pubKeys = append(pubKeys, k)
 	}
 	for index, address := range transferMultiSignAddressParam.Address {
 		addr, err := common.AddressFromBase58(address)
 		if err != nil {
-			ctx.LogError("common.AddressFromBase58 failed %v", err)
+			log4.Error("common.AddressFromBase58 failed %v", err)
 			return false
 		}
-		ok := transferOngMultiSign(ctx, pubKeys, users, addr, transferMultiSignAddressParam.Amount[index])
+		ok := transferOngMultiSign(ontSdk, pubKeys, users, addr, transferMultiSignAddressParam.Amount[index])
 		if !ok {
 			return false
 		}
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -1787,23 +1787,23 @@ type TransferFromMultiSignAddressParam struct {
 	Amount  []uint64
 }
 
-func TransferFromOngMultiSignAddress(ctx *testframework.TestFrameworkContext) bool {
+func TransferFromOngMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferFromOngMultiSignAddress.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	transferFromMultiSignAddressParam := new(TransferFromMultiSignAddressParam)
 	err = json.Unmarshal(data, transferFromMultiSignAddressParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferFromMultiSignAddressParam.Path1 {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1814,31 +1814,31 @@ func TransferFromOngMultiSignAddress(ctx *testframework.TestFrameworkContext) bo
 	for index, address := range transferFromMultiSignAddressParam.Address {
 		addr, err := common.AddressFromBase58(address)
 		if err != nil {
-			ctx.LogError("common.AddressFromBase58 failed %v", err)
+			log4.Error("common.AddressFromBase58 failed %v", err)
 			return false
 		}
-		ok := transferFromOngMultiSign(ctx, pubKeys, users, addr, transferFromMultiSignAddressParam.Amount[index])
+		ok := transferFromOngMultiSign(ontSdk, pubKeys, users, addr, transferFromMultiSignAddressParam.Amount[index])
 		if !ok {
 			return false
 		}
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
-func GetVbftInfo(ctx *testframework.TestFrameworkContext) bool {
-	blkNum, err := ctx.Ont.GetCurrentBlockHeight()
+func GetVbftInfo(ontSdk *sdk.OntologySdk) bool {
+	blkNum, err := ontSdk.GetCurrentBlockHeight()
 	if err != nil {
-		ctx.LogError("TestGetVbftInfo GetBlockCount error:%s", err)
+		log4.Error("TestGetVbftInfo GetBlockCount error:%s", err)
 		return false
 	}
-	blk, err := ctx.Ont.GetBlockByHeight(blkNum - 1)
+	blk, err := ontSdk.GetBlockByHeight(blkNum - 1)
 	if err != nil {
-		ctx.LogError("TestGetVbftInfo GetBlockByHeight error:%s", err)
+		log4.Error("TestGetVbftInfo GetBlockByHeight error:%s", err)
 		return false
 	}
 	block, err := initVbftBlock(blk)
 	if err != nil {
-		ctx.LogError("TestGetVbftInfo initVbftBlock error:%s", err)
+		log4.Error("TestGetVbftInfo initVbftBlock error:%s", err)
 		return false
 	}
 
@@ -1848,19 +1848,19 @@ func GetVbftInfo(ctx *testframework.TestFrameworkContext) bool {
 	} else {
 		var cfgBlock *types.Block
 		if block.Info.LastConfigBlockNum != math.MaxUint32 {
-			cfgBlock, err = ctx.Ont.GetBlockByHeight(block.Info.LastConfigBlockNum)
+			cfgBlock, err = ontSdk.GetBlockByHeight(block.Info.LastConfigBlockNum)
 			if err != nil {
-				ctx.LogError("TestGetVbftInfo chainconfig GetBlockByHeight error:%s", err)
+				log4.Error("TestGetVbftInfo chainconfig GetBlockByHeight error:%s", err)
 				return false
 			}
 		}
 		blk, err := initVbftBlock(cfgBlock)
 		if err != nil {
-			ctx.LogError("TestGetVbftInfo initVbftBlock error:%s", err)
+			log4.Error("TestGetVbftInfo initVbftBlock error:%s", err)
 			return false
 		}
 		if blk.Info.NewChainConfig == nil {
-			ctx.LogError("TestGetVbftInfo newchainconfig error:%s", err)
+			log4.Error("TestGetVbftInfo newchainconfig error:%s", err)
 			return false
 		}
 		cfg = *blk.Info.NewChainConfig
@@ -1879,61 +1879,61 @@ type MultiTransferParam struct {
 	Amount    []uint64
 }
 
-func MultiTransferOnt(ctx *testframework.TestFrameworkContext) bool {
+func MultiTransferOnt(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/MultiTransferOnt.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	multiTransferParam := new(MultiTransferParam)
 	err = json.Unmarshal(data, multiTransferParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	time.Sleep(1 * time.Second)
 	for _, path := range multiTransferParam.FromPath {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
 		users = append(users, user)
 	}
-	ok := multiTransfer(ctx, utils.OntContractAddress, users, multiTransferParam.ToAddress, multiTransferParam.Amount)
+	ok := multiTransfer(ontSdk, utils.OntContractAddress, users, multiTransferParam.ToAddress, multiTransferParam.Amount)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
-func MultiTransferOng(ctx *testframework.TestFrameworkContext) bool {
+func MultiTransferOng(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/MultiTransferOng.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	multiTransferParam := new(MultiTransferParam)
 	err = json.Unmarshal(data, multiTransferParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	var users []*sdk.Account
 	time.Sleep(1 * time.Second)
 	for _, path := range multiTransferParam.FromPath {
-		user, ok := getAccountByPassword(ctx, path)
+		user, ok := getAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
 		users = append(users, user)
 	}
-	ok := multiTransfer(ctx, utils.OngContractAddress, users, multiTransferParam.ToAddress, multiTransferParam.Amount)
+	ok := multiTransfer(ontSdk, utils.OngContractAddress, users, multiTransferParam.ToAddress, multiTransferParam.Amount)
 	if !ok {
 		return false
 	}
-	waitForBlock(ctx)
+	waitForBlock(ontSdk)
 	return true
 }
 
@@ -1941,21 +1941,21 @@ type GetAttributesParam struct {
 	PeerPubkey string
 }
 
-func GetAttributes(ctx *testframework.TestFrameworkContext) bool {
+func GetAttributes(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/GetAttributes.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	getAttributesParam := new(GetAttributesParam)
 	err = json.Unmarshal(data, getAttributesParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
-	peerAttributes, err := getAttributes(ctx, getAttributesParam.PeerPubkey)
+	peerAttributes, err := getAttributes(ontSdk, getAttributesParam.PeerPubkey)
 	if err != nil {
-		ctx.LogError("getAttributes failed %v", err)
+		log4.Error("getAttributes failed %v", err)
 		return false
 	}
 	fmt.Println("peerAttributes.PeerPubkey is:", peerAttributes.PeerPubkey)
@@ -1971,26 +1971,26 @@ type GetSplitFeeAddressParam struct {
 	Address string
 }
 
-func GetSplitFeeAddress(ctx *testframework.TestFrameworkContext) bool {
+func GetSplitFeeAddress(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/GetSplitFeeAddress.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	getSplitFeeAddressParam := new(GetSplitFeeAddressParam)
 	err = json.Unmarshal(data, getSplitFeeAddressParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
 	address, err := common.AddressFromBase58(getSplitFeeAddressParam.Address)
 	if err != nil {
-		ctx.LogError("common.AddressFromBase58 failed %v", err)
+		log4.Error("common.AddressFromBase58 failed %v", err)
 		return false
 	}
-	splitFeeAddress, err := getSplitFeeAddress(ctx, address)
+	splitFeeAddress, err := getSplitFeeAddress(ontSdk, address)
 	if err != nil {
-		ctx.LogError("getSplitFeeAddress failed %v", err)
+		log4.Error("getSplitFeeAddress failed %v", err)
 		return false
 	}
 	fmt.Println("splitFeeAddress.Address is:", splitFeeAddress.Address)
@@ -1999,10 +1999,10 @@ func GetSplitFeeAddress(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
-func GetSplitFee(ctx *testframework.TestFrameworkContext) bool {
-	splitFee, err := getSplitFee(ctx)
+func GetSplitFee(ontSdk *sdk.OntologySdk) bool {
+	splitFee, err := getSplitFee(ontSdk)
 	if err != nil {
-		ctx.LogError("getSplitFeeAddress failed %v", err)
+		log4.Error("getSplitFeeAddress failed %v", err)
 		return false
 	}
 	fmt.Println("splitFee is:", splitFee)
@@ -2014,21 +2014,21 @@ type GetPromisePosParam struct {
 	PeerPubkey string
 }
 
-func GetPromisePos(ctx *testframework.TestFrameworkContext) bool {
+func GetPromisePos(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/GetPromisePos.json")
 	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
+		log4.Error("ioutil.ReadFile failed %v", err)
 		return false
 	}
 	getPromisePosParam := new(GetPromisePosParam)
 	err = json.Unmarshal(data, getPromisePosParam)
 	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
+		log4.Error("json.Unmarshal failed %v", err)
 		return false
 	}
-	promisePos, err := getPromisePos(ctx, getPromisePosParam.PeerPubkey)
+	promisePos, err := getPromisePos(ontSdk, getPromisePosParam.PeerPubkey)
 	if err != nil {
-		ctx.LogError("getPromisePos failed %v", err)
+		log4.Error("getPromisePos failed %v", err)
 		return false
 	}
 	fmt.Println("promisePos.PeerPubkey is:", promisePos.PeerPubkey)

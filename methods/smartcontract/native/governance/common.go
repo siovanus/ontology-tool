@@ -24,10 +24,10 @@ import (
 	"fmt"
 	"time"
 
+	log4 "github.com/alecthomas/log4go"
 	"github.com/ontio/ontology-crypto/keypair"
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/common"
-	"github.com/ontio/ontology-tool/testframework"
 	scommon "github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/password"
 	"github.com/ontio/ontology/consensus/vbft"
@@ -35,41 +35,41 @@ import (
 	"github.com/ontio/ontology/core/types"
 )
 
-func getAccountByPassword(ctx *testframework.TestFrameworkContext, path string) (*sdk.Account, bool) {
-	wallet, err := ctx.Ont.OpenWallet(path)
+func getAccountByPassword(sdk *sdk.OntologySdk, path string) (*sdk.Account, bool) {
+	wallet, err := sdk.OpenWallet(path)
 	if err != nil {
-		ctx.LogError("open wallet error:%s", err)
+		log4.Error("open wallet error:%s", err)
 		return nil, false
 	}
 	pwd, err := password.GetPassword()
 	if err != nil {
-		ctx.LogError("getPassword error:%s", err)
+		log4.Error("getPassword error:%s", err)
 		return nil, false
 	}
 	user, err := wallet.GetDefaultAccount(pwd)
 	if err != nil {
-		ctx.LogError("getDefaultAccount error:%s", err)
+		log4.Error("getDefaultAccount error:%s", err)
 		return nil, false
 	}
 	return user, true
 }
 
-func getAccount(ctx *testframework.TestFrameworkContext, path string) (*sdk.Account, bool) {
-	wallet, err := ctx.Ont.OpenWallet(path)
+func getAccount(sdk *sdk.OntologySdk, path string) (*sdk.Account, bool) {
+	wallet, err := sdk.OpenWallet(path)
 	if err != nil {
-		ctx.LogError("open wallet error:%s", err)
+		log4.Error("open wallet error:%s", err)
 		return nil, false
 	}
 	user, err := wallet.GetDefaultAccount([]byte(common.DefConfig.Password))
 	if err != nil {
-		ctx.LogError("getDefaultAccount error:%s", err)
+		log4.Error("getDefaultAccount error:%s", err)
 		return nil, false
 	}
 	return user, true
 }
 
 func invokeNativeContractWithMultiSign(
-	ctx *testframework.TestFrameworkContext,
+	sdk *sdk.OntologySdk,
 	gasPrice,
 	gasLimit uint64,
 	pubKeys []keypair.PublicKey,
@@ -79,23 +79,23 @@ func invokeNativeContractWithMultiSign(
 	method string,
 	params []interface{},
 ) (scommon.Uint256, error) {
-	tx, err := ctx.Ont.Native.NewNativeInvokeTransaction(gasPrice, gasLimit, cversion, contractAddress, method, params)
+	tx, err := sdk.Native.NewNativeInvokeTransaction(gasPrice, gasLimit, cversion, contractAddress, method, params)
 	if err != nil {
 		return scommon.UINT256_EMPTY, err
 	}
 	for _, singer := range singers {
-		err = ctx.Ont.MultiSignToTransaction(tx, uint16((5*len(pubKeys)+6)/7), pubKeys, singer)
+		err = sdk.MultiSignToTransaction(tx, uint16((5*len(pubKeys)+6)/7), pubKeys, singer)
 		if err != nil {
 			return scommon.UINT256_EMPTY, err
 		}
 	}
-	return ctx.Ont.SendTransaction(tx)
+	return sdk.SendTransaction(tx)
 }
 
-func waitForBlock(ctx *testframework.TestFrameworkContext) bool {
-	_, err := ctx.Ont.WaitForGenerateBlock(30*time.Second, 1)
+func waitForBlock(sdk *sdk.OntologySdk) bool {
+	_, err := sdk.WaitForGenerateBlock(30*time.Second, 1)
 	if err != nil {
-		ctx.LogError("WaitForGenerateBlock error:%s", err)
+		log4.Error("WaitForGenerateBlock error:%s", err)
 		return false
 	}
 	return true

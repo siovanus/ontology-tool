@@ -5,5 +5,5 @@ import (
 )
 
 func RegisterNative() {
-	governance.RegisterGovernanceMethods()
+	governance.RegisterGovernance()
 }
