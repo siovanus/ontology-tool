@@ -15,13 +15,12 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with The ontology.  If not, see <http://www.gnu.org/licenses/>.
  */
-package smartcontract
+package methods
 
 import (
-	"github.com/ontio/ontology-tool/testcase/smartcontract/native"
+	"github.com/ontio/ontology-tool/methods/smartcontract"
 )
 
-//Register test case
-func TestSmartContract() {
-	native.TestNative()
+func init() {
+	smartcontract.RegisterSmartContract()
 }

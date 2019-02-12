@@ -19,15 +19,15 @@ package main
 
 import (
 	"flag"
-	log4 "github.com/alecthomas/log4go"
-	sdk "github.com/ontio/ontology-go-sdk"
-	"github.com/ontio/ontology-tool/common"
-	_ "github.com/ontio/ontology-tool/testcase"
-	"github.com/ontio/ontology-tool/testframework"
-	"github.com/ontio/ontology/common/log"
 	"math/rand"
 	"strings"
 	"time"
+
+	log4 "github.com/alecthomas/log4go"
+	sdk "github.com/ontio/ontology-go-sdk"
+	"github.com/ontio/ontology-tool/common"
+	_ "github.com/ontio/ontology-tool/methods"
+	"github.com/ontio/ontology-tool/testframework"
 )
 
 var (
@@ -46,7 +46,6 @@ func init() {
 func main() {
 	rand.Seed(time.Now().UnixNano())
 	log4.LoadConfiguration(LogConfig)
-	log.InitLog(1) //init log module in ontology
 	defer time.Sleep(time.Second)
 
 	err := common.DefConfig.Init(TestConfig)

@@ -16,7 +16,7 @@
  * along with The ontology.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package governance_feeSplit
+package governance
 
 import (
 	"encoding/base64"
@@ -560,37 +560,6 @@ func AuthorizeForPeer(ctx *testframework.TestFrameworkContext) bool {
 	ok = authorizeForPeer(ctx, user, authorizeForPeerParam.PeerPubkeyList, authorizeForPeerParam.PosList)
 	if !ok {
 		return false
-	}
-	waitForBlock(ctx)
-	return true
-}
-
-type AuthorizeForPeerBatchParam struct {
-	PeerPubkey string
-	Pos        uint32
-}
-
-func AuthorizeForPeerBatch(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./params/AuthorizeForPeerBatch.json")
-	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
-		return false
-	}
-	authorizeForPeerBatchParam := new(AuthorizeForPeerBatchParam)
-	err = json.Unmarshal(data, authorizeForPeerBatchParam)
-	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
-		return false
-	}
-	loop := 200000
-	peerPubkeyList := []string{authorizeForPeerBatchParam.PeerPubkey}
-	posList := []uint32{authorizeForPeerBatchParam.Pos}
-	for i := 0; i < loop; i++ {
-		user := ctx.NewAccount()
-		ok := authorizeForPeer(ctx, user, peerPubkeyList, posList)
-		if !ok {
-			return false
-		}
 	}
 	waitForBlock(ctx)
 	return true

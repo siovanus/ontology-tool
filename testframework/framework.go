@@ -66,7 +66,7 @@ func NewTestFramework() *TestFramework {
 }
 
 //RegTestCase register a test case to framework
-func (this *TestFramework) RegTestCase(name string, testCase TestCase) {
+func (this *TestFramework) RegMethod(name string, testCase TestCase) {
 	this.testCases = append(this.testCases, testCase)
 	testCaseId := this.getTestCaseId(testCase)
 	this.testCaseNameMap[testCaseId] = name

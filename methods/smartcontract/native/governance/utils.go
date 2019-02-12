@@ -1,4 +1,4 @@
-package governance_feeSplit
+package governance
 
 import (
 	"bytes"
