@@ -1,0 +1,6 @@
+{
+   "SideChainID": "sideChain",
+   "Path": "wallets/admin/wallet.dat",
+   "TxHash": "",
+   "Rpc": "http://127.0.0.1:20336"
+}

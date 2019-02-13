@@ -35,6 +35,7 @@ func registerCandidate(ctx *testframework.TestFrameworkContext, user *sdk.Accoun
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("registerCandidate txHash is :", txHash.ToHexString())
 	waitForBlock(ctx)
@@ -89,6 +90,7 @@ func unRegisterCandidate(ctx *testframework.TestFrameworkContext, user *sdk.Acco
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("unRegisterCandidate txHash is :", txHash.ToHexString())
 	return true
@@ -104,6 +106,7 @@ func approveCandidate(ctx *testframework.TestFrameworkContext, user *sdk.Account
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("approveCandidate txHash is :", txHash.ToHexString())
 	return true
@@ -119,6 +122,7 @@ func approveCandidateMultiSign(ctx *testframework.TestFrameworkContext, pubKeys 
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("approveCandidateMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -134,6 +138,7 @@ func rejectCandidate(ctx *testframework.TestFrameworkContext, user *sdk.Account,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("rejectCandidate txHash is :", txHash.ToHexString())
 	return true
@@ -149,6 +154,7 @@ func rejectCandidateMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("rejectCandidateMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -166,6 +172,7 @@ func changeMaxAuthorization(ctx *testframework.TestFrameworkContext, user *sdk.A
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("changeMaxAuthorization txHash is :", txHash.ToHexString())
 	return true
@@ -183,6 +190,7 @@ func setPeerCost(ctx *testframework.TestFrameworkContext, user *sdk.Account, pee
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("setPeerCost txHash is :", txHash.ToHexString())
 	return true
@@ -200,6 +208,7 @@ func addInitPos(ctx *testframework.TestFrameworkContext, user *sdk.Account, peer
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("addInitPos txHash is :", txHash.ToHexString())
 	return true
@@ -217,6 +226,7 @@ func reduceInitPos(ctx *testframework.TestFrameworkContext, user *sdk.Account, p
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("reduceInitPos txHash is :", txHash.ToHexString())
 	return true
@@ -234,6 +244,7 @@ func authorizeForPeer(ctx *testframework.TestFrameworkContext, user *sdk.Account
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	//ctx.LogInfo("authorizeForPeer txHash is :", txHash.ToHexString())
 	return true
@@ -251,6 +262,7 @@ func unAuthorizeForPeer(ctx *testframework.TestFrameworkContext, user *sdk.Accou
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("unAuthorizeForPeer txHash is :", txHash.ToHexString())
 	return true
@@ -268,6 +280,7 @@ func withdraw(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPu
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("withdraw txHash is :", txHash.ToHexString())
 	return true
@@ -283,6 +296,7 @@ func withdrawOng(ctx *testframework.TestFrameworkContext, user *sdk.Account) boo
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("withdrawOng txHash is :", txHash.ToHexString())
 	return true
@@ -299,6 +313,7 @@ func commitDpos(ctx *testframework.TestFrameworkContext, user *sdk.Account) bool
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("commitDpos txHash is :", txHash.ToHexString())
 	return true
@@ -311,6 +326,7 @@ func commitDposMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keyp
 		contractAddress, method, []interface{}{})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("commitDposMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -327,6 +343,7 @@ func quitNode(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerPu
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("quitNode txHash is :", txHash.ToHexString())
 	return true
@@ -342,6 +359,7 @@ func blackNode(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerP
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("blackNode txHash is :", txHash.ToHexString())
 	return true
@@ -357,6 +375,7 @@ func blackNodeMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypa
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("blackNodeMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -372,6 +391,7 @@ func whiteNode(ctx *testframework.TestFrameworkContext, user *sdk.Account, peerP
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("whiteNode txHash is :", txHash.ToHexString())
 	return true
@@ -387,6 +407,7 @@ func whiteNodeMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypa
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("whiteNodeMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -399,6 +420,7 @@ func updateConfig(ctx *testframework.TestFrameworkContext, user *sdk.Account, co
 		contractAddress, method, []interface{}{config})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("updateConfig txHash is :", txHash.ToHexString())
 	return true
@@ -411,6 +433,7 @@ func updateConfigMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []ke
 		contractAddress, method, []interface{}{config})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("updateConfigMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -423,6 +446,7 @@ func updateGlobalParam(ctx *testframework.TestFrameworkContext, user *sdk.Accoun
 		contractAddress, method, []interface{}{globalParam})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("updateGlobalParam txHash is :", txHash.ToHexString())
 	return true
@@ -435,6 +459,7 @@ func updateGlobalParamMultiSign(ctx *testframework.TestFrameworkContext, pubKeys
 		contractAddress, method, []interface{}{globalParam})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("updateGlobalParamMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -447,6 +472,7 @@ func updateGlobalParam2(ctx *testframework.TestFrameworkContext, user *sdk.Accou
 		contractAddress, method, []interface{}{globalParam2})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("updateGlobalParam2 txHash is :", txHash.ToHexString())
 	return true
@@ -459,6 +485,7 @@ func updateGlobalParam2MultiSign(ctx *testframework.TestFrameworkContext, pubKey
 		contractAddress, method, []interface{}{globalParam2})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("updateGlobalParam2MultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -471,6 +498,7 @@ func updateSplitCurve(ctx *testframework.TestFrameworkContext, user *sdk.Account
 		contractAddress, method, []interface{}{splitCurve})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("updateSplitCurve txHash is :", txHash.ToHexString())
 	return true
@@ -483,6 +511,7 @@ func updateSplitCurveMultiSign(ctx *testframework.TestFrameworkContext, pubKeys 
 		contractAddress, method, []interface{}{splitCurve})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("updateSplitCurveMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -495,6 +524,7 @@ func setPromisePos(ctx *testframework.TestFrameworkContext, user *sdk.Account, p
 		contractAddress, method, []interface{}{promisePos})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("setPromisePos txHash is :", txHash.ToHexString())
 	return true
@@ -507,6 +537,7 @@ func setPromisePosMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []k
 		contractAddress, method, []interface{}{promisePos})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("setPromisePosMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -523,6 +554,7 @@ func transferPenalty(ctx *testframework.TestFrameworkContext, user *sdk.Account,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("transferPenalty txHash is :", txHash.ToHexString())
 	return true
@@ -538,6 +570,7 @@ func withdrawFee(ctx *testframework.TestFrameworkContext, user *sdk.Account) boo
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("withdrawFee txHash is :", txHash.ToHexString())
 	return true
@@ -554,6 +587,7 @@ func transferPenaltyMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("transferPenaltyMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -596,6 +630,7 @@ func multiTransfer(ctx *testframework.TestFrameworkContext, contract common.Addr
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
 		return false
+		return false
 	}
 	ctx.LogInfo("multiTransfer txHash is :", txHash.ToHexString())
 	return true
@@ -621,6 +656,7 @@ func transferOntMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []key
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("transferOntMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -646,6 +682,7 @@ func transferOntMultiSignToMultiSign(ctx *testframework.TestFrameworkContext, pu
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("transferOntMultiSignToMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -671,6 +708,7 @@ func transferOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []key
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("transferOngMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -696,6 +734,7 @@ func transferOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext, pu
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("transferOngMultiSignToMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -718,6 +757,7 @@ func transferFromOngMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("transferFromOngMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -740,6 +780,7 @@ func transferFromOngMultiSignToMultiSign(ctx *testframework.TestFrameworkContext
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("transferFromOngMultiSignToMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -759,6 +800,7 @@ func assignFuncsToRole(ctx *testframework.TestFrameworkContext, user *sdk.Accoun
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("assignFuncsToRole txHash is :", txHash.ToHexString())
 	return true
@@ -781,6 +823,7 @@ func assignOntIDsToRole(ctx *testframework.TestFrameworkContext, user *sdk.Accou
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("assignOntIDsToRole txHash is :", txHash.ToHexString())
 	return true
@@ -802,6 +845,7 @@ func regIdWithPublicKey(ctx *testframework.TestFrameworkContext, user *sdk.Accou
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
+		return false
 	}
 	ctx.LogInfo("RegIDWithPublicKeyParam txHash is :", txHash.ToHexString())
 	return true

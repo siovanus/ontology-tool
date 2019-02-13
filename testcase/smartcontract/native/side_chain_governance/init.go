@@ -27,6 +27,9 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("ApproveSideChain", ApproveSideChain)
 	testframework.TFramework.RegTestCase("RejectSideChain", RejectSideChain)
 	testframework.TFramework.RegTestCase("RegisterNodeToSideChain", RegisterNodeToSideChain)
+	testframework.TFramework.RegTestCase("OngLock", OngLock)
+	testframework.TFramework.RegTestCase("OngUnlock", OngUnlock)
+
 	testframework.TFramework.RegTestCase("GetSideChain", GetSideChain)
 	testframework.TFramework.RegTestCase("GetSideChainNodeInfo", GetSideChainNodeInfo)
 	testframework.TFramework.RegTestCase("GetSideChainPeerPoolMap", GetSideChainPeerPoolMap)
