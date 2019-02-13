@@ -36,6 +36,7 @@ func registerCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey st
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("registerCandidate txHash is :", txHash.ToHexString())
 	waitForBlock(ontSdk)
@@ -90,6 +91,7 @@ func unRegisterCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey 
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("unRegisterCandidate txHash is :", txHash.ToHexString())
 	return true
@@ -105,6 +107,7 @@ func approveCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey str
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("approveCandidate txHash is :", txHash.ToHexString())
 	return true
@@ -120,6 +123,7 @@ func approveCandidateMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.Public
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("approveCandidateMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -135,6 +139,7 @@ func rejectCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey stri
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("rejectCandidate txHash is :", txHash.ToHexString())
 	return true
@@ -150,6 +155,7 @@ func rejectCandidateMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicK
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("rejectCandidateMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -167,6 +173,7 @@ func changeMaxAuthorization(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubk
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("changeMaxAuthorization txHash is :", txHash.ToHexString())
 	return true
@@ -184,6 +191,7 @@ func setPeerCost(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string, 
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("setPeerCost txHash is :", txHash.ToHexString())
 	return true
@@ -201,6 +209,7 @@ func addInitPos(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string, p
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("addInitPos txHash is :", txHash.ToHexString())
 	return true
@@ -218,6 +227,7 @@ func reduceInitPos(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("reduceInitPos txHash is :", txHash.ToHexString())
 	return true
@@ -235,6 +245,7 @@ func authorizeForPeer(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkeyList
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	//log4.Info("authorizeForPeer txHash is :", txHash.ToHexString())
 	return true
@@ -252,6 +263,7 @@ func unAuthorizeForPeer(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkeyLi
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("unAuthorizeForPeer txHash is :", txHash.ToHexString())
 	return true
@@ -269,6 +281,7 @@ func withdraw(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkeyList []strin
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("withdraw txHash is :", txHash.ToHexString())
 	return true
@@ -284,6 +297,7 @@ func withdrawOng(ontSdk *sdk.OntologySdk, user *sdk.Account) bool {
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("withdrawOng txHash is :", txHash.ToHexString())
 	return true
@@ -300,6 +314,7 @@ func commitDpos(ontSdk *sdk.OntologySdk, user *sdk.Account) bool {
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("commitDpos txHash is :", txHash.ToHexString())
 	return true
@@ -312,6 +327,7 @@ func commitDposMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, u
 		contractAddress, method, []interface{}{})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("commitDposMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -328,6 +344,7 @@ func quitNode(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string) boo
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("quitNode txHash is :", txHash.ToHexString())
 	return true
@@ -343,6 +360,7 @@ func blackNode(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkeyList []stri
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("blackNode txHash is :", txHash.ToHexString())
 	return true
@@ -358,6 +376,7 @@ func blackNodeMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, us
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("blackNodeMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -373,6 +392,7 @@ func whiteNode(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string) bo
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("whiteNode txHash is :", txHash.ToHexString())
 	return true
@@ -388,6 +408,7 @@ func whiteNodeMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, us
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("whiteNodeMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -400,6 +421,7 @@ func updateConfig(ontSdk *sdk.OntologySdk, user *sdk.Account, config *governance
 		contractAddress, method, []interface{}{config})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("updateConfig txHash is :", txHash.ToHexString())
 	return true
@@ -412,6 +434,7 @@ func updateConfigMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey,
 		contractAddress, method, []interface{}{config})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("updateConfigMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -424,6 +447,7 @@ func updateGlobalParam(ontSdk *sdk.OntologySdk, user *sdk.Account, globalParam *
 		contractAddress, method, []interface{}{globalParam})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("updateGlobalParam txHash is :", txHash.ToHexString())
 	return true
@@ -436,6 +460,7 @@ func updateGlobalParamMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.Publi
 		contractAddress, method, []interface{}{globalParam})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("updateGlobalParamMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -448,6 +473,7 @@ func updateGlobalParam2(ontSdk *sdk.OntologySdk, user *sdk.Account, globalParam2
 		contractAddress, method, []interface{}{globalParam2})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("updateGlobalParam2 txHash is :", txHash.ToHexString())
 	return true
@@ -460,6 +486,7 @@ func updateGlobalParam2MultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.Publ
 		contractAddress, method, []interface{}{globalParam2})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("updateGlobalParam2MultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -472,6 +499,7 @@ func updateSplitCurve(ontSdk *sdk.OntologySdk, user *sdk.Account, splitCurve *go
 		contractAddress, method, []interface{}{splitCurve})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("updateSplitCurve txHash is :", txHash.ToHexString())
 	return true
@@ -484,6 +512,7 @@ func updateSplitCurveMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.Public
 		contractAddress, method, []interface{}{splitCurve})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("updateSplitCurveMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -496,6 +525,7 @@ func setPromisePos(ontSdk *sdk.OntologySdk, user *sdk.Account, promisePos *gover
 		contractAddress, method, []interface{}{promisePos})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("setPromisePos txHash is :", txHash.ToHexString())
 	return true
@@ -508,6 +538,7 @@ func setPromisePosMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey
 		contractAddress, method, []interface{}{promisePos})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("setPromisePosMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -524,6 +555,7 @@ func transferPenalty(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey stri
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("transferPenalty txHash is :", txHash.ToHexString())
 	return true
@@ -539,6 +571,7 @@ func withdrawFee(ontSdk *sdk.OntologySdk, user *sdk.Account) bool {
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("withdrawFee txHash is :", txHash.ToHexString())
 	return true
@@ -555,6 +588,7 @@ func transferPenaltyMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicK
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("transferPenaltyMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -597,6 +631,7 @@ func multiTransfer(ontSdk *sdk.OntologySdk, contract ontcommon.Address, from []*
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
 		return false
+		return false
 	}
 	log4.Info("multiTransfer txHash is :", txHash.ToHexString())
 	return true
@@ -622,6 +657,7 @@ func transferOntMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, 
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("transferOntMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -647,6 +683,7 @@ func transferOntMultiSignToMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("transferOntMultiSignToMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -672,6 +709,7 @@ func transferOngMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, 
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("transferOngMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -697,6 +735,7 @@ func transferOngMultiSignToMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("transferOngMultiSignToMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -719,6 +758,7 @@ func transferFromOngMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicK
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("transferFromOngMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -741,6 +781,7 @@ func transferFromOngMultiSignToMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keyp
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("transferFromOngMultiSignToMultiSign txHash is :", txHash.ToHexString())
 	return true
@@ -760,6 +801,7 @@ func assignFuncsToRole(ontSdk *sdk.OntologySdk, user *sdk.Account, contract ontc
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("assignFuncsToRole txHash is :", txHash.ToHexString())
 	return true
@@ -782,6 +824,7 @@ func assignOntIDsToRole(ontSdk *sdk.OntologySdk, user *sdk.Account, contract ont
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("assignOntIDsToRole txHash is :", txHash.ToHexString())
 	return true
@@ -803,6 +846,7 @@ func regIdWithPublicKey(ontSdk *sdk.OntologySdk, user *sdk.Account) bool {
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
+		return false
 	}
 	log4.Info("RegIDWithPublicKeyParam txHash is :", txHash.ToHexString())
 	return true
