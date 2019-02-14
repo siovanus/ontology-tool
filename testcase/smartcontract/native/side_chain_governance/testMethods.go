@@ -77,7 +77,7 @@ type ApproveSideChainParam struct {
 }
 
 func ApproveSideChain(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./params/ApproveSideChain.json")
+	data, err := ioutil.ReadFile("./side_chain_params/ApproveSideChain.json")
 	if err != nil {
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
@@ -115,7 +115,7 @@ type RejectSideChainParam struct {
 }
 
 func RejectSideChain(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./params/RejectSideChain.json")
+	data, err := ioutil.ReadFile("./side_chain_params/RejectSideChain.json")
 	if err != nil {
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
