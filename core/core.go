@@ -21,7 +21,7 @@ package core
 import (
 	log4 "github.com/alecthomas/log4go"
 	sdk "github.com/ontio/ontology-go-sdk"
-	"github.com/ontio/ontology-tool/common"
+	"github.com/ontio/ontology-tool/config"
 )
 
 var OntTool = NewOntologyTool()
@@ -49,24 +49,24 @@ func (this *OntologyTool) RegMethod(name string, method Method) {
 //Start run
 func (this *OntologyTool) Start(methodsList []string) {
 	if len(methodsList) > 0 {
-		this.runTestList(methodsList)
+		this.runMethodList(methodsList)
 		return
 	}
 	log4.Info("No method to run")
 	return
 }
 
-func (this *OntologyTool) runTestList(methodsList []string) {
+func (this *OntologyTool) runMethodList(methodsList []string) {
 	this.onStart()
 	defer this.onFinish(methodsList)
 	ontSdk := sdk.NewOntologySdk()
-	ontSdk.NewRpcClient().SetAddress(common.DefConfig.JsonRpcAddress)
+	ontSdk.NewRpcClient().SetAddress(config.DefConfig.JsonRpcAddress)
 	for i, method := range methodsList {
-		this.runTest(i+1, ontSdk, method)
+		this.runMethod(i+1, ontSdk, method)
 	}
 }
 
-func (this *OntologyTool) runTest(index int, sdk *sdk.OntologySdk, methodName string) {
+func (this *OntologyTool) runMethod(index int, sdk *sdk.OntologySdk, methodName string) {
 	this.onBeforeMethodStart(index, methodName)
 	method := this.getMethodByName(methodName)
 	if method != nil {

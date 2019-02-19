@@ -16,7 +16,7 @@
  * along with The ontology.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package governance
+package common
 
 import (
 	"encoding/hex"
@@ -27,7 +27,7 @@ import (
 	log4 "github.com/alecthomas/log4go"
 	"github.com/ontio/ontology-crypto/keypair"
 	sdk "github.com/ontio/ontology-go-sdk"
-	"github.com/ontio/ontology-tool/common"
+	"github.com/ontio/ontology-tool/config"
 	scommon "github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/password"
 	"github.com/ontio/ontology/consensus/vbft"
@@ -35,7 +35,21 @@ import (
 	"github.com/ontio/ontology/core/types"
 )
 
-func getAccountByPassword(sdk *sdk.OntologySdk, path string) (*sdk.Account, bool) {
+func GetDefaultAccount(sdk *sdk.OntologySdk) (*sdk.Account, bool) {
+	wallet, err := sdk.OpenWallet(config.DefConfig.WalletFile)
+	if err != nil {
+		log4.Error("open wallet error:", err)
+		return nil, false
+	}
+	user, err := wallet.GetDefaultAccount([]byte(config.DefConfig.Password))
+	if err != nil {
+		log4.Error("getDefaultAccount error:", err)
+		return nil, false
+	}
+	return user, true
+}
+
+func GetAccountByPassword(sdk *sdk.OntologySdk, path string) (*sdk.Account, bool) {
 	wallet, err := sdk.OpenWallet(path)
 	if err != nil {
 		log4.Error("open wallet error:", err)
@@ -54,13 +68,13 @@ func getAccountByPassword(sdk *sdk.OntologySdk, path string) (*sdk.Account, bool
 	return user, true
 }
 
-func getAccount(sdk *sdk.OntologySdk, path string) (*sdk.Account, bool) {
+func GetAccount(sdk *sdk.OntologySdk, path string) (*sdk.Account, bool) {
 	wallet, err := sdk.OpenWallet(path)
 	if err != nil {
 		log4.Error("open wallet error:", err)
 		return nil, false
 	}
-	user, err := wallet.GetDefaultAccount([]byte(common.DefConfig.Password))
+	user, err := wallet.GetDefaultAccount([]byte(config.DefConfig.Password))
 	if err != nil {
 		log4.Error("getDefaultAccount error:", err)
 		return nil, false
@@ -68,7 +82,7 @@ func getAccount(sdk *sdk.OntologySdk, path string) (*sdk.Account, bool) {
 	return user, true
 }
 
-func invokeNativeContractWithMultiSign(
+func InvokeNativeContractWithMultiSign(
 	sdk *sdk.OntologySdk,
 	gasPrice,
 	gasLimit uint64,
@@ -92,7 +106,7 @@ func invokeNativeContractWithMultiSign(
 	return sdk.SendTransaction(tx)
 }
 
-func waitForBlock(sdk *sdk.OntologySdk) bool {
+func WaitForBlock(sdk *sdk.OntologySdk) bool {
 	_, err := sdk.WaitForGenerateBlock(30*time.Second, 1)
 	if err != nil {
 		log4.Error("WaitForGenerateBlock error:", err)
@@ -109,7 +123,7 @@ func ConcatKey(args ...[]byte) []byte {
 	return temp
 }
 
-func initVbftBlock(block *types.Block) (*vbft.Block, error) {
+func InitVbftBlock(block *types.Block) (*vbft.Block, error) {
 	if block == nil {
 		return nil, fmt.Errorf("nil block in initVbftBlock")
 	}
@@ -125,7 +139,7 @@ func initVbftBlock(block *types.Block) (*vbft.Block, error) {
 	}, nil
 }
 
-func getAddressByHexString(hexString string) (scommon.Address, error) {
+func GetAddressByHexString(hexString string) (scommon.Address, error) {
 	contractByte, err := hex.DecodeString(hexString)
 	if err != nil {
 		return scommon.Address{}, fmt.Errorf("hex.DecodeString failed %v", err)

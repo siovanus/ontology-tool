@@ -32,7 +32,8 @@ import (
 	s "github.com/ontio/ontology-crypto/signature"
 	"github.com/ontio/ontology-crypto/vrf"
 	sdk "github.com/ontio/ontology-go-sdk"
-	"github.com/ontio/ontology/common"
+	"github.com/ontio/ontology-tool/common"
+	ocommon "github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/password"
 	"github.com/ontio/ontology/consensus/vbft/config"
 	"github.com/ontio/ontology/core/types"
@@ -57,7 +58,7 @@ func RegIdWithPublicKey(ontSdk *sdk.OntologySdk) bool {
 		return false
 	}
 	time.Sleep(1 * time.Second)
-	user, ok := getAccountByPassword(ontSdk, account.Path)
+	user, ok := common.GetAccountByPassword(ontSdk, account.Path)
 	if !ok {
 		return false
 	}
@@ -65,7 +66,7 @@ func RegIdWithPublicKey(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -82,7 +83,7 @@ func AssignFuncsToRole(ontSdk *sdk.OntologySdk) bool {
 		return false
 	}
 	time.Sleep(1 * time.Second)
-	user, ok := getAccountByPassword(ontSdk, account.Path)
+	user, ok := common.GetAccountByPassword(ontSdk, account.Path)
 	if !ok {
 		return false
 	}
@@ -90,7 +91,7 @@ func AssignFuncsToRole(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -114,11 +115,11 @@ func AssignFuncsToRoleAny(ontSdk *sdk.OntologySdk) bool {
 		return false
 	}
 	time.Sleep(1 * time.Second)
-	user, ok := getAccountByPassword(ontSdk, assignFuncsToRoleAnyParam.Path)
+	user, ok := common.GetAccountByPassword(ontSdk, assignFuncsToRoleAnyParam.Path)
 	if !ok {
 		return false
 	}
-	contractAddress, err := getAddressByHexString(assignFuncsToRoleAnyParam.ContractAddress)
+	contractAddress, err := common.GetAddressByHexString(assignFuncsToRoleAnyParam.ContractAddress)
 	if err != nil {
 		log4.Error("getAddressByHexString failed ", err)
 		return false
@@ -127,7 +128,7 @@ func AssignFuncsToRoleAny(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -149,7 +150,7 @@ func AssignOntIDsToRole(ontSdk *sdk.OntologySdk) bool {
 		return false
 	}
 	time.Sleep(1 * time.Second)
-	user1, ok := getAccountByPassword(ontSdk, assignOntIDsToRoleParam.Path1)
+	user1, ok := common.GetAccountByPassword(ontSdk, assignOntIDsToRoleParam.Path1)
 	if !ok {
 		return false
 	}
@@ -157,7 +158,7 @@ func AssignOntIDsToRole(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -181,11 +182,11 @@ func AssignOntIDsToRoleAny(ontSdk *sdk.OntologySdk) bool {
 		return false
 	}
 	time.Sleep(1 * time.Second)
-	user1, ok := getAccountByPassword(ontSdk, assignOntIDsToRoleAnyParam.Path1)
+	user1, ok := common.GetAccountByPassword(ontSdk, assignOntIDsToRoleAnyParam.Path1)
 	if !ok {
 		return false
 	}
-	contractAddress, err := getAddressByHexString(assignOntIDsToRoleAnyParam.ContractAddress)
+	contractAddress, err := common.GetAddressByHexString(assignOntIDsToRoleAnyParam.ContractAddress)
 	if err != nil {
 		log4.Error("getAddressByHexString failed ", err)
 		return false
@@ -194,7 +195,7 @@ func AssignOntIDsToRoleAny(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -218,7 +219,7 @@ func RegisterCandidate(ontSdk *sdk.OntologySdk) bool {
 	}
 	time.Sleep(1 * time.Second)
 	for i := 0; i < len(registerCandidateParam.PeerPubkey); i++ {
-		user, ok := getAccountByPassword(ontSdk, registerCandidateParam.Path[i])
+		user, ok := common.GetAccountByPassword(ontSdk, registerCandidateParam.Path[i])
 		if !ok {
 			return false
 		}
@@ -227,7 +228,7 @@ func RegisterCandidate(ontSdk *sdk.OntologySdk) bool {
 			return false
 		}
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -286,14 +287,14 @@ func RegisterCandidate2Sign(ontSdk *sdk.OntologySdk) bool {
 		log4.Error("error: ", err)
 		return false
 	}
-	address, _ := common.AddressFromBase58(registerCandidate2SignParam.Address)
+	address, _ := ocommon.AddressFromBase58(registerCandidate2SignParam.Address)
 	account := &sdk.Account{
 		PrivateKey: pri,
 		PublicKey:  pri.Public(),
 		Address:    address,
 		SigScheme:  s.SHA256withECDSA,
 	}
-	user, ok := getAccountByPassword(ontSdk, registerCandidate2SignParam.Path)
+	user, ok := common.GetAccountByPassword(ontSdk, registerCandidate2SignParam.Path)
 	if !ok {
 		return false
 	}
@@ -321,7 +322,7 @@ func UnRegisterCandidate(ontSdk *sdk.OntologySdk) bool {
 		log4.Error("json.Unmarshal failed ", err)
 		return false
 	}
-	user, ok := getAccountByPassword(ontSdk, unRegisterCandidateParam.Path)
+	user, ok := common.GetAccountByPassword(ontSdk, unRegisterCandidateParam.Path)
 	if !ok {
 		return false
 	}
@@ -329,7 +330,7 @@ func UnRegisterCandidate(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -354,7 +355,7 @@ func ApproveCandidate(ontSdk *sdk.OntologySdk) bool {
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range approveCandidateParam.Path {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -367,7 +368,7 @@ func ApproveCandidate(ontSdk *sdk.OntologySdk) bool {
 			return false
 		}
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -392,7 +393,7 @@ func RejectCandidate(ontSdk *sdk.OntologySdk) bool {
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range rejectCandidateParam.Path {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -403,7 +404,7 @@ func RejectCandidate(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -427,7 +428,7 @@ func ChangeMaxAuthorization(ontSdk *sdk.OntologySdk) bool {
 	}
 	time.Sleep(1 * time.Second)
 	for index, path := range changeMaxAuthorizationParam.PathList {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -436,7 +437,7 @@ func ChangeMaxAuthorization(ontSdk *sdk.OntologySdk) bool {
 			return false
 		}
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -460,7 +461,7 @@ func SetPeerCost(ontSdk *sdk.OntologySdk) bool {
 	}
 	time.Sleep(1 * time.Second)
 	for index, path := range setPeerCostParam.PathList {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -469,7 +470,7 @@ func SetPeerCost(ontSdk *sdk.OntologySdk) bool {
 			return false
 		}
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -492,7 +493,7 @@ func AddInitPos(ontSdk *sdk.OntologySdk) bool {
 		return false
 	}
 	time.Sleep(1 * time.Second)
-	user, ok := getAccountByPassword(ontSdk, addInitPosParam.Path)
+	user, ok := common.GetAccountByPassword(ontSdk, addInitPosParam.Path)
 	if !ok {
 		return false
 	}
@@ -500,7 +501,7 @@ func AddInitPos(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -523,7 +524,7 @@ func ReduceInitPos(ontSdk *sdk.OntologySdk) bool {
 		return false
 	}
 	time.Sleep(1 * time.Second)
-	user, ok := getAccountByPassword(ontSdk, reduceInitPosParam.Path)
+	user, ok := common.GetAccountByPassword(ontSdk, reduceInitPosParam.Path)
 	if !ok {
 		return false
 	}
@@ -531,7 +532,7 @@ func ReduceInitPos(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -553,7 +554,7 @@ func AuthorizeForPeer(ontSdk *sdk.OntologySdk) bool {
 		log4.Error("json.Unmarshal failed ", err)
 		return false
 	}
-	user, ok := getAccount(ontSdk, authorizeForPeerParam.Path)
+	user, ok := common.GetAccountByPassword(ontSdk, authorizeForPeerParam.Path)
 	if !ok {
 		return false
 	}
@@ -561,7 +562,7 @@ func AuthorizeForPeer(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -577,7 +578,7 @@ func UnAuthorizeForPeer(ontSdk *sdk.OntologySdk) bool {
 		log4.Error("json.Unmarshal failed ", err)
 		return false
 	}
-	user, ok := getAccount(ontSdk, authorizeForPeerParam.Path)
+	user, ok := common.GetAccountByPassword(ontSdk, authorizeForPeerParam.Path)
 	if !ok {
 		return false
 	}
@@ -585,7 +586,7 @@ func UnAuthorizeForPeer(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -607,7 +608,7 @@ func Withdraw(ontSdk *sdk.OntologySdk) bool {
 		log4.Error("json.Unmarshal failed ", err)
 		return false
 	}
-	user, ok := getAccountByPassword(ontSdk, withdrawParam.Path)
+	user, ok := common.GetAccountByPassword(ontSdk, withdrawParam.Path)
 	if !ok {
 		return false
 	}
@@ -615,7 +616,7 @@ func Withdraw(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -638,7 +639,7 @@ func QuitNode(ontSdk *sdk.OntologySdk) bool {
 	}
 	time.Sleep(1 * time.Second)
 	for i := 0; i < len(quitNodeParam.Path); i++ {
-		user, ok := getAccountByPassword(ontSdk, quitNodeParam.Path[i])
+		user, ok := common.GetAccountByPassword(ontSdk, quitNodeParam.Path[i])
 		if !ok {
 			return false
 		}
@@ -647,7 +648,7 @@ func QuitNode(ontSdk *sdk.OntologySdk) bool {
 			return false
 		}
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -672,7 +673,7 @@ func BlackNode(ontSdk *sdk.OntologySdk) bool {
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range blackNodeParam.Path {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -683,7 +684,7 @@ func BlackNode(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -708,7 +709,7 @@ func WhiteNode(ontSdk *sdk.OntologySdk) bool {
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range whiteNodeParam.Path {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -719,7 +720,7 @@ func WhiteNode(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -743,7 +744,7 @@ func CommitDpos(ontSdk *sdk.OntologySdk) bool {
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range multiAccount.Path {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -754,7 +755,7 @@ func CommitDpos(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -786,7 +787,7 @@ func UpdateConfig(ontSdk *sdk.OntologySdk) bool {
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range updateConfigParam.Path {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -807,7 +808,7 @@ func UpdateConfig(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -839,7 +840,7 @@ func UpdateGlobalParam(ontSdk *sdk.OntologySdk) bool {
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range updateGlobalParamParam.Path {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -860,7 +861,7 @@ func UpdateGlobalParam(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -886,7 +887,7 @@ func UpdateGlobalParam2(ontSdk *sdk.OntologySdk) bool {
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range updateGlobalParamParam2.Path {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -901,7 +902,7 @@ func UpdateGlobalParam2(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -926,7 +927,7 @@ func UpdateSplitCurve(ontSdk *sdk.OntologySdk) bool {
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range updateSplitCurveParam.Path {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -940,7 +941,7 @@ func UpdateSplitCurve(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -966,7 +967,7 @@ func SetPromisePos(ontSdk *sdk.OntologySdk) bool {
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range setPromisePosParam.Path {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -983,7 +984,7 @@ func SetPromisePos(ontSdk *sdk.OntologySdk) bool {
 			return false
 		}
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -1009,14 +1010,14 @@ func TransferPenalty(ontSdk *sdk.OntologySdk) bool {
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferPenaltyParam.Path1 {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	user1, ok := getAccount(ontSdk, transferPenaltyParam.Path2)
+	user1, ok := common.GetAccountByPassword(ontSdk, transferPenaltyParam.Path2)
 	if !ok {
 		return false
 	}
@@ -1024,7 +1025,7 @@ func TransferPenalty(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -1168,7 +1169,7 @@ func GetAuthorizeInfo(ontSdk *sdk.OntologySdk) bool {
 		return false
 	}
 
-	address, err := common.AddressFromBase58(getAuthorizeInfoParam.Address)
+	address, err := ocommon.AddressFromBase58(getAuthorizeInfoParam.Address)
 	if err != nil {
 		log4.Error("common.AddressFromBase58 failed ", err)
 		return false
@@ -1191,7 +1192,7 @@ func GetAuthorizeInfo(ontSdk *sdk.OntologySdk) bool {
 }
 
 type GetTotalStakeParam struct {
-	Path string
+	Address string
 }
 
 func GetTotalStake(ontSdk *sdk.OntologySdk) bool {
@@ -1206,12 +1207,13 @@ func GetTotalStake(ontSdk *sdk.OntologySdk) bool {
 		log4.Error("json.Unmarshal failed ", err)
 		return false
 	}
-	user, ok := getAccount(ontSdk, getTotalStakeParam.Path)
-	if !ok {
+	address, err := ocommon.AddressFromBase58(getTotalStakeParam.Address)
+	if err != nil {
+		log4.Error("common.AddressFromBase58 failed ", err)
 		return false
 	}
 
-	totalStake, err := getTotalStake(ontSdk, user.Address)
+	totalStake, err := getTotalStake(ontSdk, address)
 	if err != nil {
 		log4.Error("getTotalStake failed ", err)
 		return false
@@ -1298,7 +1300,7 @@ func WithdrawOng(ontSdk *sdk.OntologySdk) bool {
 		log4.Error("json.Unmarshal failed ", err)
 		return false
 	}
-	user, ok := getAccount(ontSdk, withdrawOngParam.Path)
+	user, ok := common.GetAccountByPassword(ontSdk, withdrawOngParam.Path)
 	if !ok {
 		return false
 	}
@@ -1306,7 +1308,7 @@ func WithdrawOng(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -1331,7 +1333,7 @@ func Vrf(ontSdk *sdk.OntologySdk) bool {
 		log4.Error("json.Unmarshal failed ", err)
 		return false
 	}
-	user, ok := getAccount(ontSdk, vrfParam.Path)
+	user, ok := common.GetAccountByPassword(ontSdk, vrfParam.Path)
 	if !ok {
 		return false
 	}
@@ -1384,7 +1386,7 @@ func TransferOntMultiSign(ontSdk *sdk.OntologySdk) bool {
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferMultiSignParam.Path1 {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1393,7 +1395,7 @@ func TransferOntMultiSign(ontSdk *sdk.OntologySdk) bool {
 	}
 	time.Sleep(1 * time.Second)
 	for index, path2 := range transferMultiSignParam.Path2 {
-		user2, ok := getAccountByPassword(ontSdk, path2)
+		user2, ok := common.GetAccountByPassword(ontSdk, path2)
 		if !ok {
 			return false
 		}
@@ -1402,7 +1404,7 @@ func TransferOntMultiSign(ontSdk *sdk.OntologySdk) bool {
 			return false
 		}
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -1422,7 +1424,7 @@ func TransferOngMultiSign(ontSdk *sdk.OntologySdk) bool {
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferMultiSignParam.Path1 {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1431,7 +1433,7 @@ func TransferOngMultiSign(ontSdk *sdk.OntologySdk) bool {
 	}
 	time.Sleep(1 * time.Second)
 	for index, path2 := range transferMultiSignParam.Path2 {
-		user2, ok := getAccountByPassword(ontSdk, path2)
+		user2, ok := common.GetAccountByPassword(ontSdk, path2)
 		if !ok {
 			return false
 		}
@@ -1440,7 +1442,7 @@ func TransferOngMultiSign(ontSdk *sdk.OntologySdk) bool {
 			return false
 		}
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -1466,7 +1468,7 @@ func TransferFromOngMultiSign(ontSdk *sdk.OntologySdk) bool {
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferFromMultiSignParam.Path1 {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1475,7 +1477,7 @@ func TransferFromOngMultiSign(ontSdk *sdk.OntologySdk) bool {
 	}
 	time.Sleep(1 * time.Second)
 	for index, path2 := range transferFromMultiSignParam.Path2 {
-		user2, ok := getAccountByPassword(ontSdk, path2)
+		user2, ok := common.GetAccountByPassword(ontSdk, path2)
 		if !ok {
 			return false
 		}
@@ -1484,7 +1486,7 @@ func TransferFromOngMultiSign(ontSdk *sdk.OntologySdk) bool {
 			return false
 		}
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -1548,7 +1550,7 @@ func TransferOntMultiSignToMultiSign(ontSdk *sdk.OntologySdk) bool {
 	var pubKeysTo []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferMultiSignToMultiSignParam.Path1 {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1574,7 +1576,7 @@ func TransferOntMultiSignToMultiSign(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -1595,7 +1597,7 @@ func TransferOngMultiSignToMultiSign(ontSdk *sdk.OntologySdk) bool {
 	var pubKeysTo []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferMultiSignToMultiSignParam.Path1 {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1621,7 +1623,7 @@ func TransferOngMultiSignToMultiSign(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -1648,7 +1650,7 @@ func TransferFromOngMultiSignToMultiSign(ontSdk *sdk.OntologySdk) bool {
 	var pubKeysTo []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferFromMultiSignToMultiSignParam.Path1 {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1674,7 +1676,7 @@ func TransferFromOngMultiSignToMultiSign(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -1701,7 +1703,7 @@ func TransferOntMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferMultiSignAddressParam.Path1 {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1719,7 +1721,7 @@ func TransferOntMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 		pubKeys = append(pubKeys, k)
 	}
 	for index, address := range transferMultiSignAddressParam.Address {
-		addr, err := common.AddressFromBase58(address)
+		addr, err := ocommon.AddressFromBase58(address)
 		if err != nil {
 			log4.Error("common.AddressFromBase58 failed ", err)
 			return false
@@ -1729,7 +1731,7 @@ func TransferOntMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 			return false
 		}
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -1749,7 +1751,7 @@ func TransferOngMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferMultiSignAddressParam.Path1 {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1767,7 +1769,7 @@ func TransferOngMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 		pubKeys = append(pubKeys, k)
 	}
 	for index, address := range transferMultiSignAddressParam.Address {
-		addr, err := common.AddressFromBase58(address)
+		addr, err := ocommon.AddressFromBase58(address)
 		if err != nil {
 			log4.Error("common.AddressFromBase58 failed ", err)
 			return false
@@ -1777,7 +1779,7 @@ func TransferOngMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 			return false
 		}
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -1803,7 +1805,7 @@ func TransferFromOngMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range transferFromMultiSignAddressParam.Path1 {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1812,7 +1814,7 @@ func TransferFromOngMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 	}
 	time.Sleep(1 * time.Second)
 	for index, address := range transferFromMultiSignAddressParam.Address {
-		addr, err := common.AddressFromBase58(address)
+		addr, err := ocommon.AddressFromBase58(address)
 		if err != nil {
 			log4.Error("common.AddressFromBase58 failed ", err)
 			return false
@@ -1822,7 +1824,7 @@ func TransferFromOngMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 			return false
 		}
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 func GetVbftInfo(ontSdk *sdk.OntologySdk) bool {
@@ -1836,7 +1838,7 @@ func GetVbftInfo(ontSdk *sdk.OntologySdk) bool {
 		log4.Error("TestGetVbftInfo GetBlockByHeight error:%s", err)
 		return false
 	}
-	block, err := initVbftBlock(blk)
+	block, err := common.InitVbftBlock(blk)
 	if err != nil {
 		log4.Error("TestGetVbftInfo initVbftBlock error:%s", err)
 		return false
@@ -1854,7 +1856,7 @@ func GetVbftInfo(ontSdk *sdk.OntologySdk) bool {
 				return false
 			}
 		}
-		blk, err := initVbftBlock(cfgBlock)
+		blk, err := common.InitVbftBlock(cfgBlock)
 		if err != nil {
 			log4.Error("TestGetVbftInfo initVbftBlock error:%s", err)
 			return false
@@ -1894,7 +1896,7 @@ func MultiTransferOnt(ontSdk *sdk.OntologySdk) bool {
 	var users []*sdk.Account
 	time.Sleep(1 * time.Second)
 	for _, path := range multiTransferParam.FromPath {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1904,7 +1906,7 @@ func MultiTransferOnt(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -1923,7 +1925,7 @@ func MultiTransferOng(ontSdk *sdk.OntologySdk) bool {
 	var users []*sdk.Account
 	time.Sleep(1 * time.Second)
 	for _, path := range multiTransferParam.FromPath {
-		user, ok := getAccountByPassword(ontSdk, path)
+		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
@@ -1933,7 +1935,7 @@ func MultiTransferOng(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 	return true
 }
 
@@ -1983,7 +1985,7 @@ func GetSplitFeeAddress(ontSdk *sdk.OntologySdk) bool {
 		log4.Error("json.Unmarshal failed ", err)
 		return false
 	}
-	address, err := common.AddressFromBase58(getSplitFeeAddressParam.Address)
+	address, err := ocommon.AddressFromBase58(getSplitFeeAddressParam.Address)
 	if err != nil {
 		log4.Error("common.AddressFromBase58 failed ", err)
 		return false

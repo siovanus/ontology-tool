@@ -17,7 +17,7 @@
  */
 
 //common use fot ontology-tool
-package common
+package config
 
 import (
 	"encoding/json"

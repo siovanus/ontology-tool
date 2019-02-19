@@ -8,6 +8,7 @@ import (
 	"github.com/ontio/ontology-crypto/keypair"
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/common"
+	"github.com/ontio/ontology-tool/config"
 	ontcommon "github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/serialization"
 	"github.com/ontio/ontology/core/types"
@@ -32,14 +33,14 @@ func registerCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey st
 	}
 	method := "registerCandidate"
 	contractAddress := utils.GovernanceContractAddress
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
 		return false
 	}
 	log4.Info("registerCandidate txHash is :", txHash.ToHexString())
-	waitForBlock(ontSdk)
+	common.WaitForBlock(ontSdk)
 
 	//let node can be authorized
 	changeMaxAuthorization(ontSdk, user, peerPubkey, PROMISE_POS)
@@ -56,7 +57,7 @@ func registerCandidate2Sign(ontSdk *sdk.OntologySdk, ontid *sdk.Account, user *s
 	}
 	method := "registerCandidate"
 	contractAddress := utils.GovernanceContractAddress
-	tx, err := ontSdk.Native.NewNativeInvokeTransaction(common.DefConfig.GasPrice, common.DefConfig.GasLimit, OntIDVersion, contractAddress, method, []interface{}{params})
+	tx, err := ontSdk.Native.NewNativeInvokeTransaction(config.DefConfig.GasPrice, config.DefConfig.GasLimit, OntIDVersion, contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("NewNativeInvokeTransaction error")
 		return false
@@ -87,7 +88,7 @@ func unRegisterCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey 
 	}
 	method := "unRegisterCandidate"
 	contractAddress := utils.GovernanceContractAddress
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -103,7 +104,7 @@ func approveCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey str
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "approveCandidate"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -119,7 +120,7 @@ func approveCandidateMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.Public
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "approveCandidate"
-	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -135,7 +136,7 @@ func rejectCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey stri
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "rejectCandidate"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -151,7 +152,7 @@ func rejectCandidateMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicK
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "rejectCandidate"
-	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -169,7 +170,7 @@ func changeMaxAuthorization(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubk
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "changeMaxAuthorization"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -187,7 +188,7 @@ func setPeerCost(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string, 
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "setPeerCost"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -205,7 +206,7 @@ func addInitPos(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string, p
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "addInitPos"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -223,7 +224,7 @@ func reduceInitPos(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "reduceInitPos"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -241,7 +242,7 @@ func authorizeForPeer(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkeyList
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "authorizeForPeer"
-	_, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	_, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -259,7 +260,7 @@ func unAuthorizeForPeer(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkeyLi
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "unAuthorizeForPeer"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -277,7 +278,7 @@ func withdraw(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkeyList []strin
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "withdraw"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -293,7 +294,7 @@ func withdrawOng(ontSdk *sdk.OntologySdk, user *sdk.Account) bool {
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "withdrawOng"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -310,7 +311,7 @@ func commitDpos(ontSdk *sdk.OntologySdk, user *sdk.Account) bool {
 	params := &commitDposParam{}
 	contractAddress := utils.GovernanceContractAddress
 	method := "commitDpos"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -323,7 +324,7 @@ func commitDpos(ontSdk *sdk.OntologySdk, user *sdk.Account) bool {
 func commitDposMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "commitDpos"
-	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -340,7 +341,7 @@ func quitNode(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string) boo
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "quitNode"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -356,7 +357,7 @@ func blackNode(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkeyList []stri
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "blackNode"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -372,7 +373,7 @@ func blackNodeMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, us
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "blackNode"
-	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -388,7 +389,7 @@ func whiteNode(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string) bo
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "whiteNode"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -404,7 +405,7 @@ func whiteNodeMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, us
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "whiteNode"
-	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -414,11 +415,11 @@ func whiteNodeMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, us
 	return true
 }
 
-func updateConfig(ontSdk *sdk.OntologySdk, user *sdk.Account, config *governance.Configuration) bool {
+func updateConfig(ontSdk *sdk.OntologySdk, user *sdk.Account, conf *governance.Configuration) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateConfig"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
-		contractAddress, method, []interface{}{config})
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
+		contractAddress, method, []interface{}{conf})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
 		return false
@@ -427,11 +428,11 @@ func updateConfig(ontSdk *sdk.OntologySdk, user *sdk.Account, config *governance
 	return true
 }
 
-func updateConfigMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, config *governance.Configuration) bool {
+func updateConfigMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, conf *governance.Configuration) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateConfig"
-	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
-		contractAddress, method, []interface{}{config})
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+		contractAddress, method, []interface{}{conf})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
 		return false
@@ -443,7 +444,7 @@ func updateConfigMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey,
 func updateGlobalParam(ontSdk *sdk.OntologySdk, user *sdk.Account, globalParam *governance.GlobalParam) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateGlobalParam"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{globalParam})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -456,7 +457,7 @@ func updateGlobalParam(ontSdk *sdk.OntologySdk, user *sdk.Account, globalParam *
 func updateGlobalParamMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, globalParam *governance.GlobalParam) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateGlobalParam"
-	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{globalParam})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -469,7 +470,7 @@ func updateGlobalParamMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.Publi
 func updateGlobalParam2(ontSdk *sdk.OntologySdk, user *sdk.Account, globalParam2 *governance.GlobalParam2) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateGlobalParam2"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{globalParam2})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -482,7 +483,7 @@ func updateGlobalParam2(ontSdk *sdk.OntologySdk, user *sdk.Account, globalParam2
 func updateGlobalParam2MultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, globalParam2 *governance.GlobalParam2) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateGlobalParam2"
-	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{globalParam2})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -495,7 +496,7 @@ func updateGlobalParam2MultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.Publ
 func updateSplitCurve(ontSdk *sdk.OntologySdk, user *sdk.Account, splitCurve *governance.SplitCurve) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateSplitCurve"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{splitCurve})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -508,7 +509,7 @@ func updateSplitCurve(ontSdk *sdk.OntologySdk, user *sdk.Account, splitCurve *go
 func updateSplitCurveMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, splitCurve *governance.SplitCurve) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "updateSplitCurve"
-	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{splitCurve})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -521,7 +522,7 @@ func updateSplitCurveMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.Public
 func setPromisePos(ontSdk *sdk.OntologySdk, user *sdk.Account, promisePos *governance.PromisePos) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "setPromisePos"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{promisePos})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -534,7 +535,7 @@ func setPromisePos(ontSdk *sdk.OntologySdk, user *sdk.Account, promisePos *gover
 func setPromisePosMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, promisePos *governance.PromisePos) bool {
 	contractAddress := utils.GovernanceContractAddress
 	method := "setPromisePos"
-	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{promisePos})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -551,7 +552,7 @@ func transferPenalty(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey stri
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "transferPenalty"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -567,7 +568,7 @@ func withdrawFee(ontSdk *sdk.OntologySdk, user *sdk.Account) bool {
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "withdrawFee"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -584,7 +585,7 @@ func transferPenaltyMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicK
 	}
 	contractAddress := utils.GovernanceContractAddress
 	method := "transferPenalty"
-	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -617,7 +618,7 @@ func multiTransfer(ontSdk *sdk.OntologySdk, contract ontcommon.Address, from []*
 	}
 	contractAddress := contract
 	method := "transfer"
-	tx, err := ontSdk.Native.NewNativeInvokeTransaction(common.DefConfig.GasPrice, common.DefConfig.GasLimit, OntIDVersion, contractAddress, method, []interface{}{transfers})
+	tx, err := ontSdk.Native.NewNativeInvokeTransaction(config.DefConfig.GasPrice, config.DefConfig.GasLimit, OntIDVersion, contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		return false
 	}
@@ -653,7 +654,7 @@ func transferOntMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, 
 	}
 	contractAddress := utils.OntContractAddress
 	method := "transfer"
-	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -679,7 +680,7 @@ func transferOntMultiSignToMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.
 	}
 	contractAddress := utils.OntContractAddress
 	method := "transfer"
-	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -705,7 +706,7 @@ func transferOngMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, 
 	}
 	contractAddress := utils.OngContractAddress
 	method := "transfer"
-	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -731,7 +732,7 @@ func transferOngMultiSignToMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.
 	}
 	contractAddress := utils.OngContractAddress
 	method := "transfer"
-	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{transfers})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -754,7 +755,7 @@ func transferFromOngMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicK
 	}
 	contractAddress := utils.OngContractAddress
 	method := "transferFrom"
-	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -777,7 +778,7 @@ func transferFromOngMultiSignToMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keyp
 	}
 	contractAddress := utils.OngContractAddress
 	method := "transferFrom"
-	txHash, err := invokeNativeContractWithMultiSign(ontSdk, common.DefConfig.GasPrice, common.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -797,7 +798,7 @@ func assignFuncsToRole(ontSdk *sdk.OntologySdk, user *sdk.Account, contract ontc
 	}
 	method := "assignFuncsToRole"
 	contractAddress := utils.AuthContractAddress
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -820,7 +821,7 @@ func assignOntIDsToRole(ontSdk *sdk.OntologySdk, user *sdk.Account, contract ont
 	}
 	contractAddress := utils.AuthContractAddress
 	method := "assignOntIDsToRole"
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -842,7 +843,7 @@ func regIdWithPublicKey(ontSdk *sdk.OntologySdk, user *sdk.Account) bool {
 	}
 	method := "regIDWithPublicKey"
 	contractAddress := utils.OntIDContractAddress
-	txHash, err := ontSdk.Native.InvokeNativeContract(common.DefConfig.GasPrice, common.DefConfig.GasLimit, user, OntIDVersion,
+	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit, user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
@@ -945,7 +946,7 @@ func getPeerPoolMap(ontSdk *sdk.OntologySdk) (*governance.PeerPoolMap, error) {
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "GetUint32Bytes, get viewBytes error!")
 	}
-	key := ConcatKey([]byte(governance.PEER_POOL), viewBytes)
+	key := common.ConcatKey([]byte(governance.PEER_POOL), viewBytes)
 	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
@@ -963,7 +964,7 @@ func getAuthorizeInfo(ontSdk *sdk.OntologySdk, peerPubkey string, address ontcom
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "hex.DecodeString, peerPubkey format error!")
 	}
 	authorizeInfo := new(governance.AuthorizeInfo)
-	key := ConcatKey([]byte(governance.AUTHORIZE_INFO_POOL), peerPubkeyPrefix, address[:])
+	key := common.ConcatKey([]byte(governance.AUTHORIZE_INFO_POOL), peerPubkeyPrefix, address[:])
 	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
@@ -980,7 +981,7 @@ func inBlackList(ontSdk *sdk.OntologySdk, peerPubkey string) (bool, error) {
 	if err != nil {
 		return false, errors.NewDetailErr(err, errors.ErrNoCode, "hex.DecodeString, peerPubkey format error!")
 	}
-	key := ConcatKey([]byte(governance.BLACK_LIST), peerPubkeyPrefix)
+	key := common.ConcatKey([]byte(governance.BLACK_LIST), peerPubkeyPrefix)
 	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return false, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
@@ -994,7 +995,7 @@ func inBlackList(ontSdk *sdk.OntologySdk, peerPubkey string) (bool, error) {
 func getTotalStake(ontSdk *sdk.OntologySdk, address ontcommon.Address) (*governance.TotalStake, error) {
 	contractAddress := utils.GovernanceContractAddress
 	totalStake := new(governance.TotalStake)
-	key := ConcatKey([]byte(governance.TOTAL_STAKE), address[:])
+	key := common.ConcatKey([]byte(governance.TOTAL_STAKE), address[:])
 	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
@@ -1012,7 +1013,7 @@ func getPenaltyStake(ontSdk *sdk.OntologySdk, peerPubkey string) (*governance.Pe
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "hex.DecodeString, peerPubkey format error!")
 	}
 	penaltyStake := new(governance.PenaltyStake)
-	key := ConcatKey([]byte(governance.PENALTY_STAKE), peerPubkeyPrefix)
+	key := common.ConcatKey([]byte(governance.PENALTY_STAKE), peerPubkeyPrefix)
 	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
@@ -1030,7 +1031,7 @@ func getAttributes(ontSdk *sdk.OntologySdk, peerPubkey string) (*governance.Peer
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "hex.DecodeString, peerPubkey format error!")
 	}
 	peerAttributes := new(governance.PeerAttributes)
-	key := ConcatKey([]byte(governance.PEER_ATTRIBUTES), peerPubkeyPrefix)
+	key := common.ConcatKey([]byte(governance.PEER_ATTRIBUTES), peerPubkeyPrefix)
 	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
@@ -1046,7 +1047,7 @@ func getAttributes(ontSdk *sdk.OntologySdk, peerPubkey string) (*governance.Peer
 func getSplitFeeAddress(ontSdk *sdk.OntologySdk, address ontcommon.Address) (*governance.SplitFeeAddress, error) {
 	contractAddress := utils.GovernanceContractAddress
 	splitFeeAddress := new(governance.SplitFeeAddress)
-	key := ConcatKey([]byte(governance.SPLIT_FEE_ADDRESS), address[:])
+	key := common.ConcatKey([]byte(governance.SPLIT_FEE_ADDRESS), address[:])
 	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
@@ -1059,7 +1060,7 @@ func getSplitFeeAddress(ontSdk *sdk.OntologySdk, address ontcommon.Address) (*go
 
 func getSplitFee(ontSdk *sdk.OntologySdk) (uint64, error) {
 	contractAddress := utils.GovernanceContractAddress
-	key := ConcatKey([]byte(governance.SPLIT_FEE))
+	key := common.ConcatKey([]byte(governance.SPLIT_FEE))
 	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return 0, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
@@ -1077,7 +1078,7 @@ func getPromisePos(ontSdk *sdk.OntologySdk, peerPubkey string) (*governance.Prom
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "hex.DecodeString, peerPubkey format error!")
 	}
-	key := ConcatKey([]byte(governance.PROMISE_POS), peerPubkeyPrefix)
+	key := common.ConcatKey([]byte(governance.PROMISE_POS), peerPubkeyPrefix)
 	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")

@@ -24,9 +24,9 @@ import (
 	"time"
 
 	log4 "github.com/alecthomas/log4go"
-	"github.com/ontio/ontology-tool/common"
 	"github.com/ontio/ontology-tool/core"
 	_ "github.com/ontio/ontology-tool/methods"
+	"github.com/ontio/ontology-tool/config"
 )
 
 var (
@@ -47,7 +47,7 @@ func main() {
 	log4.LoadConfiguration(LogConfig)
 	defer time.Sleep(time.Second)
 
-	err := common.DefConfig.Init(Config)
+	err := config.DefConfig.Init(Config)
 	if err != nil {
 		log4.Error("DefConfig.Init error:%s", err)
 		return

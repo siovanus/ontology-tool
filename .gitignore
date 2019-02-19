@@ -8,6 +8,5 @@ build/
 vendor/*
 *.iml
 ontology-tool
-config_test.json
 wallet.dat
-main.exe 
+main
