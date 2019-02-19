@@ -18,11 +18,9 @@
 package methods
 
 import (
-	"github.com/ontio/ontology-tool/methods/md5check"
 	"github.com/ontio/ontology-tool/methods/smartcontract"
 )
 
 func init() {
 	smartcontract.RegisterSmartContract()
-	md5check.RegisterMd5Check()
 }
