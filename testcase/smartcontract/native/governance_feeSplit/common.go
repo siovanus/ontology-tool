@@ -22,7 +22,6 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"os/exec"
 	"time"
 
 	"github.com/ontio/ontology-crypto/keypair"
@@ -34,7 +33,6 @@ import (
 	"github.com/ontio/ontology/consensus/vbft"
 	"github.com/ontio/ontology/consensus/vbft/config"
 	"github.com/ontio/ontology/core/types"
-	"github.com/ontio/ontology/smartcontract/service/native/utils"
 )
 
 func getDefaultAccount(ctx *testframework.TestFrameworkContext) (*sdk.Account, bool) {
@@ -123,6 +121,7 @@ func getAccount3(ctx *testframework.TestFrameworkContext) (*sdk.Account, bool) {
 
 func invokeNativeContractWithMultiSign(
 	ctx *testframework.TestFrameworkContext,
+	chainID uint32,
 	gasPrice,
 	gasLimit uint64,
 	pubKeys []keypair.PublicKey,
@@ -132,7 +131,7 @@ func invokeNativeContractWithMultiSign(
 	method string,
 	params []interface{},
 ) (scommon.Uint256, error) {
-	tx, err := ctx.Ont.Native.NewNativeInvokeTransaction(gasPrice, gasLimit, cversion, contractAddress, method, params)
+	tx, err := ctx.Ont.Native.NewNativeInvokeTransaction(chainID, gasPrice, gasLimit, cversion, contractAddress, method, params)
 	if err != nil {
 		return scommon.UINT256_EMPTY, err
 	}
@@ -160,118 +159,6 @@ func ConcatKey(args ...[]byte) []byte {
 		temp = append(temp, arg...)
 	}
 	return temp
-}
-
-func setupTest(ctx *testframework.TestFrameworkContext, user *sdk.Account) bool {
-	cmd := exec.Command("/bin/sh", "./testcase/smartcontract/native/governance_feeSplit/clear.sh")
-	err := cmd.Start()
-	if err != nil {
-		ctx.LogError("run clear.sh error:%s", err)
-		return false
-	}
-	time.Sleep(7 * time.Second)
-
-	user, err = ctx.GetDefaultAccount()
-	if err != nil {
-		ctx.LogError("Wallet.GetDefaultAccount error:%s", err)
-		return false
-	}
-	user1, ok := getAccount1(ctx)
-	if !ok {
-		return false
-	}
-	user2, ok := getAccount2(ctx)
-	if !ok {
-		return false
-	}
-
-	_, err = ctx.Ont.Native.Ont.Transfer(ctx.GetGasPrice(), ctx.GetGasLimit(), user, user1.Address, INIT_ONT)
-	if err != nil {
-		ctx.LogError("Rpc.Transfer error:%s", err)
-		return false
-	}
-	_, err = ctx.Ont.Native.Ont.Transfer(ctx.GetGasPrice(), ctx.GetGasLimit(), user, user2.Address, INIT_ONT)
-	if err != nil {
-		ctx.LogError("Rpc.Transfer error:%s", err)
-		return false
-	}
-	waitForBlock(ctx)
-	user1Balance, err := ctx.Ont.Native.Ont.BalanceOf(user1.Address)
-	if err != nil {
-		ctx.LogError("Rpc.GetBalance error:%s", err)
-		return false
-	}
-	if user1Balance != INIT_ONT {
-		ctx.LogError("balance of user1 %v is error", user1Balance)
-		return false
-	}
-	user2Balance, err := ctx.Ont.Native.Ont.BalanceOf(user2.Address)
-	if err != nil {
-		ctx.LogError("Rpc.GetBalance error:%s", err)
-		return false
-	}
-	if user2Balance != INIT_ONT {
-		ctx.LogError("balance of user2 %v is error", user2Balance)
-		return false
-	}
-
-	ok = regIdWithPublicKey(ctx, user)
-	if !ok {
-		ctx.LogError("regIdWithPublicKey failed!")
-		return false
-	}
-	ok = regIdWithPublicKey(ctx, user1)
-	if !ok {
-		ctx.LogError("regIdWithPublicKey failed!")
-		return false
-	}
-	waitForBlock(ctx)
-
-	ok = assignFuncsToRole(ctx, user, utils.GovernanceContractAddress, "TrionesCandidatePeerOwner", "registerCandidate")
-	if !ok {
-		ctx.LogError("assignFuncsToRole failed!")
-		return false
-	}
-	waitForBlock(ctx)
-
-	ok = assignOntIDsToRole(ctx, user, utils.GovernanceContractAddress, "TrionesCandidatePeerOwner", []string{"did:ont:" + user.Address.ToBase58(), "did:ont:" + user1.Address.ToBase58(), "did:ont:" + user2.Address.ToBase58()})
-	if !ok {
-		ctx.LogError("assignOntIDsToRole failed!")
-		return false
-	}
-	waitForBlock(ctx)
-
-	registerCandidate(ctx, user, PEER_PUBKEY, 10000)
-	waitForBlock(ctx)
-	approveCandidate(ctx, user, PEER_PUBKEY)
-	waitForBlock(ctx)
-	return true
-}
-
-func checkBalance(ctx *testframework.TestFrameworkContext, user *sdk.Account, balance uint64) bool {
-	userBalance, err := ctx.Ont.Native.Ont.BalanceOf(user.Address)
-	if err != nil {
-		ctx.LogError("Rpc.GetBalance error:%s", err)
-		return false
-	}
-	if userBalance != balance {
-		ctx.LogError("balance of user is %v, not %v", userBalance, balance)
-		return false
-	}
-	return true
-}
-
-func checkOngBalance(ctx *testframework.TestFrameworkContext, user *sdk.Account, balance uint64) bool {
-	userBalance, err := ctx.Ont.Native.Ong.BalanceOf(user.Address)
-	if err != nil {
-		ctx.LogError("Rpc.GetBalance error:%s", err)
-		return false
-	}
-	if userBalance != balance {
-		ctx.LogError("ong balance of user is %v, not %v", userBalance, balance)
-		return false
-	}
-	return true
 }
 
 func initVbftBlock(block *types.Block) (*vbft.Block, error) {

@@ -21,14 +21,13 @@ package side_chain_governance
 import (
 	"encoding/json"
 	"fmt"
+	"hash/fnv"
 	"io/ioutil"
 	"time"
 
 	"github.com/ontio/ontology-crypto/keypair"
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/testframework"
-	"github.com/ontio/ontology/common"
-	"hash/fnv"
 )
 
 type RegisterSideChainParam struct {
@@ -208,45 +207,6 @@ func OngLock(ctx *testframework.TestFrameworkContext) bool {
 	}
 
 	ok = ongLock(ctx, user, hash.Sum32(), ongLockParam.OngxAmount)
-	if !ok {
-		return false
-	}
-	return true
-}
-
-type OngUnlockParam struct {
-	SideChainID string
-	Path        string
-	TxHash      string
-	Rpc         string
-}
-
-func OngUnlock(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./side_chain_params/OngUnlock.json")
-	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
-		return false
-	}
-	ongUnlockParam := new(OngUnlockParam)
-	err = json.Unmarshal(data, ongUnlockParam)
-	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
-		return false
-	}
-	time.Sleep(1 * time.Second)
-	hash := fnv.New32a()
-	hash.Write([]byte(ongUnlockParam.SideChainID))
-	user, ok := getAccountByPassword(ctx, ongUnlockParam.Path)
-	if !ok {
-		return false
-	}
-
-	txHash, err := common.Uint256FromHexString(ongUnlockParam.TxHash)
-	if err != nil {
-		ctx.LogError("common.Uint256FromHexString failed %v", err)
-		return false
-	}
-	ok = ongUnlock(ctx, user, hash.Sum32(), txHash, ongUnlockParam.Rpc)
 	if !ok {
 		return false
 	}

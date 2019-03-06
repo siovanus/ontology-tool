@@ -2,16 +2,17 @@ package side_chain_governance
 
 import (
 	"bytes"
-
 	"encoding/hex"
 	"fmt"
+
 	"github.com/ontio/ontology-crypto/keypair"
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/testframework"
 	"github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/errors"
+	"github.com/ontio/ontology/smartcontract/service/native/chain_manager"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
-	"github.com/ontio/ontology/smartcontract/service/native/side_chain"
+	"github.com/ontio/ontology/smartcontract/service/native/ong"
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
 )
 
@@ -19,7 +20,7 @@ var OntIDVersion = byte(0)
 
 func registerSideChain(ctx *testframework.TestFrameworkContext, user *sdk.Account, ratio uint32,
 	deposit uint64, ongPool uint64, genesisBlockHeader []byte) bool {
-	params := &side_chain.RegisterSideChainParam{
+	params := &chain_manager.RegisterSideChainParam{
 		Address:            user.Address,
 		Ratio:              ratio,
 		Deposit:            deposit,
@@ -29,8 +30,8 @@ func registerSideChain(ctx *testframework.TestFrameworkContext, user *sdk.Accoun
 		KeyNo:              1,
 	}
 	method := "registerSideChain"
-	contractAddress := utils.SideChainGovernanceContractAddress
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	contractAddress := utils.ChainManagerContractAddress
+	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetChainID(), ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
@@ -44,12 +45,12 @@ func registerSideChain(ctx *testframework.TestFrameworkContext, user *sdk.Accoun
 
 func approveSideChainMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account,
 	sideChainID uint32) bool {
-	params := &side_chain.SideChainIDParam{
+	params := &chain_manager.SideChainIDParam{
 		SideChainID: sideChainID,
 	}
-	contractAddress := utils.SideChainGovernanceContractAddress
+	contractAddress := utils.ChainManagerContractAddress
 	method := "approveSideChain"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetChainID(), ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
@@ -61,12 +62,12 @@ func approveSideChainMultiSign(ctx *testframework.TestFrameworkContext, pubKeys 
 
 func rejectSideChainMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account,
 	sideChainID uint32) bool {
-	params := &side_chain.SideChainIDParam{
+	params := &chain_manager.SideChainIDParam{
 		SideChainID: sideChainID,
 	}
-	contractAddress := utils.SideChainGovernanceContractAddress
+	contractAddress := utils.ChainManagerContractAddress
 	method := "rejectSideChain"
-	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetChainID(), ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys, users, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
@@ -77,14 +78,14 @@ func rejectSideChainMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 }
 
 func registerNodeToSideChain(ctx *testframework.TestFrameworkContext, user *sdk.Account, sideChainID uint32, peerPubkey string) bool {
-	params := &side_chain.NodeToSideChainParams{
+	params := &chain_manager.NodeToSideChainParams{
 		PeerPubkey:  peerPubkey,
 		Address:     user.Address,
 		SideChainID: sideChainID,
 	}
 	method := "registerNodeToSideChain"
-	contractAddress := utils.SideChainGovernanceContractAddress
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	contractAddress := utils.ChainManagerContractAddress
+	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetChainID(), ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
@@ -96,14 +97,14 @@ func registerNodeToSideChain(ctx *testframework.TestFrameworkContext, user *sdk.
 }
 
 func ongLock(ctx *testframework.TestFrameworkContext, user *sdk.Account, sideChainID uint32, ongxAmount uint64) bool {
-	params := &side_chain.OngLockParam{
+	params := &ong.OngLockParam{
 		SideChainID: sideChainID,
 		Address:     user.Address,
 		OngxAmount:  ongxAmount,
 	}
 	method := "ongLock"
-	contractAddress := utils.SideChainGovernanceContractAddress
-	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+	contractAddress := utils.OngContractAddress
+	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetChainID(), ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
 		contractAddress, method, []interface{}{params})
 	if err != nil {
 		ctx.LogError("invokeNativeContract error :", err)
@@ -114,57 +115,14 @@ func ongLock(ctx *testframework.TestFrameworkContext, user *sdk.Account, sideCha
 	return true
 }
 
-func ongUnlock(ctx *testframework.TestFrameworkContext, user *sdk.Account, sideChainID uint32, txHash common.Uint256, rpc string) bool {
-	//get block hash and mpt proof of side chain
-	sideChainSdk := sdk.NewOntologySdk()
-	sideChainSdk.NewRpcClient().SetAddress(rpc)
-	key := hex.EncodeToString(append(utils.OngContractAddress[:], txHash.ToArray()...))
-	height, err := sideChainSdk.ClientMgr.GetBlockHeightByTxHash(txHash.ToHexString())
-	if err != nil {
-		ctx.LogError("sideChainSdk.ClientMgr.GetBlockHeightByTxHash error :", err)
-		return false
-	}
-	blockHash, err := sideChainSdk.GetBlockHash(height)
-	if err != nil {
-		ctx.LogError("sideChainSdk.GetBlockHash error :", err)
-		return false
-	}
-	mptProof, err := sideChainSdk.ClientMgr.GetMPTProof(key, blockHash.ToHexString())
-	if err != nil {
-		ctx.LogError("sideChainSdk.ClientMgr.GetMPTProof error :", err)
-		return false
-	}
-	var proof [][]byte
-	for _, v := range mptProof.MPTProof {
-		proof = append(proof, v)
-	}
-	params := &side_chain.OngUnlockParam{
-		SideChainID: sideChainID,
-		BlockHash:   blockHash,
-		TxHash:      txHash,
-		Proof:       proof,
-	}
-	method := "ongUnlock"
-	contractAddress := utils.SideChainGovernanceContractAddress
-	txHash2, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
-		contractAddress, method, []interface{}{params})
-	if err != nil {
-		ctx.LogError("invokeNativeContract error :", err)
-		return false
-	}
-	ctx.LogInfo("ongUnlock txHash is :", txHash2.ToHexString())
-	waitForBlock(ctx)
-	return true
-}
-
-func getSideChain(ctx *testframework.TestFrameworkContext, sideChainID uint32) (*side_chain.SideChain, error) {
-	sideChainIDBytes, err := governance.GetUint32Bytes(sideChainID)
+func getSideChain(ctx *testframework.TestFrameworkContext, sideChainID uint32) (*chain_manager.SideChain, error) {
+	sideChainIDBytes, err := utils.GetUint32Bytes(sideChainID)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getUint32Bytes error")
 	}
-	contractAddress := utils.SideChainGovernanceContractAddress
-	sideChain := new(side_chain.SideChain)
-	key := ConcatKey([]byte(side_chain.SIDE_CHAIN), sideChainIDBytes)
+	contractAddress := utils.ChainManagerContractAddress
+	sideChain := new(chain_manager.SideChain)
+	key := ConcatKey([]byte(chain_manager.SIDE_CHAIN), sideChainIDBytes)
 	fmt.Println(hex.EncodeToString(key))
 	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
@@ -178,14 +136,14 @@ func getSideChain(ctx *testframework.TestFrameworkContext, sideChainID uint32) (
 	return sideChain, nil
 }
 
-func getSideChainNodeInfo(ctx *testframework.TestFrameworkContext, sideChainID uint32) (*side_chain.SideChainNodeInfo, error) {
-	sideChainIDBytes, err := governance.GetUint32Bytes(sideChainID)
+func getSideChainNodeInfo(ctx *testframework.TestFrameworkContext, sideChainID uint32) (*chain_manager.SideChainNodeInfo, error) {
+	sideChainIDBytes, err := utils.GetUint32Bytes(sideChainID)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getUint32Bytes error")
 	}
-	contractAddress := utils.SideChainGovernanceContractAddress
-	sideChainNodeInfo := new(side_chain.SideChainNodeInfo)
-	key := ConcatKey([]byte(side_chain.SIDE_CHAIN_NODE_INFO), sideChainIDBytes)
+	contractAddress := utils.ChainManagerContractAddress
+	sideChainNodeInfo := new(chain_manager.SideChainNodeInfo)
+	key := ConcatKey([]byte(chain_manager.SIDE_CHAIN_NODE_INFO), sideChainIDBytes)
 	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
