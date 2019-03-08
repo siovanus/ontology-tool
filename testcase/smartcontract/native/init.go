@@ -6,9 +6,6 @@ import (
 )
 
 func TestNative() {
-	//governance_feeSplit.TestGovernanceContract()
-	//governance_feeSplit.TestGovernanceContractError()
 	governance_feeSplit.TestGovernanceMethods()
 	side_chain_governance.TestGovernanceMethods()
-	//governance_feeSplit.TestGovernanceBatch()
 }

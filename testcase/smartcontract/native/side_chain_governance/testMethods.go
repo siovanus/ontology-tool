@@ -30,6 +30,53 @@ import (
 	"github.com/ontio/ontology-tool/testframework"
 )
 
+type RegisterMainChainParam struct {
+	Path         []string
+	MainChainRpc string
+}
+
+func RegisterMainChain(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/RegisterMainChain.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	registerMainChainParam := new(RegisterMainChainParam)
+	err = json.Unmarshal(data, registerMainChainParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	var users []*sdk.Account
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, path := range registerMainChainParam.Path {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+		pubKeys = append(pubKeys, user.PublicKey)
+	}
+
+	sideSdk := sdk.NewOntologySdk()
+	sideSdk.NewRpcClient().SetAddress(registerMainChainParam.MainChainRpc)
+	genesisBlock, err := sideSdk.GetBlockByHeight(0)
+	if err != nil {
+		ctx.LogError("get side chain genesis block error: %s", err)
+		return false
+	}
+	genesisBlockHeader := genesisBlock.Header.ToArray()
+
+	ok := registerMainChain(ctx, pubKeys, users, genesisBlockHeader)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
+
 type RegisterSideChainParam struct {
 	Path         string
 	Ratio        uint32
@@ -57,7 +104,7 @@ func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 	}
 	sideSdk := sdk.NewOntologySdk()
 	sideSdk.NewRpcClient().SetAddress(registerSideChainParam.SideChainRpc)
-	genesisBlock, err := sideSdk.GetSideChainBlockByHeight(0)
+	genesisBlock, err := sideSdk.GetBlockByHeight(0)
 	if err != nil {
 		ctx.LogError("get side chain genesis block error: %s", err)
 		return false
@@ -181,9 +228,10 @@ func RegisterNodeToSideChain(ctx *testframework.TestFrameworkContext) bool {
 }
 
 type OngLockParam struct {
-	SideChainID string
-	Path        string
-	OngxAmount  uint64
+	OngxFee    uint64
+	ChainID    string
+	Path       string
+	OngxAmount uint64
 }
 
 func OngLock(ctx *testframework.TestFrameworkContext) bool {
@@ -200,13 +248,13 @@ func OngLock(ctx *testframework.TestFrameworkContext) bool {
 	}
 	time.Sleep(1 * time.Second)
 	hash := fnv.New32a()
-	hash.Write([]byte(ongLockParam.SideChainID))
+	hash.Write([]byte(ongLockParam.ChainID))
 	user, ok := getAccountByPassword(ctx, ongLockParam.Path)
 	if !ok {
 		return false
 	}
 
-	ok = ongLock(ctx, user, hash.Sum32(), ongLockParam.OngxAmount)
+	ok = ongLock(ctx, user, ongLockParam.OngxFee, hash.Sum32(), ongLockParam.OngxAmount)
 	if !ok {
 		return false
 	}

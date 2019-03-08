@@ -2,9 +2,6 @@ package side_chain_governance
 
 import (
 	"bytes"
-	"encoding/hex"
-	"fmt"
-
 	"github.com/ontio/ontology-crypto/keypair"
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/testframework"
@@ -96,8 +93,9 @@ func registerNodeToSideChain(ctx *testframework.TestFrameworkContext, user *sdk.
 	return true
 }
 
-func ongLock(ctx *testframework.TestFrameworkContext, user *sdk.Account, sideChainID uint32, ongxAmount uint64) bool {
+func ongLock(ctx *testframework.TestFrameworkContext, user *sdk.Account, ongxFee uint64, sideChainID uint32, ongxAmount uint64) bool {
 	params := &ong.OngLockParam{
+		OngxFee:     ongxFee,
 		SideChainID: sideChainID,
 		Address:     user.Address,
 		OngxAmount:  ongxAmount,
@@ -115,6 +113,22 @@ func ongLock(ctx *testframework.TestFrameworkContext, user *sdk.Account, sideCha
 	return true
 }
 
+func registerMainChain(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account,
+	genesisBlockHeader []byte) bool {
+	params := &chain_manager.RegisterMainChainParam{
+		GenesisHeader: genesisBlockHeader,
+	}
+	contractAddress := utils.ChainManagerContractAddress
+	method := "registerMainChain"
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetChainID(), ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys,
+		users, OntIDVersion, contractAddress, method, []interface{}{params})
+	if err != nil {
+		ctx.LogError("invokeNativeContractWithMultiSign error :", err)
+	}
+	ctx.LogInfo("registerMainChain txHash is :", txHash.ToHexString())
+	return true
+}
+
 func getSideChain(ctx *testframework.TestFrameworkContext, sideChainID uint32) (*chain_manager.SideChain, error) {
 	sideChainIDBytes, err := utils.GetUint32Bytes(sideChainID)
 	if err != nil {
@@ -123,7 +137,6 @@ func getSideChain(ctx *testframework.TestFrameworkContext, sideChainID uint32) (
 	contractAddress := utils.ChainManagerContractAddress
 	sideChain := new(chain_manager.SideChain)
 	key := ConcatKey([]byte(chain_manager.SIDE_CHAIN), sideChainIDBytes)
-	fmt.Println(hex.EncodeToString(key))
 	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")

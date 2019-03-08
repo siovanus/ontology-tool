@@ -23,6 +23,7 @@ import (
 )
 
 func TestGovernanceMethods() {
+	testframework.TFramework.RegTestCase("RegisterMainChain", RegisterMainChain)
 	testframework.TFramework.RegTestCase("RegisterSideChain", RegisterSideChain)
 	testframework.TFramework.RegTestCase("ApproveSideChain", ApproveSideChain)
 	testframework.TFramework.RegTestCase("RejectSideChain", RejectSideChain)
