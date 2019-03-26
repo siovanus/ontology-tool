@@ -41,9 +41,9 @@ func registerSideChain(ctx *testframework.TestFrameworkContext, user *sdk.Accoun
 }
 
 func approveSideChainMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account,
-	sideChainID uint32) bool {
-	params := &chain_manager.SideChainIDParam{
-		SideChainID: sideChainID,
+	chainID uint64) bool {
+	params := &chain_manager.ChainIDParam{
+		ChainID: chainID,
 	}
 	contractAddress := utils.ChainManagerContractAddress
 	method := "approveSideChain"
@@ -58,9 +58,9 @@ func approveSideChainMultiSign(ctx *testframework.TestFrameworkContext, pubKeys 
 }
 
 func rejectSideChainMultiSign(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account,
-	sideChainID uint32) bool {
-	params := &chain_manager.SideChainIDParam{
-		SideChainID: sideChainID,
+	chainID uint64) bool {
+	params := &chain_manager.ChainIDParam{
+		ChainID: chainID,
 	}
 	contractAddress := utils.ChainManagerContractAddress
 	method := "rejectSideChain"
@@ -74,11 +74,11 @@ func rejectSideChainMultiSign(ctx *testframework.TestFrameworkContext, pubKeys [
 	return true
 }
 
-func registerNodeToSideChain(ctx *testframework.TestFrameworkContext, user *sdk.Account, sideChainID uint32, peerPubkey string) bool {
+func registerNodeToSideChain(ctx *testframework.TestFrameworkContext, user *sdk.Account, chainID uint64, peerPubkey string) bool {
 	params := &chain_manager.NodeToSideChainParams{
-		PeerPubkey:  peerPubkey,
-		Address:     user.Address,
-		SideChainID: sideChainID,
+		PeerPubkey: peerPubkey,
+		Address:    user.Address,
+		ChainID:    chainID,
 	}
 	method := "registerNodeToSideChain"
 	contractAddress := utils.ChainManagerContractAddress
@@ -93,12 +93,12 @@ func registerNodeToSideChain(ctx *testframework.TestFrameworkContext, user *sdk.
 	return true
 }
 
-func ongLock(ctx *testframework.TestFrameworkContext, user *sdk.Account, ongxFee uint64, sideChainID uint32, ongxAmount uint64) bool {
+func ongLock(ctx *testframework.TestFrameworkContext, user *sdk.Account, ongxFee uint64, chainID uint64, ongxAmount uint64) bool {
 	params := &ong.OngLockParam{
-		OngxFee:     ongxFee,
-		SideChainID: sideChainID,
-		Address:     user.Address,
-		OngxAmount:  ongxAmount,
+		OngxFee:    ongxFee,
+		ToChainID:  chainID,
+		Address:    user.Address,
+		OngxAmount: ongxAmount,
 	}
 	method := "ongLock"
 	contractAddress := utils.OngContractAddress
@@ -129,8 +129,8 @@ func registerMainChain(ctx *testframework.TestFrameworkContext, pubKeys []keypai
 	return true
 }
 
-func getSideChain(ctx *testframework.TestFrameworkContext, sideChainID uint32) (*chain_manager.SideChain, error) {
-	sideChainIDBytes, err := utils.GetUint32Bytes(sideChainID)
+func getSideChain(ctx *testframework.TestFrameworkContext, sideChainID uint64) (*chain_manager.SideChain, error) {
+	sideChainIDBytes, err := utils.GetUint64Bytes(sideChainID)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getUint32Bytes error")
 	}
@@ -149,8 +149,8 @@ func getSideChain(ctx *testframework.TestFrameworkContext, sideChainID uint32) (
 	return sideChain, nil
 }
 
-func getSideChainNodeInfo(ctx *testframework.TestFrameworkContext, sideChainID uint32) (*chain_manager.SideChainNodeInfo, error) {
-	sideChainIDBytes, err := utils.GetUint32Bytes(sideChainID)
+func getSideChainNodeInfo(ctx *testframework.TestFrameworkContext, sideChainID uint64) (*chain_manager.SideChainNodeInfo, error) {
+	sideChainIDBytes, err := utils.GetUint64Bytes(sideChainID)
 	if err != nil {
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getUint32Bytes error")
 	}
@@ -162,7 +162,7 @@ func getSideChainNodeInfo(ctx *testframework.TestFrameworkContext, sideChainID u
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
 	}
 	if len(value) != 0 {
-		if err := sideChainNodeInfo.Deserialize(bytes.NewBuffer(value)); err != nil {
+		if err := sideChainNodeInfo.Deserialization(common.NewZeroCopySource(value)); err != nil {
 			return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize sideChainNodeInfo error!")
 		}
 	}

@@ -32,7 +32,7 @@ var DefConfig = NewTestConfig()
 
 //Config object used by ontology-instance
 type TestConfig struct {
-	ChainID string
+	ChainID uint64
 	//JsonRpcAddress of ontology
 	JsonRpcAddress string
 	//RestfulAddress of ontology

@@ -22,7 +22,6 @@ import (
 	log4 "github.com/alecthomas/log4go"
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/common"
-	"hash/fnv"
 )
 
 //TestFrameworkContext is the context for test case
@@ -73,10 +72,8 @@ func (this *TestFrameworkContext) FailNow() {
 	}
 }
 
-func (this *TestFrameworkContext) GetChainID() uint32 {
-	hash := fnv.New32a()
-	hash.Write([]byte(common.DefConfig.ChainID))
-	return hash.Sum32()
+func (this *TestFrameworkContext) GetChainID() uint64 {
+	return common.DefConfig.ChainID
 }
 
 func (this *TestFrameworkContext) GetGasPrice() uint64 {

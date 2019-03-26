@@ -117,7 +117,7 @@ func getAccount3(ctx *testframework.TestFrameworkContext) (*sdk.Account, bool) {
 
 func invokeNativeContractWithMultiSign(
 	ctx *testframework.TestFrameworkContext,
-	chainID uint32,
+	chainID uint64,
 	gasPrice,
 	gasLimit uint64,
 	pubKeys []keypair.PublicKey,
