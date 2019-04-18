@@ -251,8 +251,8 @@ type TransferMultiSignParam struct {
 	Amount []uint64
 }
 
-func TransferOngMultiSign(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./params/TransferOngMultiSign.json")
+func TransferOntMultiSign(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/TransferOntMultiSign.json")
 	if err != nil {
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
@@ -280,7 +280,51 @@ func TransferOngMultiSign(ctx *testframework.TestFrameworkContext) bool {
 		if !ok {
 			return false
 		}
-		ok = transferOngMultiSign(ctx, pubKeys, users, user2.Address, transferMultiSignParam.Amount[index])
+		ok = transferOntMultiSign(ctx, pubKeys, users, user2.Address, transferMultiSignParam.Amount[index])
+		if !ok {
+			return false
+		}
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+type TransferFromMultiSignParam struct {
+	Path1  []string
+	Path2  []string
+	Amount []uint64
+}
+
+func TransferFromOngMultiSign(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./params/TransferFromOngMultiSign.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	transferFromMultiSignParam := new(TransferFromMultiSignParam)
+	err = json.Unmarshal(data, transferFromMultiSignParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	var users []*sdk.Account
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, path := range transferFromMultiSignParam.Path1 {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+		pubKeys = append(pubKeys, user.PublicKey)
+	}
+	time.Sleep(1 * time.Second)
+	for index, path2 := range transferFromMultiSignParam.Path2 {
+		user2, ok := getAccountByPassword(ctx, path2)
+		if !ok {
+			return false
+		}
+		ok = transferFromOngMultiSign(ctx, pubKeys, users, user2.Address, transferFromMultiSignParam.Amount[index])
 		if !ok {
 			return false
 		}
@@ -371,40 +415,5 @@ func GetVbftInfo(ctx *testframework.TestFrameworkContext) bool {
 	for _, p := range cfg.Peers {
 		fmt.Printf("peerInfo Index: %d, ID:%v\n", p.Index, p.ID)
 	}
-	return true
-}
-
-type MultiTransferParam struct {
-	FromPath  []string
-	ToAddress []string
-	Amount    []uint64
-}
-
-func MultiTransferOng(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./params/MultiTransferOng.json")
-	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
-		return false
-	}
-	multiTransferParam := new(MultiTransferParam)
-	err = json.Unmarshal(data, multiTransferParam)
-	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
-		return false
-	}
-	var users []*sdk.Account
-	time.Sleep(1 * time.Second)
-	for _, path := range multiTransferParam.FromPath {
-		user, ok := getAccountByPassword(ctx, path)
-		if !ok {
-			return false
-		}
-		users = append(users, user)
-	}
-	ok := multiTransfer(ctx, utils.OngContractAddress, users, multiTransferParam.ToAddress, multiTransferParam.Amount)
-	if !ok {
-		return false
-	}
-	waitForBlock(ctx)
 	return true
 }

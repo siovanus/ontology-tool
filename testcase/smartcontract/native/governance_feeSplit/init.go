@@ -29,8 +29,8 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("AssignOntIDsToRole", AssignOntIDsToRole)
 	testframework.TFramework.RegTestCase("AssignOntIDsToRoleAny", AssignOntIDsToRoleAny)
 	testframework.TFramework.RegTestCase("Vrf", Vrf)
-	testframework.TFramework.RegTestCase("MultiTransferOng", MultiTransferOng)
-	testframework.TFramework.RegTestCase("TransferOngMultiSign", TransferOngMultiSign)
+	testframework.TFramework.RegTestCase("TransferOntMultiSign", TransferOntMultiSign)
+	testframework.TFramework.RegTestCase("TransferFromOngMultiSign", TransferFromOngMultiSign)
 	testframework.TFramework.RegTestCase("GetAddressMultiSign", GetAddressMultiSign)
 	testframework.TFramework.RegTestCase("GetVbftInfo", GetVbftInfo)
 }
