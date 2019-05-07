@@ -27,10 +27,12 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("RegisterSideChain", RegisterSideChain)
 	testframework.TFramework.RegTestCase("ApproveSideChain", ApproveSideChain)
 	testframework.TFramework.RegTestCase("RejectSideChain", RejectSideChain)
-	testframework.TFramework.RegTestCase("RegisterNodeToSideChain", RegisterNodeToSideChain)
+	testframework.TFramework.RegTestCase("StakeSideChain", StakeSideChain)
+	testframework.TFramework.RegTestCase("UnStakeSideChain", UnStakeSideChain)
+	testframework.TFramework.RegTestCase("Inflation", Inflation)
+	testframework.TFramework.RegTestCase("ApproveInflation", ApproveInflation)
+	testframework.TFramework.RegTestCase("RejectInflation", RejectInflation)
 	testframework.TFramework.RegTestCase("OngLock", OngLock)
 
 	testframework.TFramework.RegTestCase("GetSideChain", GetSideChain)
-	testframework.TFramework.RegTestCase("GetSideChainNodeInfo", GetSideChainNodeInfo)
-	testframework.TFramework.RegTestCase("GetSideChainPeerPoolMap", GetSideChainPeerPoolMap)
 }

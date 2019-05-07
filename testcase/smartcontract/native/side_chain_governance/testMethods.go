@@ -117,8 +117,8 @@ func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 }
 
 type ApproveSideChainParam struct {
-	Path        []string
-	SideChainID uint64
+	Path    []string
+	ChainID uint64
 }
 
 func ApproveSideChain(ctx *testframework.TestFrameworkContext) bool {
@@ -144,7 +144,7 @@ func ApproveSideChain(ctx *testframework.TestFrameworkContext) bool {
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	ok := approveSideChainMultiSign(ctx, pubKeys, users, approveSideChainParam.SideChainID)
+	ok := approveSideChainMultiSign(ctx, pubKeys, users, approveSideChainParam.ChainID)
 	if !ok {
 		return false
 	}
@@ -153,8 +153,8 @@ func ApproveSideChain(ctx *testframework.TestFrameworkContext) bool {
 }
 
 type RejectSideChainParam struct {
-	Path        []string
-	SideChainID uint64
+	Path    []string
+	ChainID uint64
 }
 
 func RejectSideChain(ctx *testframework.TestFrameworkContext) bool {
@@ -180,7 +180,7 @@ func RejectSideChain(ctx *testframework.TestFrameworkContext) bool {
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	ok := rejectSideChainMultiSign(ctx, pubKeys, users, rejectSideChainParam.SideChainID)
+	ok := rejectSideChainMultiSign(ctx, pubKeys, users, rejectSideChainParam.ChainID)
 	if !ok {
 		return false
 	}
@@ -188,35 +188,169 @@ func RejectSideChain(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
-type RegisterNodeToSideChainParam struct {
-	SideChainID uint64
-	PeerPubkey  []string
-	Path        []string
+type StakeSideChainParam struct {
+	ChainID uint64
+	Path    string
+	Amount  uint64
 }
 
-func RegisterNodeToSideChain(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./side_chain_params/RegisterNodeToSideChain.json")
+func StakeSideChain(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/StakeSideChain.json")
 	if err != nil {
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
 	}
-	registerNodeToSideChainParam := new(RegisterNodeToSideChainParam)
-	err = json.Unmarshal(data, registerNodeToSideChainParam)
+	stakeSideChainParam := new(StakeSideChainParam)
+	err = json.Unmarshal(data, stakeSideChainParam)
 	if err != nil {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
-	for index, peerPubkey := range registerNodeToSideChainParam.PeerPubkey {
-		user, ok := getAccountByPassword(ctx, registerNodeToSideChainParam.Path[index])
-		if !ok {
-			return false
-		}
-		ok = registerNodeToSideChain(ctx, user, registerNodeToSideChainParam.SideChainID, peerPubkey)
-		if !ok {
-			return false
-		}
+	user, ok := getAccountByPassword(ctx, stakeSideChainParam.Path)
+	if !ok {
+		return false
 	}
+	ok = stakeSideChain(ctx, user, stakeSideChainParam.ChainID, stakeSideChainParam.Amount)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+func UnStakeSideChain(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/UnStakeSideChain.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	unStakeSideChainParam := new(StakeSideChainParam)
+	err = json.Unmarshal(data, unStakeSideChainParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	time.Sleep(1 * time.Second)
+	user, ok := getAccountByPassword(ctx, unStakeSideChainParam.Path)
+	if !ok {
+		return false
+	}
+	ok = unStakeSideChain(ctx, user, unStakeSideChainParam.ChainID, unStakeSideChainParam.Amount)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+type InflationParam struct {
+	Path       []string
+	ChainID    uint64
+	DepositAdd uint64
+	OngPoolAdd uint64
+}
+
+func Inflation(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/Inflation.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	inflationParam := new(InflationParam)
+	err = json.Unmarshal(data, inflationParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	var users []*sdk.Account
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, path := range inflationParam.Path {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+		pubKeys = append(pubKeys, user.PublicKey)
+	}
+	ok := inflationMultiSign(ctx, pubKeys, users, inflationParam.ChainID, inflationParam.DepositAdd, inflationParam.OngPoolAdd)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+type ApproveInflationParam struct {
+	Path    []string
+	ChainID uint64
+}
+
+func ApproveInflation(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/ApproveInflation.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	approveInflationParam := new(ApproveInflationParam)
+	err = json.Unmarshal(data, approveInflationParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	var users []*sdk.Account
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, path := range approveInflationParam.Path {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+		pubKeys = append(pubKeys, user.PublicKey)
+	}
+	ok := approveInflationMultiSign(ctx, pubKeys, users, approveInflationParam.ChainID)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+type RejectInflationParam struct {
+	Path    []string
+	ChainID uint64
+}
+
+func RejectInflation(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/RejectInflation.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	rejectInflationParam := new(RejectInflationParam)
+	err = json.Unmarshal(data, rejectInflationParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+	var users []*sdk.Account
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, path := range rejectInflationParam.Path {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+		pubKeys = append(pubKeys, user.PublicKey)
+	}
+	ok := rejectInflationMultiSign(ctx, pubKeys, users, rejectInflationParam.ChainID)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
 	return true
 }
 
@@ -274,52 +408,10 @@ func GetSideChain(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	fmt.Println("SideChainID of side chain is: ", sideChain.ChainID)
-	fmt.Println("Address of side chain is: ", sideChain.Address)
 	fmt.Println("Status of side chain is: ", sideChain.Status)
 	fmt.Println("OngNum of side chain is: ", sideChain.OngNum)
 	fmt.Println("Deposit of side chain is: ", sideChain.Deposit)
 	fmt.Println("OngPool of side chain is: ", sideChain.OngPool)
 	fmt.Println("Ratio of side chain is: ", sideChain.Ratio)
-	return true
-}
-
-func GetSideChainNodeInfo(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./side_chain_params/GetSideChainNodeInfo.json")
-	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
-		return false
-	}
-	sideChainID := new(SideChainID)
-	err = json.Unmarshal(data, sideChainID)
-	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
-		return false
-	}
-	sideChainNodeInfo, err := getSideChainNodeInfo(ctx, sideChainID.SideChainID)
-	if err != nil {
-		ctx.LogError("getSideChain error %v", err)
-		return false
-	}
-	fmt.Println("SideChainID of side chain is: ", sideChainNodeInfo.ChainID)
-	fmt.Println("NodeInfoMap of side chain is: ", sideChainNodeInfo.NodeInfoMap)
-	return true
-}
-
-func GetSideChainPeerPoolMap(ctx *testframework.TestFrameworkContext) bool {
-	peerPoolMap, err := getSideChainPeerPoolMap(ctx)
-	if err != nil {
-		ctx.LogError("getPeerPoolMap failed %v", err)
-		return false
-	}
-
-	for _, v := range peerPoolMap.PeerPoolMap {
-		fmt.Println("###########################################")
-		fmt.Println("peerPoolItem.Index is:", v.Index)
-		fmt.Println("peerPoolItem.PeerPubkey is:", v.PeerPubkey)
-		fmt.Println("peerPoolItem.Address is:", v.Address.ToBase58())
-		fmt.Println("peerPoolItem.Status is:", v.Status)
-		fmt.Println("peerPoolItem.InitPos is:", v.InitPos)
-		fmt.Println("peerPoolItem.TotalPos is:", v.TotalPos)
-	}
 	return true
 }
