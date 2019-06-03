@@ -38,10 +38,7 @@ type TestConfig struct {
 	RestfulAddress string
 	//WebSocketAddress of ontology
 	WebSocketAddress string
-	//WalletFile of test
-	WalletFile string
-	//The Password of wallet
-	Password string
+
 	//Gas Price of transaction
 	GasPrice uint64
 	//Gas Limit of invoke transaction

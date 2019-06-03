@@ -27,27 +27,12 @@ import (
 	log4 "github.com/alecthomas/log4go"
 	"github.com/ontio/ontology-crypto/keypair"
 	sdk "github.com/ontio/ontology-go-sdk"
-	"github.com/ontio/ontology-tool/config"
 	scommon "github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/password"
 	"github.com/ontio/ontology/consensus/vbft"
 	"github.com/ontio/ontology/consensus/vbft/config"
 	"github.com/ontio/ontology/core/types"
 )
-
-func GetDefaultAccount(sdk *sdk.OntologySdk) (*sdk.Account, bool) {
-	wallet, err := sdk.OpenWallet(config.DefConfig.WalletFile)
-	if err != nil {
-		log4.Error("open wallet error:", err)
-		return nil, false
-	}
-	user, err := wallet.GetDefaultAccount([]byte(config.DefConfig.Password))
-	if err != nil {
-		log4.Error("getDefaultAccount error:", err)
-		return nil, false
-	}
-	return user, true
-}
 
 func GetAccountByPassword(sdk *sdk.OntologySdk, path string) (*sdk.Account, bool) {
 	wallet, err := sdk.OpenWallet(path)
@@ -61,20 +46,6 @@ func GetAccountByPassword(sdk *sdk.OntologySdk, path string) (*sdk.Account, bool
 		return nil, false
 	}
 	user, err := wallet.GetDefaultAccount(pwd)
-	if err != nil {
-		log4.Error("getDefaultAccount error:", err)
-		return nil, false
-	}
-	return user, true
-}
-
-func GetAccount(sdk *sdk.OntologySdk, path string) (*sdk.Account, bool) {
-	wallet, err := sdk.OpenWallet(path)
-	if err != nil {
-		log4.Error("open wallet error:", err)
-		return nil, false
-	}
-	user, err := wallet.GetDefaultAccount([]byte(config.DefConfig.Password))
 	if err != nil {
 		log4.Error("getDefaultAccount error:", err)
 		return nil, false
