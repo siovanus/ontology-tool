@@ -2038,3 +2038,39 @@ func GetPromisePos(ontSdk *sdk.OntologySdk) bool {
 
 	return true
 }
+
+type DestroyContractParam struct {
+	Path            []string
+	ContractAddress string
+}
+
+func DestroyContract(ontSdk *sdk.OntologySdk) bool {
+	data, err := ioutil.ReadFile("./params/DestroyContract.json")
+	if err != nil {
+		log4.Error("ioutil.ReadFile failed ", err)
+		return false
+	}
+	destroyContractParam := new(DestroyContractParam)
+	err = json.Unmarshal(data, destroyContractParam)
+	if err != nil {
+		log4.Error("json.Unmarshal failed ", err)
+		return false
+	}
+	var users []*sdk.Account
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, path := range destroyContractParam.Path {
+		user, ok := common.GetAccountByPassword(ontSdk, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+		pubKeys = append(pubKeys, user.PublicKey)
+	}
+	ok := destroyContractMultiSign(ontSdk, pubKeys, users, destroyContractParam.ContractAddress)
+	if !ok {
+		return false
+	}
+	common.WaitForBlock(ontSdk)
+	return true
+}

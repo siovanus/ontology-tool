@@ -1089,3 +1089,19 @@ func getPromisePos(ontSdk *sdk.OntologySdk, peerPubkey string) (*governance.Prom
 	}
 	return promisePos, nil
 }
+
+func destroyContractMultiSign(ontSdk *sdk.OntologySdk, pubKeys []keypair.PublicKey, users []*sdk.Account, address string) bool {
+	contractAddress := utils.GovernanceContractAddress
+	method := "destroyContract"
+	params := &governance.DestroyContractParam{
+		ContractAddress: address,
+	}
+	txHash, err := common.InvokeNativeContractWithMultiSign(ontSdk, config.DefConfig.GasPrice, config.DefConfig.GasLimit, pubKeys, users, OntIDVersion,
+		contractAddress, method, []interface{}{params})
+	if err != nil {
+		log4.Error("invokeNativeContract error :", err)
+		return false
+	}
+	log4.Info("destroyContractMultiSign txHash is :", txHash.ToHexString())
+	return true
+}
