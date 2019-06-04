@@ -40,10 +40,10 @@ func registerCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey st
 		return false
 	}
 	log4.Info("registerCandidate txHash is :", txHash.ToHexString())
-	common.WaitForBlock(ontSdk)
+	//common.WaitForBlock(ontSdk)
 
 	//let node can be authorized
-	changeMaxAuthorization(ontSdk, user, peerPubkey, PROMISE_POS)
+	//changeMaxAuthorization(ontSdk, user, peerPubkey, PROMISE_POS)
 	return true
 }
 
