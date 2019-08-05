@@ -15,7 +15,7 @@ func syncGenesisHeader(ctx *testframework.TestFrameworkContext, pubKeys []keypai
 	params := &chain_manager.RegisterMainChainParam{
 		GenesisHeader: genesisBlockHeader,
 	}
-	contractAddress := utils.ChainManagerContractAddress
+	contractAddress := utils.HeaderSyncContractAddress
 	method := "syncGenesisHeader"
 	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetChainID(), ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys,
 		users, OntIDVersion, contractAddress, method, []interface{}{params})
