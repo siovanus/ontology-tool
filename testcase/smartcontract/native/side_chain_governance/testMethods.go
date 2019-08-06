@@ -74,3 +74,73 @@ func SyncGenesisHeader(ctx *testframework.TestFrameworkContext) bool {
 	waitForBlock(ctx)
 	return true
 }
+
+type RegisterSideChainParam struct {
+	Path         string
+	Chainid      uint64
+	Name         string
+	BlocksToWait uint64
+}
+
+func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/RegisterSideChain.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	registerSideChainParam := new(RegisterSideChainParam)
+	err = json.Unmarshal(data, registerSideChainParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	user, ok := getAccount(ctx, registerSideChainParam.Path)
+	if !ok {
+		return false
+	}
+	ok = registerSideChain(ctx, user, registerSideChainParam.Chainid, registerSideChainParam.Name, registerSideChainParam.BlocksToWait)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+type ApproveRegisterSideChainParam struct {
+	Path         []string
+	Chainid      uint64
+}
+
+func ApproveRegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/ApproveRegisterSideChain.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	approveRegisterSideChainParam := new(ApproveRegisterSideChainParam)
+	err = json.Unmarshal(data, approveRegisterSideChainParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	var users []*sdk.Account
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, path := range approveRegisterSideChainParam.Path {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+		pubKeys = append(pubKeys, user.PublicKey)
+	}
+
+	ok := approveRegisterSideChain(ctx, pubKeys, users, approveRegisterSideChainParam.Chainid)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
