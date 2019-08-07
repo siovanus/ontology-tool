@@ -5,7 +5,6 @@ import (
 	"github.com/ontio/ontology-crypto/keypair"
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/testframework"
-	mcommon "github.com/ontio/multi-chain/common"
 	"github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/smartcontract/service/native/chain_manager"
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
@@ -31,9 +30,8 @@ func syncGenesisHeader(ctx *testframework.TestFrameworkContext, pubKeys []keypai
 
 func registerSideChain(ctx *testframework.TestFrameworkContext, user *sdk.Account, chainid uint64, name string,
 	blocksToWait uint64) bool {
-	addr, _ := mcommon.AddressFromBase58(user.Address.ToBase58())
 	params := &side_chain_manager.RegisterSideChainParam{
-		Address:      addr,
+		Address:      user.Address.ToBase58(),
 		Chainid:      chainid,
 		Name:         name,
 		BlocksToWait: blocksToWait,

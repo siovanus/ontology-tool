@@ -25,4 +25,5 @@ import (
 func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("SyncGenesisHeader", SyncGenesisHeader)
 	testframework.TFramework.RegTestCase("RegisterSideChain", RegisterSideChain)
+	testframework.TFramework.RegTestCase("ApproveRegisterSideChain", ApproveRegisterSideChain)
 }
