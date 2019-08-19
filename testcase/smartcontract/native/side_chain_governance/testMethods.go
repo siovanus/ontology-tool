@@ -20,6 +20,7 @@ package side_chain_governance
 
 import (
 	"encoding/json"
+	"github.com/ontio/multi-chain/smartcontract/service/native/side_chain_manager"
 	"io/ioutil"
 	"time"
 
@@ -95,7 +96,7 @@ func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 
-	user, ok := getAccount(ctx, registerSideChainParam.Path)
+	user, ok := getAccountByPassword(ctx, registerSideChainParam.Path)
 	if !ok {
 		return false
 	}
@@ -108,8 +109,8 @@ func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 }
 
 type ApproveRegisterSideChainParam struct {
-	Path         []string
-	Chainid      uint64
+	Path    []string
+	Chainid uint64
 }
 
 func ApproveRegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
@@ -138,6 +139,37 @@ func ApproveRegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 	}
 
 	ok := approveRegisterSideChain(ctx, pubKeys, users, approveRegisterSideChainParam.Chainid)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+type AssetMappingParam struct {
+	Path      string
+	AssetName string
+	AssetList []*side_chain_manager.Asset
+}
+
+func AssetMapping(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/AssetMapping.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	assetMappingParam := new(AssetMappingParam)
+	err = json.Unmarshal(data, assetMappingParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	user, ok := getAccountByPassword(ctx, assetMappingParam.Path)
+	if !ok {
+		return false
+	}
+	ok = assetMapping(ctx, user, assetMappingParam.AssetName, assetMappingParam.AssetList)
 	if !ok {
 		return false
 	}

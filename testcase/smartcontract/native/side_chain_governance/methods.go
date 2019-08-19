@@ -50,7 +50,7 @@ func registerSideChain(ctx *testframework.TestFrameworkContext, user *sdk.Accoun
 
 func approveRegisterSideChain(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, chainid uint64) bool {
 	params := &side_chain_manager.ChainidParam{
-		Chainid:      chainid,
+		Chainid: chainid,
 	}
 	contractAddress, _ := common.AddressParseFromBytes([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x011})
 	method := "approveRegisterSideChain"
@@ -60,5 +60,22 @@ func approveRegisterSideChain(ctx *testframework.TestFrameworkContext, pubKeys [
 		ctx.LogError("invokeNativeContractWithMultiSign error :", err)
 	}
 	ctx.LogInfo("approveRegisterSideChain txHash is :", txHash.ToHexString())
+	return true
+}
+
+func assetMapping(ctx *testframework.TestFrameworkContext, user *sdk.Account, assetName string, assetList []*side_chain_manager.Asset) bool {
+	params := &side_chain_manager.AssetMappingParam{
+		Address:   user.Address.ToBase58(),
+		AssetName: assetName,
+		AssetList: assetList,
+	}
+	contractAddress, _ := common.AddressParseFromBytes([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x011})
+	method := "assetMapping"
+	txHash, err := ctx.Ont.Native.InvokeNativeContract(ctx.GetChainID(), ctx.GetGasPrice(), ctx.GetGasLimit(), user, OntIDVersion,
+		contractAddress, method, []interface{}{params})
+	if err != nil {
+		ctx.LogError("invokeNativeContractWithMultiSign error :", err)
+	}
+	ctx.LogInfo("assetMapping txHash is :", txHash.ToHexString())
 	return true
 }
