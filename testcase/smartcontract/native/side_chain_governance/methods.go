@@ -79,3 +79,18 @@ func assetMapping(ctx *testframework.TestFrameworkContext, user *sdk.Account, as
 	ctx.LogInfo("assetMapping txHash is :", txHash.ToHexString())
 	return true
 }
+
+func approveAssetMapping(ctx *testframework.TestFrameworkContext, pubKeys []keypair.PublicKey, users []*sdk.Account, assetName string) bool {
+	params := &side_chain_manager.ApproveAssetMappingParam{
+		AssetName: assetName,
+	}
+	contractAddress, _ := common.AddressParseFromBytes([]byte{0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x011})
+	method := "approveAssetMapping"
+	txHash, err := invokeNativeContractWithMultiSign(ctx, ctx.GetChainID(), ctx.GetGasPrice(), ctx.GetGasLimit(), pubKeys,
+		users, OntIDVersion, contractAddress, method, []interface{}{params})
+	if err != nil {
+		ctx.LogError("invokeNativeContractWithMultiSign error :", err)
+	}
+	ctx.LogInfo("approveAssetMapping txHash is :", txHash.ToHexString())
+	return true
+}

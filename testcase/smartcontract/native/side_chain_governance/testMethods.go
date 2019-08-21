@@ -176,3 +176,41 @@ func AssetMapping(ctx *testframework.TestFrameworkContext) bool {
 	waitForBlock(ctx)
 	return true
 }
+
+type ApproveAssetMappingParam struct {
+	Path      []string
+	AssetName string
+}
+
+func ApproveAssetMapping(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/ApproveAssetMapping.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	approveAssetMappingParam := new(ApproveAssetMappingParam)
+	err = json.Unmarshal(data, approveAssetMappingParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	var users []*sdk.Account
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, path := range approveAssetMappingParam.Path {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+		pubKeys = append(pubKeys, user.PublicKey)
+	}
+
+	ok := approveAssetMapping(ctx, pubKeys, users, approveAssetMappingParam.AssetName)
+	if !ok {
+		return false
+	}
+	waitForBlock(ctx)
+	return true
+}
