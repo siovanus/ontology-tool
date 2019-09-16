@@ -20,12 +20,12 @@ package side_chain_governance
 
 import (
 	"encoding/json"
-	"github.com/ontio/multi-chain/smartcontract/service/native/side_chain_manager"
 	"io/ioutil"
 	"time"
 
-	"github.com/ontio/ontology-crypto/keypair"
-	sdk "github.com/ontio/ontology-go-sdk"
+	sdk "github.com/ontio/multi-chain-go-sdk"
+	"github.com/ontio/multi-chain/native/service/side_chain_manager"
+	osdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/testframework"
 )
 
@@ -48,7 +48,6 @@ func SyncGenesisHeader(ctx *testframework.TestFrameworkContext) bool {
 	}
 
 	var users []*sdk.Account
-	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range SyncGenesisHeaderParam.Path {
 		user, ok := getAccountByPassword(ctx, path)
@@ -56,10 +55,9 @@ func SyncGenesisHeader(ctx *testframework.TestFrameworkContext) bool {
 			return false
 		}
 		users = append(users, user)
-		pubKeys = append(pubKeys, user.PublicKey)
 	}
 
-	sideSdk := sdk.NewOntologySdk()
+	sideSdk := osdk.NewOntologySdk()
 	sideSdk.NewRpcClient().SetAddress(SyncGenesisHeaderParam.ChainRpc)
 	genesisBlock, err := sideSdk.GetBlockByHeight(0)
 	if err != nil {
@@ -68,10 +66,12 @@ func SyncGenesisHeader(ctx *testframework.TestFrameworkContext) bool {
 	}
 	genesisBlockHeader := genesisBlock.Header.ToArray()
 
-	ok := syncGenesisHeader(ctx, pubKeys, users, genesisBlockHeader)
-	if !ok {
+	txHash, err := ctx.Ont.Native.Hs.SyncGenesisHeader(genesisBlockHeader, users)
+	if err!= nil {
+		ctx.LogError("ctx.Ont.Native.Scm.RegisterSideChain error: %v", err)
 		return false
 	}
+	ctx.LogInfo("RegisterSideChain txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
@@ -100,10 +100,12 @@ func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	ok = registerSideChain(ctx, user, registerSideChainParam.Chainid, registerSideChainParam.Name, registerSideChainParam.BlocksToWait)
-	if !ok {
+	txHash, err := ctx.Ont.Native.Scm.RegisterSideChain(user.Address.ToBase58(), registerSideChainParam.Chainid, registerSideChainParam.Name, registerSideChainParam.BlocksToWait, user)
+	if err!= nil {
+		ctx.LogError("ctx.Ont.Native.Scm.RegisterSideChain error: %v", err)
 		return false
 	}
+	ctx.LogInfo("RegisterSideChain txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
@@ -127,7 +129,6 @@ func ApproveRegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 	}
 
 	var users []*sdk.Account
-	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range approveRegisterSideChainParam.Path {
 		user, ok := getAccountByPassword(ctx, path)
@@ -135,13 +136,14 @@ func ApproveRegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 			return false
 		}
 		users = append(users, user)
-		pubKeys = append(pubKeys, user.PublicKey)
 	}
 
-	ok := approveRegisterSideChain(ctx, pubKeys, users, approveRegisterSideChainParam.Chainid)
-	if !ok {
+	txHash, err := ctx.Ont.Native.Scm.ApproveRegisterSideChain(approveRegisterSideChainParam.Chainid, users)
+	if err!= nil {
+		ctx.LogError("ctx.Ont.Native.Scm.ApproveRegisterSideChain error: %v", err)
 		return false
 	}
+	ctx.LogInfo("ApproveRegisterSideChain txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
@@ -169,10 +171,12 @@ func AssetMapping(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	ok = assetMapping(ctx, user, assetMappingParam.AssetName, assetMappingParam.AssetList)
-	if !ok {
+	txHash, err := ctx.Ont.Native.Scm.AssetMapping(user.Address.ToBase58(), assetMappingParam.AssetName, assetMappingParam.AssetList, user)
+	if err!= nil {
+		ctx.LogError("ctx.Ont.Native.Scm.ApproveRegisterSideChain error: %v", err)
 		return false
 	}
+	ctx.LogInfo("ApproveRegisterSideChain txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
@@ -196,7 +200,6 @@ func ApproveAssetMapping(ctx *testframework.TestFrameworkContext) bool {
 	}
 
 	var users []*sdk.Account
-	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
 	for _, path := range approveAssetMappingParam.Path {
 		user, ok := getAccountByPassword(ctx, path)
@@ -204,13 +207,14 @@ func ApproveAssetMapping(ctx *testframework.TestFrameworkContext) bool {
 			return false
 		}
 		users = append(users, user)
-		pubKeys = append(pubKeys, user.PublicKey)
 	}
 
-	ok := approveAssetMapping(ctx, pubKeys, users, approveAssetMappingParam.AssetName)
-	if !ok {
+	txHash, err := ctx.Ont.Native.Scm.ApproveAssetMapping(approveAssetMappingParam.AssetName, users)
+	if err!= nil {
+		ctx.LogError("ctx.Ont.Native.Scm.ApproveAssetMapping error: %v", err)
 		return false
 	}
+	ctx.LogInfo("ApproveAssetMapping txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }

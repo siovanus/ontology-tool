@@ -20,11 +20,11 @@ package main
 import (
 	"flag"
 	log4 "github.com/alecthomas/log4go"
-	sdk "github.com/ontio/ontology-go-sdk"
+	sdk "github.com/ontio/multi-chain-go-sdk"
+	"github.com/ontio/multi-chain/common/log"
 	"github.com/ontio/ontology-tool/common"
 	_ "github.com/ontio/ontology-tool/testcase"
 	"github.com/ontio/ontology-tool/testframework"
-	"github.com/ontio/ontology/common/log"
 	"math/rand"
 	"strings"
 	"time"
@@ -55,7 +55,7 @@ func main() {
 		return
 	}
 
-	ontSdk := sdk.NewOntologySdk()
+	ontSdk := sdk.NewMultiChainSdk()
 	ontSdk.NewRpcClient().SetAddress(common.DefConfig.JsonRpcAddress)
 	wallet, err := ontSdk.OpenWallet(common.DefConfig.WalletFile)
 	if err != nil {

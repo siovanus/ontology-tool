@@ -32,7 +32,6 @@ var DefConfig = NewTestConfig()
 
 //Config object used by ontology-instance
 type TestConfig struct {
-	ChainID uint64
 	//JsonRpcAddress of ontology
 	JsonRpcAddress string
 	//RestfulAddress of ontology
@@ -43,12 +42,6 @@ type TestConfig struct {
 	WalletFile string
 	//The Password of wallet
 	Password string
-	//Gas Price of transaction
-	GasPrice uint64
-	//Gas Limit of invoke transaction
-	GasLimit uint64
-	//Gas Limit of deploy transaction
-	GasDeployLimit uint64
 }
 
 //NewTestConfig retuen a TestConfig instance

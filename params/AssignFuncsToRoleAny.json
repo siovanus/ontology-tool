@@ -1,6 +1,0 @@
-{
-  "Path": "wallets/admin/wallet.dat",
-  "ContractAddress": "0800000000000000000000000000000000000000",
-  "Role": "registerSideChain",
-  "Function": "registerSideChain"
-}

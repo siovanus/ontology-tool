@@ -23,15 +23,13 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/ontio/ontology-crypto/keypair"
-	sdk "github.com/ontio/ontology-go-sdk"
-	"github.com/ontio/ontology-tool/common"
+	asdk "github.com/ontio/multi-chain-go-sdk"
+	scommon "github.com/ontio/multi-chain/common"
+	"github.com/ontio/multi-chain/common/password"
 	"github.com/ontio/ontology-tool/testframework"
-	scommon "github.com/ontio/ontology/common"
-	"github.com/ontio/ontology/common/password"
 )
 
-func getDefaultAccount(ctx *testframework.TestFrameworkContext) (*sdk.Account, bool) {
+func getDefaultAccount(ctx *testframework.TestFrameworkContext) (*asdk.Account, bool) {
 	user, err := ctx.GetDefaultAccount()
 	if err != nil {
 		ctx.LogError("GetDefaultAccount error:%s", err)
@@ -40,7 +38,7 @@ func getDefaultAccount(ctx *testframework.TestFrameworkContext) (*sdk.Account, b
 	return user, true
 }
 
-func getAccountByPassword(ctx *testframework.TestFrameworkContext, path string) (*sdk.Account, bool) {
+func getAccountByPassword(ctx *testframework.TestFrameworkContext, path string) (*asdk.Account, bool) {
 	wallet, err := ctx.Ont.OpenWallet(path)
 	if err != nil {
 		ctx.LogError("open wallet error:%s", err)
@@ -57,87 +55,6 @@ func getAccountByPassword(ctx *testframework.TestFrameworkContext, path string) 
 		return nil, false
 	}
 	return user, true
-}
-
-func getAccount(ctx *testframework.TestFrameworkContext, path string) (*sdk.Account, bool) {
-	wallet, err := ctx.Ont.OpenWallet(path)
-	if err != nil {
-		ctx.LogError("open wallet error:%s", err)
-		return nil, false
-	}
-	user, err := wallet.GetDefaultAccount([]byte(common.DefConfig.Password))
-	if err != nil {
-		ctx.LogError("getDefaultAccount error:%s", err)
-		return nil, false
-	}
-	return user, true
-}
-
-func getAccount1(ctx *testframework.TestFrameworkContext) (*sdk.Account, bool) {
-	wallet, err := ctx.Ont.OpenWallet("./testcase/smartcontract/native/governance_feeSplit/wallet/wallet1.dat")
-	if err != nil {
-		ctx.LogError("open wallet error:%s", err)
-		return nil, false
-	}
-	user, err := wallet.GetDefaultAccount([]byte(common.DefConfig.Password))
-	if err != nil {
-		ctx.LogError("getDefaultAccount error:%s", err)
-		return nil, false
-	}
-	return user, true
-}
-
-func getAccount2(ctx *testframework.TestFrameworkContext) (*sdk.Account, bool) {
-	wallet, err := ctx.Ont.OpenWallet("./testcase/smartcontract/native/governance_feeSplit/wallet/wallet2.dat")
-	if err != nil {
-		ctx.LogError("open wallet error:%s", err)
-		return nil, false
-	}
-	user, err := wallet.GetDefaultAccount([]byte(common.DefConfig.Password))
-	if err != nil {
-		ctx.LogError("getDefaultAccount error:%s", err)
-		return nil, false
-	}
-	return user, true
-}
-
-func getAccount3(ctx *testframework.TestFrameworkContext) (*sdk.Account, bool) {
-	wallet, err := ctx.Ont.OpenWallet("./testcase/smartcontract/native/governance_feeSplit/wallet/wallet3.dat")
-	if err != nil {
-		ctx.LogError("open wallet error:%s", err)
-		return nil, false
-	}
-	user, err := wallet.GetDefaultAccount([]byte(common.DefConfig.Password))
-	if err != nil {
-		ctx.LogError("getDefaultAccount error:%s", err)
-		return nil, false
-	}
-	return user, true
-}
-
-func invokeNativeContractWithMultiSign(
-	ctx *testframework.TestFrameworkContext,
-	chainID uint64,
-	gasPrice,
-	gasLimit uint64,
-	pubKeys []keypair.PublicKey,
-	singers []*sdk.Account,
-	cversion byte,
-	contractAddress scommon.Address,
-	method string,
-	params []interface{},
-) (scommon.Uint256, error) {
-	tx, err := ctx.Ont.Native.NewNativeInvokeTransaction(chainID, gasPrice, gasLimit, cversion, contractAddress, method, params)
-	if err != nil {
-		return scommon.UINT256_EMPTY, err
-	}
-	for _, singer := range singers {
-		err = ctx.Ont.MultiSignToTransaction(tx, uint16((5*len(pubKeys)+6)/7), pubKeys, singer)
-		if err != nil {
-			return scommon.UINT256_EMPTY, err
-		}
-	}
-	return ctx.Ont.SendTransaction(tx)
 }
 
 func waitForBlock(ctx *testframework.TestFrameworkContext) bool {

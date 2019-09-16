@@ -20,19 +20,19 @@ package testframework
 
 import (
 	log4 "github.com/alecthomas/log4go"
-	sdk "github.com/ontio/ontology-go-sdk"
+	sdk "github.com/ontio/multi-chain-go-sdk"
 	"github.com/ontio/ontology-tool/common"
 )
 
 //TestFrameworkContext is the context for test case
 type TestFrameworkContext struct {
-	Ont       *sdk.OntologySdk //sdk to ontology
-	Wallet    *sdk.Wallet      // wallet instance
+	Ont       *sdk.MultiChainSdk //sdk to ontology
+	Wallet    *sdk.Wallet        // wallet instance
 	failNowCh chan interface{}
 }
 
 //NewTestFrameworkContext return a TestFrameworkContext instance
-func NewTestFrameworkContext(ont *sdk.OntologySdk, wal *sdk.Wallet, failNowCh chan interface{}) *TestFrameworkContext {
+func NewTestFrameworkContext(ont *sdk.MultiChainSdk, wal *sdk.Wallet, failNowCh chan interface{}) *TestFrameworkContext {
 	return &TestFrameworkContext{
 		Ont:       ont,
 		Wallet:    wal,
@@ -70,16 +70,4 @@ func (this *TestFrameworkContext) FailNow() {
 	default:
 		close(this.failNowCh)
 	}
-}
-
-func (this *TestFrameworkContext) GetChainID() uint64 {
-	return common.DefConfig.ChainID
-}
-
-func (this *TestFrameworkContext) GetGasPrice() uint64 {
-	return common.DefConfig.GasPrice
-}
-
-func (this *TestFrameworkContext) GetGasLimit() uint64 {
-	return common.DefConfig.GasLimit
 }
