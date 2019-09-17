@@ -31,6 +31,7 @@ import (
 
 type SyncGenesisHeaderParam struct {
 	Path     []string
+	ChainID  uint64
 	ChainRpc string
 }
 
@@ -40,8 +41,8 @@ func SyncGenesisHeader(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
 	}
-	SyncGenesisHeaderParam := new(SyncGenesisHeaderParam)
-	err = json.Unmarshal(data, SyncGenesisHeaderParam)
+	syncGenesisHeaderParam := new(SyncGenesisHeaderParam)
+	err = json.Unmarshal(data, syncGenesisHeaderParam)
 	if err != nil {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
@@ -49,7 +50,7 @@ func SyncGenesisHeader(ctx *testframework.TestFrameworkContext) bool {
 
 	var users []*sdk.Account
 	time.Sleep(1 * time.Second)
-	for _, path := range SyncGenesisHeaderParam.Path {
+	for _, path := range syncGenesisHeaderParam.Path {
 		user, ok := getAccountByPassword(ctx, path)
 		if !ok {
 			return false
@@ -58,7 +59,7 @@ func SyncGenesisHeader(ctx *testframework.TestFrameworkContext) bool {
 	}
 
 	sideSdk := osdk.NewOntologySdk()
-	sideSdk.NewRpcClient().SetAddress(SyncGenesisHeaderParam.ChainRpc)
+	sideSdk.NewRpcClient().SetAddress(syncGenesisHeaderParam.ChainRpc)
 	genesisBlock, err := sideSdk.GetBlockByHeight(0)
 	if err != nil {
 		ctx.LogError("get side chain genesis block error: %s", err)
@@ -66,8 +67,8 @@ func SyncGenesisHeader(ctx *testframework.TestFrameworkContext) bool {
 	}
 	genesisBlockHeader := genesisBlock.Header.ToArray()
 
-	txHash, err := ctx.Ont.Native.Hs.SyncGenesisHeader(genesisBlockHeader, users)
-	if err!= nil {
+	txHash, err := ctx.Ont.Native.Hs.SyncGenesisHeader(syncGenesisHeaderParam.ChainID, genesisBlockHeader, users)
+	if err != nil {
 		ctx.LogError("ctx.Ont.Native.Scm.RegisterSideChain error: %v", err)
 		return false
 	}
@@ -101,7 +102,7 @@ func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	txHash, err := ctx.Ont.Native.Scm.RegisterSideChain(user.Address.ToBase58(), registerSideChainParam.Chainid, registerSideChainParam.Name, registerSideChainParam.BlocksToWait, user)
-	if err!= nil {
+	if err != nil {
 		ctx.LogError("ctx.Ont.Native.Scm.RegisterSideChain error: %v", err)
 		return false
 	}
@@ -139,7 +140,7 @@ func ApproveRegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 	}
 
 	txHash, err := ctx.Ont.Native.Scm.ApproveRegisterSideChain(approveRegisterSideChainParam.Chainid, users)
-	if err!= nil {
+	if err != nil {
 		ctx.LogError("ctx.Ont.Native.Scm.ApproveRegisterSideChain error: %v", err)
 		return false
 	}
@@ -172,7 +173,7 @@ func AssetMapping(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	txHash, err := ctx.Ont.Native.Scm.AssetMapping(user.Address.ToBase58(), assetMappingParam.AssetName, assetMappingParam.AssetList, user)
-	if err!= nil {
+	if err != nil {
 		ctx.LogError("ctx.Ont.Native.Scm.ApproveRegisterSideChain error: %v", err)
 		return false
 	}
@@ -210,7 +211,7 @@ func ApproveAssetMapping(ctx *testframework.TestFrameworkContext) bool {
 	}
 
 	txHash, err := ctx.Ont.Native.Scm.ApproveAssetMapping(approveAssetMappingParam.AssetName, users)
-	if err!= nil {
+	if err != nil {
 		ctx.LogError("ctx.Ont.Native.Scm.ApproveAssetMapping error: %v", err)
 		return false
 	}
