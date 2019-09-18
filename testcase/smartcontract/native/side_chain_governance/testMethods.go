@@ -177,7 +177,7 @@ func AssetMapping(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("ctx.Ont.Native.Scm.ApproveRegisterSideChain error: %v", err)
 		return false
 	}
-	ctx.LogInfo("ApproveRegisterSideChain txHash is: %v", txHash.ToHexString())
+	ctx.LogInfo("AssetMapping txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
