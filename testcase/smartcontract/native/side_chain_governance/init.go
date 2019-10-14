@@ -28,4 +28,5 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("ApproveRegisterSideChain", ApproveRegisterSideChain)
 	testframework.TFramework.RegTestCase("AssetMapping", AssetMapping)
 	testframework.TFramework.RegTestCase("ApproveAssetMapping", ApproveAssetMapping)
+	testframework.TFramework.RegTestCase("InitRedeemScript", InitRedeemScript)
 }

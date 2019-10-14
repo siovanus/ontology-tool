@@ -219,3 +219,41 @@ func ApproveAssetMapping(ctx *testframework.TestFrameworkContext) bool {
 	waitForBlock(ctx)
 	return true
 }
+
+type InitRedeemScriptParam struct {
+	Path         []string
+	RedeemScript string
+}
+
+func InitRedeemScript(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/InitRedeemScript.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	initRedeemScriptParam := new(InitRedeemScriptParam)
+	err = json.Unmarshal(data, initRedeemScriptParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	var users []*sdk.Account
+	time.Sleep(1 * time.Second)
+	for _, path := range initRedeemScriptParam.Path {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+	}
+
+	txHash, err := ctx.Ont.Native.Ccm.InitRedeemScript(initRedeemScriptParam.RedeemScript, users)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Native.Scm.ApproveAssetMapping error: %v", err)
+		return false
+	}
+	ctx.LogInfo("ApproveAssetMapping txHash is: %v", txHash.ToHexString())
+	waitForBlock(ctx)
+	return true
+}
