@@ -152,7 +152,7 @@ func ApproveRegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 type AssetMappingParam struct {
 	Path      string
 	AssetName string
-	AssetList []*side_chain_manager.Asset
+	AssetList []*side_chain_manager.CrossChainContract
 }
 
 func AssetMapping(ctx *testframework.TestFrameworkContext) bool {
