@@ -24,7 +24,6 @@ import (
 	"time"
 
 	sdk "github.com/ontio/multi-chain-go-sdk"
-	"github.com/ontio/multi-chain/native/service/side_chain_manager"
 	osdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/testframework"
 )
@@ -80,6 +79,7 @@ func SyncGenesisHeader(ctx *testframework.TestFrameworkContext) bool {
 type RegisterSideChainParam struct {
 	Path         string
 	Chainid      uint64
+	Router uint64
 	Name         string
 	BlocksToWait uint64
 }
@@ -101,7 +101,8 @@ func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	txHash, err := ctx.Ont.Native.Scm.RegisterSideChain(user.Address.ToBase58(), registerSideChainParam.Chainid, registerSideChainParam.Name, registerSideChainParam.BlocksToWait, user)
+	txHash, err := ctx.Ont.Native.Scm.RegisterSideChain(user.Address.ToBase58(), registerSideChainParam.Chainid,
+		registerSideChainParam.Router, registerSideChainParam.Name, registerSideChainParam.BlocksToWait, user)
 	if err != nil {
 		ctx.LogError("ctx.Ont.Native.Scm.RegisterSideChain error: %v", err)
 		return false
@@ -145,77 +146,6 @@ func ApproveRegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	ctx.LogInfo("ApproveRegisterSideChain txHash is: %v", txHash.ToHexString())
-	waitForBlock(ctx)
-	return true
-}
-
-type AssetMappingParam struct {
-	Path      string
-	AssetName string
-	AssetList []*side_chain_manager.CrossChainContract
-}
-
-func AssetMapping(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./side_chain_params/AssetMapping.json")
-	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
-		return false
-	}
-	assetMappingParam := new(AssetMappingParam)
-	err = json.Unmarshal(data, assetMappingParam)
-	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
-		return false
-	}
-
-	user, ok := getAccountByPassword(ctx, assetMappingParam.Path)
-	if !ok {
-		return false
-	}
-	txHash, err := ctx.Ont.Native.Scm.AssetMapping(user.Address.ToBase58(), assetMappingParam.AssetName, assetMappingParam.AssetList, user)
-	if err != nil {
-		ctx.LogError("ctx.Ont.Native.Scm.ApproveRegisterSideChain error: %v", err)
-		return false
-	}
-	ctx.LogInfo("AssetMapping txHash is: %v", txHash.ToHexString())
-	waitForBlock(ctx)
-	return true
-}
-
-type ApproveAssetMappingParam struct {
-	Path      []string
-	AssetName string
-}
-
-func ApproveAssetMapping(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./side_chain_params/ApproveAssetMapping.json")
-	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
-		return false
-	}
-	approveAssetMappingParam := new(ApproveAssetMappingParam)
-	err = json.Unmarshal(data, approveAssetMappingParam)
-	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
-		return false
-	}
-
-	var users []*sdk.Account
-	time.Sleep(1 * time.Second)
-	for _, path := range approveAssetMappingParam.Path {
-		user, ok := getAccountByPassword(ctx, path)
-		if !ok {
-			return false
-		}
-		users = append(users, user)
-	}
-
-	txHash, err := ctx.Ont.Native.Scm.ApproveAssetMapping(approveAssetMappingParam.AssetName, users)
-	if err != nil {
-		ctx.LogError("ctx.Ont.Native.Scm.ApproveAssetMapping error: %v", err)
-		return false
-	}
-	ctx.LogInfo("ApproveAssetMapping txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
