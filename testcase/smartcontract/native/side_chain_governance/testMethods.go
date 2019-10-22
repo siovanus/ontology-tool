@@ -183,7 +183,7 @@ func InitRedeemScript(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("ctx.Ont.Native.Scm.ApproveAssetMapping error: %v", err)
 		return false
 	}
-	ctx.LogInfo("ApproveAssetMapping txHash is: %v", txHash.ToHexString())
+	ctx.LogInfo("InitRedeemScript txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
