@@ -27,4 +27,21 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("RegisterSideChain", RegisterSideChain)
 	testframework.TFramework.RegTestCase("ApproveRegisterSideChain", ApproveRegisterSideChain)
 	testframework.TFramework.RegTestCase("InitRedeemScript", InitRedeemScript)
+
+	testframework.TFramework.RegTestCase("RegisterCandidate", RegisterCandidate)
+	testframework.TFramework.RegTestCase("UnRegisterCandidate", UnRegisterCandidate)
+	testframework.TFramework.RegTestCase("QuitNode", QuitNode)
+	testframework.TFramework.RegTestCase("ApproveCandidate", ApproveCandidate)
+	testframework.TFramework.RegTestCase("RejectCandidate", RejectCandidate)
+	testframework.TFramework.RegTestCase("BlackNode", BlackNode)
+	testframework.TFramework.RegTestCase("WhiteNode", WhiteNode)
+	testframework.TFramework.RegTestCase("UpdateConfig", UpdateConfig)
+
+	testframework.TFramework.RegTestCase("RegisterRelayer", RegisterRelayer)
+	testframework.TFramework.RegTestCase("UnRegisterRelayer", UnRegisterRelayer)
+	testframework.TFramework.RegTestCase("QuitRelayer", QuitRelayer)
+	testframework.TFramework.RegTestCase("ApproveRelayer", ApproveRelayer)
+	testframework.TFramework.RegTestCase("RejectRelayer", RejectRelayer)
+	testframework.TFramework.RegTestCase("BlackRelayer", BlackRelayer)
+	testframework.TFramework.RegTestCase("WhiteRelayer", WhiteRelayer)
 }

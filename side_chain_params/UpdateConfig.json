@@ -1,0 +1,6 @@
+{
+  "BlockMsgDelay": 500,
+  "HashMsgDelay": 500,
+  "PeerHandshakeTimeout": 5,
+  "Path": ["wallets/peer1/wallet.dat","wallets/peer2/wallet.dat","wallets/peer3/wallet.dat","wallets/peer4/wallet.dat","wallets/peer5/wallet.dat","wallets/peer6/wallet.dat","wallets/peer7/wallet.dat"]
+}
