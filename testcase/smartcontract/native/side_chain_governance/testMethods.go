@@ -154,6 +154,7 @@ func ApproveRegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 type RegisterPeerParam struct {
 	PeerPubkey string
 	Path       string
+	Pos        uint64
 }
 
 func RegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
@@ -173,7 +174,8 @@ func RegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	txHash, err := ctx.Ont.Native.Nm.RegisterCandidate(registerPeerParam.PeerPubkey, user.Address[:], user)
+	txHash, err := ctx.Ont.Native.Nm.RegisterCandidate(registerPeerParam.PeerPubkey, user.Address[:],
+		registerPeerParam.Pos, user)
 	if err != nil {
 		ctx.LogError("ctx.Ont.Native.Nm.RegisterCandidate error: %v", err)
 		return false
@@ -183,24 +185,29 @@ func RegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
+type PeerParam2 struct {
+	PeerPubkey string
+	Path       string
+}
+
 func UnRegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
 	data, err := ioutil.ReadFile("./side_chain_params/UnRegisterCandidate.json")
 	if err != nil {
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
 	}
-	registerPeerParam := new(RegisterPeerParam)
-	err = json.Unmarshal(data, registerPeerParam)
+	peerParam := new(PeerParam2)
+	err = json.Unmarshal(data, peerParam)
 	if err != nil {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
 
-	user, ok := getAccountByPassword(ctx, registerPeerParam.Path)
+	user, ok := getAccountByPassword(ctx, peerParam.Path)
 	if !ok {
 		return false
 	}
-	txHash, err := ctx.Ont.Native.Nm.UnRegisterCandidate(registerPeerParam.PeerPubkey, user.Address[:], user)
+	txHash, err := ctx.Ont.Native.Nm.UnRegisterCandidate(peerParam.PeerPubkey, user.Address[:], user)
 	if err != nil {
 		ctx.LogError("ctx.Ont.Native.Nm.UnRegisterCandidate error: %v", err)
 		return false
@@ -216,18 +223,18 @@ func QuitNode(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
 	}
-	registerPeerParam := new(RegisterPeerParam)
-	err = json.Unmarshal(data, registerPeerParam)
+	peerParam := new(PeerParam2)
+	err = json.Unmarshal(data, peerParam)
 	if err != nil {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
 
-	user, ok := getAccountByPassword(ctx, registerPeerParam.Path)
+	user, ok := getAccountByPassword(ctx, peerParam.Path)
 	if !ok {
 		return false
 	}
-	txHash, err := ctx.Ont.Native.Nm.QuitNode(registerPeerParam.PeerPubkey, user.Address[:], user)
+	txHash, err := ctx.Ont.Native.Nm.QuitNode(peerParam.PeerPubkey, user.Address[:], user)
 	if err != nil {
 		ctx.LogError("ctx.Ont.Native.Nm.QuitNode error: %v", err)
 		return false
@@ -375,6 +382,62 @@ func WhiteNode(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	ctx.LogInfo("WhiteNode txHash is: %v", txHash.ToHexString())
+	waitForBlock(ctx)
+	return true
+}
+
+func AddPos(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/AddPos.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	registerPeerParam := new(RegisterPeerParam)
+	err = json.Unmarshal(data, registerPeerParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	user, ok := getAccountByPassword(ctx, registerPeerParam.Path)
+	if !ok {
+		return false
+	}
+	txHash, err := ctx.Ont.Native.Nm.AddPos(registerPeerParam.PeerPubkey, user.Address[:],
+		registerPeerParam.Pos, user)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Native.Nm.RegisterCandidate error: %v", err)
+		return false
+	}
+	ctx.LogInfo("AddPos txHash is: %v", txHash.ToHexString())
+	waitForBlock(ctx)
+	return true
+}
+
+func ReducePos(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/ReducePos.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	registerPeerParam := new(RegisterPeerParam)
+	err = json.Unmarshal(data, registerPeerParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	user, ok := getAccountByPassword(ctx, registerPeerParam.Path)
+	if !ok {
+		return false
+	}
+	txHash, err := ctx.Ont.Native.Nm.ReducePos(registerPeerParam.PeerPubkey, user.Address[:],
+		registerPeerParam.Pos, user)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Native.Nm.RegisterCandidate error: %v", err)
+		return false
+	}
+	ctx.LogInfo("ReducePos txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
