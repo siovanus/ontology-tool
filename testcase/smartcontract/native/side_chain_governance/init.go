@@ -37,7 +37,10 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("AddPos", AddPos)
 	testframework.TFramework.RegTestCase("ReducePos", ReducePos)
 	testframework.TFramework.RegTestCase("UpdateConfig", UpdateConfig)
-
 	testframework.TFramework.RegTestCase("RegisterRelayer", RegisterRelayer)
 	testframework.TFramework.RegTestCase("RemoveRelayer", RemoveRelayer)
+	testframework.TFramework.RegTestCase("CommitDpos", CommitDpos)
+
+	testframework.TFramework.RegTestCase("GetGovernanceView", GetGovernanceView)
+	testframework.TFramework.RegTestCase("GetPeerPoolMap", GetPeerPoolMap)
 }

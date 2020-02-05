@@ -20,11 +20,15 @@ package side_chain_governance
 
 import (
 	"encoding/json"
-	"github.com/ontio/ontology/common"
+	"fmt"
 	"io/ioutil"
 	"time"
 
 	sdk "github.com/ontio/multi-chain-go-sdk"
+	"github.com/ontio/multi-chain/common"
+	"github.com/ontio/multi-chain/errors"
+	"github.com/ontio/multi-chain/native/service/governance/node_manager"
+	"github.com/ontio/multi-chain/native/service/utils"
 	osdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/testframework"
 )
@@ -568,6 +572,122 @@ func RemoveRelayer(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	ctx.LogInfo("RemoveRelayer txHash is: %v", txHash.ToHexString())
+	waitForBlock(ctx)
+	return true
+}
+
+func GetPeerPoolMap(ctx *testframework.TestFrameworkContext) bool {
+	peerPoolMap, err := getPeerPoolMap(ctx)
+	if err != nil {
+		ctx.LogError("getPeerPoolMap failed %v", err)
+		return false
+	}
+
+	for _, v := range peerPoolMap.PeerPoolMap {
+		address, err := common.AddressParseFromBytes(v.Address)
+		if err != nil {
+			ctx.LogError("common.AddressParseFromBytes failed %v", err)
+			return false
+		}
+		fmt.Println("###########################################")
+		fmt.Println("peerPoolItem.Index is:", v.Index)
+		fmt.Println("peerPoolItem.PeerPubkey is:", v.PeerPubkey)
+		fmt.Println("peerPoolItem.Address is:", address.ToBase58())
+		fmt.Println("peerPoolItem.Status is:", v.Status)
+		fmt.Println("peerPoolItem.InitPos is:", v.Pos)
+		fmt.Println("peerPoolItem.TotalPos is:", v.LockPos)
+	}
+	return true
+}
+
+func GetGovernanceView(ctx *testframework.TestFrameworkContext) bool {
+	governanceView, err := getGovernanceView(ctx)
+	if err != nil {
+		ctx.LogError("getGovernanceView failed %v", err)
+		return false
+	}
+	fmt.Println("governanceView.View is:", governanceView.View)
+	fmt.Println("governanceView.TxHash is:", governanceView.TxHash)
+	fmt.Println("governanceView.Height is:", governanceView.Height)
+	return true
+}
+
+func getGovernanceView(ctx *testframework.TestFrameworkContext) (*node_manager.GovernanceView, error) {
+	contractAddress := utils.NodeManagerContractAddress
+	governanceView := new(node_manager.GovernanceView)
+	key := []byte(node_manager.GOVERNANCE_VIEW)
+	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	if err != nil {
+		return nil, fmt.Errorf("getStorage error")
+	}
+	if err := governanceView.Deserialization(common.NewZeroCopySource(value)); err != nil {
+		return nil, fmt.Errorf("deserialize, deserialize governanceView error!")
+	}
+	return governanceView, nil
+}
+
+func getView(ctx *testframework.TestFrameworkContext) (uint32, error) {
+	governanceView, err := getGovernanceView(ctx)
+	if err != nil {
+		return 0, errors.NewDetailErr(err, errors.ErrNoCode, "getGovernanceView error")
+	}
+	return governanceView.View, nil
+}
+
+func getPeerPoolMap(ctx *testframework.TestFrameworkContext) (*node_manager.PeerPoolMap, error) {
+	contractAddress := utils.NodeManagerContractAddress
+	view, err := getView(ctx)
+	if err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getView error")
+	}
+	peerPoolMap := &node_manager.PeerPoolMap{
+		PeerPoolMap: make(map[string]*node_manager  .PeerPoolItem),
+	}
+	viewBytes := utils.GetUint32Bytes(view)
+	key := ConcatKey([]byte(node_manager.PEER_POOL), viewBytes)
+	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
+	if err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
+	}
+	if err := peerPoolMap.Deserialization(common.NewZeroCopySource(value)); err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize peerPoolMap error!")
+	}
+	return peerPoolMap, nil
+}
+
+type CommitDposParam struct {
+	Path                 []string
+}
+
+func CommitDpos(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/CommitDpos.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	commitDposParam := new(CommitDposParam)
+	err = json.Unmarshal(data, commitDposParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	var users []*sdk.Account
+	time.Sleep(1 * time.Second)
+	for _, path := range commitDposParam.Path {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+	}
+
+	txHash, err := ctx.Ont.Native.Nm.CommitDpos(users)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Native.Nm.UpdateConfig error: %v", err)
+		return false
+	}
+	ctx.LogInfo("CommitDpos txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
