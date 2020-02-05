@@ -594,8 +594,8 @@ func GetPeerPoolMap(ctx *testframework.TestFrameworkContext) bool {
 		fmt.Println("peerPoolItem.PeerPubkey is:", v.PeerPubkey)
 		fmt.Println("peerPoolItem.Address is:", address.ToBase58())
 		fmt.Println("peerPoolItem.Status is:", v.Status)
-		fmt.Println("peerPoolItem.InitPos is:", v.Pos)
-		fmt.Println("peerPoolItem.TotalPos is:", v.LockPos)
+		fmt.Println("peerPoolItem.Pos is:", v.Pos)
+		fmt.Println("peerPoolItem.LockPos is:", v.LockPos)
 	}
 	return true
 }
