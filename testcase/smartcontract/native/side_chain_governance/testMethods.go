@@ -135,22 +135,19 @@ func ApproveRegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 
-	var users []*sdk.Account
 	time.Sleep(1 * time.Second)
 	for _, path := range approveRegisterSideChainParam.Path {
 		user, ok := getAccountByPassword(ctx, path)
 		if !ok {
 			return false
 		}
-		users = append(users, user)
+		txHash, err := ctx.Ont.Native.Scm.ApproveRegisterSideChain(approveRegisterSideChainParam.Chainid, user)
+		if err != nil {
+			ctx.LogError("ctx.Ont.Native.Scm.ApproveRegisterSideChain error: %v", err)
+			return false
+		}
+		ctx.LogInfo("ApproveRegisterSideChain txHash is: %v", txHash.ToHexString())
 	}
-
-	txHash, err := ctx.Ont.Native.Scm.ApproveRegisterSideChain(approveRegisterSideChainParam.Chainid, users)
-	if err != nil {
-		ctx.LogError("ctx.Ont.Native.Scm.ApproveRegisterSideChain error: %v", err)
-		return false
-	}
-	ctx.LogInfo("ApproveRegisterSideChain txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
@@ -158,7 +155,6 @@ func ApproveRegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 type RegisterPeerParam struct {
 	PeerPubkey string
 	Path       string
-	Pos        uint64
 }
 
 func RegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
@@ -178,8 +174,7 @@ func RegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	txHash, err := ctx.Ont.Native.Nm.RegisterCandidate(registerPeerParam.PeerPubkey, user.Address[:],
-		registerPeerParam.Pos, user)
+	txHash, err := ctx.Ont.Native.Nm.RegisterCandidate(registerPeerParam.PeerPubkey, user)
 	if err != nil {
 		ctx.LogError("ctx.Ont.Native.Nm.RegisterCandidate error: %v", err)
 		return false
@@ -211,7 +206,7 @@ func UnRegisterCandidate(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	txHash, err := ctx.Ont.Native.Nm.UnRegisterCandidate(peerParam.PeerPubkey, user.Address[:], user)
+	txHash, err := ctx.Ont.Native.Nm.UnRegisterCandidate(peerParam.PeerPubkey, user)
 	if err != nil {
 		ctx.LogError("ctx.Ont.Native.Nm.UnRegisterCandidate error: %v", err)
 		return false
@@ -238,7 +233,7 @@ func QuitNode(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	txHash, err := ctx.Ont.Native.Nm.QuitNode(peerParam.PeerPubkey, user.Address[:], user)
+	txHash, err := ctx.Ont.Native.Nm.QuitNode(peerParam.PeerPubkey, user)
 	if err != nil {
 		ctx.LogError("ctx.Ont.Native.Nm.QuitNode error: %v", err)
 		return false
@@ -266,22 +261,19 @@ func ApproveCandidate(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 
-	var users []*sdk.Account
 	time.Sleep(1 * time.Second)
 	for _, path := range peerParam.Path {
 		user, ok := getAccountByPassword(ctx, path)
 		if !ok {
 			return false
 		}
-		users = append(users, user)
+		txHash, err := ctx.Ont.Native.Nm.ApproveCandidate(peerParam.PeerPubkey, user)
+		if err != nil {
+			ctx.LogError("ctx.Ont.Native.Nm.ApproveCandidate error: %v", err)
+			return false
+		}
+		ctx.LogInfo("ApproveCandidate txHash is: %v", txHash.ToHexString())
 	}
-
-	txHash, err := ctx.Ont.Native.Nm.ApproveCandidate(peerParam.PeerPubkey, users)
-	if err != nil {
-		ctx.LogError("ctx.Ont.Native.Nm.ApproveCandidate error: %v", err)
-		return false
-	}
-	ctx.LogInfo("ApproveCandidate txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
@@ -299,22 +291,19 @@ func RejectCandidate(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 
-	var users []*sdk.Account
 	time.Sleep(1 * time.Second)
 	for _, path := range peerParam.Path {
 		user, ok := getAccountByPassword(ctx, path)
 		if !ok {
 			return false
 		}
-		users = append(users, user)
+		txHash, err := ctx.Ont.Native.Nm.RejectCandidate(peerParam.PeerPubkey, user)
+		if err != nil {
+			ctx.LogError("ctx.Ont.Native.Nm.RejectCandidate error: %v", err)
+			return false
+		}
+		ctx.LogInfo("RejectCandidate txHash is: %v", txHash.ToHexString())
 	}
-
-	txHash, err := ctx.Ont.Native.Nm.RejectCandidate(peerParam.PeerPubkey, users)
-	if err != nil {
-		ctx.LogError("ctx.Ont.Native.Nm.RejectCandidate error: %v", err)
-		return false
-	}
-	ctx.LogInfo("RejectCandidate txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
@@ -337,22 +326,19 @@ func BlackNode(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 
-	var users []*sdk.Account
 	time.Sleep(1 * time.Second)
 	for _, path := range peerListParam.Path {
 		user, ok := getAccountByPassword(ctx, path)
 		if !ok {
 			return false
 		}
-		users = append(users, user)
+		txHash, err := ctx.Ont.Native.Nm.BlackNode(peerListParam.PeerPubkeyList, user)
+		if err != nil {
+			ctx.LogError("ctx.Ont.Native.Nm.BlackNode error: %v", err)
+			return false
+		}
+		ctx.LogInfo("BlackNode txHash is: %v", txHash.ToHexString())
 	}
-
-	txHash, err := ctx.Ont.Native.Nm.BlackNode(peerListParam.PeerPubkeyList, users)
-	if err != nil {
-		ctx.LogError("ctx.Ont.Native.Nm.BlackNode error: %v", err)
-		return false
-	}
-	ctx.LogInfo("BlackNode txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
@@ -370,78 +356,19 @@ func WhiteNode(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 
-	var users []*sdk.Account
 	time.Sleep(1 * time.Second)
 	for _, path := range peerParam.Path {
 		user, ok := getAccountByPassword(ctx, path)
 		if !ok {
 			return false
 		}
-		users = append(users, user)
+		txHash, err := ctx.Ont.Native.Nm.WhiteNode(peerParam.PeerPubkey, user)
+		if err != nil {
+			ctx.LogError("ctx.Ont.Native.Nm.WhiteNode error: %v", err)
+			return false
+		}
+		ctx.LogInfo("WhiteNode txHash is: %v", txHash.ToHexString())
 	}
-
-	txHash, err := ctx.Ont.Native.Nm.WhiteNode(peerParam.PeerPubkey, users)
-	if err != nil {
-		ctx.LogError("ctx.Ont.Native.Nm.WhiteNode error: %v", err)
-		return false
-	}
-	ctx.LogInfo("WhiteNode txHash is: %v", txHash.ToHexString())
-	waitForBlock(ctx)
-	return true
-}
-
-func AddPos(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./side_chain_params/AddPos.json")
-	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
-		return false
-	}
-	registerPeerParam := new(RegisterPeerParam)
-	err = json.Unmarshal(data, registerPeerParam)
-	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
-		return false
-	}
-
-	user, ok := getAccountByPassword(ctx, registerPeerParam.Path)
-	if !ok {
-		return false
-	}
-	txHash, err := ctx.Ont.Native.Nm.AddPos(registerPeerParam.PeerPubkey, user.Address[:],
-		registerPeerParam.Pos, user)
-	if err != nil {
-		ctx.LogError("ctx.Ont.Native.Nm.RegisterCandidate error: %v", err)
-		return false
-	}
-	ctx.LogInfo("AddPos txHash is: %v", txHash.ToHexString())
-	waitForBlock(ctx)
-	return true
-}
-
-func ReducePos(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./side_chain_params/ReducePos.json")
-	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
-		return false
-	}
-	registerPeerParam := new(RegisterPeerParam)
-	err = json.Unmarshal(data, registerPeerParam)
-	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
-		return false
-	}
-
-	user, ok := getAccountByPassword(ctx, registerPeerParam.Path)
-	if !ok {
-		return false
-	}
-	txHash, err := ctx.Ont.Native.Nm.ReducePos(registerPeerParam.PeerPubkey, user.Address[:],
-		registerPeerParam.Pos, user)
-	if err != nil {
-		ctx.LogError("ctx.Ont.Native.Nm.RegisterCandidate error: %v", err)
-		return false
-	}
-	ctx.LogInfo("ReducePos txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
@@ -450,6 +377,7 @@ type Configuration struct {
 	BlockMsgDelay        uint32
 	HashMsgDelay         uint32
 	PeerHandshakeTimeout uint32
+	MaxBlockChangeView   uint32
 	Path                 []string
 }
 
@@ -466,23 +394,20 @@ func UpdateConfig(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 
-	var users []*sdk.Account
 	time.Sleep(1 * time.Second)
 	for _, path := range configuration.Path {
 		user, ok := getAccountByPassword(ctx, path)
 		if !ok {
 			return false
 		}
-		users = append(users, user)
+		txHash, err := ctx.Ont.Native.Nm.UpdateConfig(configuration.BlockMsgDelay, configuration.HashMsgDelay,
+			configuration.PeerHandshakeTimeout, configuration.MaxBlockChangeView, user)
+		if err != nil {
+			ctx.LogError("ctx.Ont.Native.Nm.UpdateConfig error: %v", err)
+			return false
+		}
+		ctx.LogInfo("UpdateConfig txHash is: %v", txHash.ToHexString())
 	}
-
-	txHash, err := ctx.Ont.Native.Nm.UpdateConfig(configuration.BlockMsgDelay, configuration.HashMsgDelay,
-		configuration.PeerHandshakeTimeout, users)
-	if err != nil {
-		ctx.LogError("ctx.Ont.Native.Nm.UpdateConfig error: %v", err)
-		return false
-	}
-	ctx.LogInfo("UpdateConfig txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
@@ -505,31 +430,29 @@ func RegisterRelayer(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 
-	var users []*sdk.Account
-	time.Sleep(1 * time.Second)
-	for _, path := range relayerParam.Path {
-		user, ok := getAccountByPassword(ctx, path)
-		if !ok {
-			return false
-		}
-		users = append(users, user)
-	}
-
-	addressList := make([][]byte, 0)
+	addressList := make([]common.Address, 0)
 	for _, addr := range relayerParam.Address {
 		address, err := common.AddressFromBase58(addr)
 		if err != nil {
 			ctx.LogError("common.AddressFromBase58 failed %v", err)
 			return false
 		}
-		addressList = append(addressList, address[:])
+		addressList = append(addressList, address)
 	}
-	txHash, err := ctx.Ont.Native.Rm.RegisterRelayer(addressList, users)
-	if err != nil {
-		ctx.LogError("ctx.Ont.Native.Rm.RegisterRelayer error: %v", err)
-		return false
+
+	time.Sleep(1 * time.Second)
+	for _, path := range relayerParam.Path {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		txHash, err := ctx.Ont.Native.Rm.RegisterRelayer(addressList, user)
+		if err != nil {
+			ctx.LogError("ctx.Ont.Native.Rm.RegisterRelayer error: %v", err)
+			return false
+		}
+		ctx.LogInfo("RegisterRelayer txHash is: %v", txHash.ToHexString())
 	}
-	ctx.LogInfo("RegisterRelayer txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
@@ -547,31 +470,29 @@ func RemoveRelayer(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 
-	var users []*sdk.Account
-	time.Sleep(1 * time.Second)
-	for _, path := range relayerParam.Path {
-		user, ok := getAccountByPassword(ctx, path)
-		if !ok {
-			return false
-		}
-		users = append(users, user)
-	}
-
-	addressList := make([][]byte, 0)
+	addressList := make([]common.Address, 0)
 	for _, addr := range relayerParam.Address {
 		address, err := common.AddressFromBase58(addr)
 		if err != nil {
 			ctx.LogError("common.AddressFromBase58 failed %v", err)
 			return false
 		}
-		addressList = append(addressList, address[:])
+		addressList = append(addressList, address)
 	}
-	txHash, err := ctx.Ont.Native.Rm.RemoveRelayer(addressList, users)
-	if err != nil {
-		ctx.LogError("ctx.Ont.Native.Rm.RemoveRelayer error: %v", err)
-		return false
+
+	time.Sleep(1 * time.Second)
+	for _, path := range relayerParam.Path {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		txHash, err := ctx.Ont.Native.Rm.RemoveRelayer(addressList, user)
+		if err != nil {
+			ctx.LogError("ctx.Ont.Native.Rm.RemoveRelayer error: %v", err)
+			return false
+		}
+		ctx.LogInfo("RemoveRelayer txHash is: %v", txHash.ToHexString())
 	}
-	ctx.LogInfo("RemoveRelayer txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
@@ -584,18 +505,11 @@ func GetPeerPoolMap(ctx *testframework.TestFrameworkContext) bool {
 	}
 
 	for _, v := range peerPoolMap.PeerPoolMap {
-		address, err := common.AddressParseFromBytes(v.Address)
-		if err != nil {
-			ctx.LogError("common.AddressParseFromBytes failed %v", err)
-			return false
-		}
 		fmt.Println("###########################################")
 		fmt.Println("peerPoolItem.Index is:", v.Index)
 		fmt.Println("peerPoolItem.PeerPubkey is:", v.PeerPubkey)
-		fmt.Println("peerPoolItem.Address is:", address.ToBase58())
+		fmt.Println("peerPoolItem.Address is:", v.Address.ToBase58())
 		fmt.Println("peerPoolItem.Status is:", v.Status)
-		fmt.Println("peerPoolItem.Pos is:", v.Pos)
-		fmt.Println("peerPoolItem.LockPos is:", v.LockPos)
 	}
 	return true
 }
@@ -641,7 +555,7 @@ func getPeerPoolMap(ctx *testframework.TestFrameworkContext) (*node_manager.Peer
 		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getView error")
 	}
 	peerPoolMap := &node_manager.PeerPoolMap{
-		PeerPoolMap: make(map[string]*node_manager  .PeerPoolItem),
+		PeerPoolMap: make(map[string]*node_manager.PeerPoolItem),
 	}
 	viewBytes := utils.GetUint32Bytes(view)
 	key := ConcatKey([]byte(node_manager.PEER_POOL), viewBytes)
@@ -656,7 +570,7 @@ func getPeerPoolMap(ctx *testframework.TestFrameworkContext) (*node_manager.Peer
 }
 
 type CommitDposParam struct {
-	Path                 []string
+	Path []string
 }
 
 func CommitDpos(ctx *testframework.TestFrameworkContext) bool {

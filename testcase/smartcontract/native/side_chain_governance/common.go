@@ -19,24 +19,12 @@
 package side_chain_governance
 
 import (
-	"encoding/hex"
-	"fmt"
 	"time"
 
 	asdk "github.com/ontio/multi-chain-go-sdk"
-	scommon "github.com/ontio/multi-chain/common"
 	"github.com/ontio/multi-chain/common/password"
 	"github.com/ontio/ontology-tool/testframework"
 )
-
-func getDefaultAccount(ctx *testframework.TestFrameworkContext) (*asdk.Account, bool) {
-	user, err := ctx.GetDefaultAccount()
-	if err != nil {
-		ctx.LogError("GetDefaultAccount error:%s", err)
-		return nil, false
-	}
-	return user, true
-}
 
 func getAccountByPassword(ctx *testframework.TestFrameworkContext, path string) (*asdk.Account, bool) {
 	wallet, err := ctx.Ont.OpenWallet(path)
@@ -72,43 +60,4 @@ func ConcatKey(args ...[]byte) []byte {
 		temp = append(temp, arg...)
 	}
 	return temp
-}
-
-func getEvent(ctx *testframework.TestFrameworkContext, txHash scommon.Uint256) bool {
-	_, err := ctx.Ont.WaitForGenerateBlock(30*time.Second, 1)
-	if err != nil {
-		ctx.LogError("WaitForGenerateBlock error: %s", err)
-		return false
-	}
-	events, err := ctx.Ont.GetSmartContractEvent(txHash.ToHexString())
-	if err != nil {
-		ctx.LogError("GetSmartContractEvent error: %s", err)
-		return false
-	}
-
-	if events.State == 0 {
-		ctx.LogWarn("ontio contract invoke failed, state:0")
-		return false
-	}
-
-	if len(events.Notify) > 0 {
-		states := events.Notify[0].States
-		ctx.LogInfo("result is : %+v", states)
-		return true
-	} else {
-		return false
-	}
-
-}
-
-func getAddressByHexString(hexString string) (scommon.Address, error) {
-	contractByte, err := hex.DecodeString(hexString)
-	if err != nil {
-		return scommon.Address{}, fmt.Errorf("hex.DecodeString failed %v", err)
-	}
-	contractAddress, err := scommon.AddressParseFromBytes(scommon.ToArrayReverse(contractByte))
-	if err != nil {
-		return scommon.Address{}, fmt.Errorf("common.AddressParseFromBytes failed %v", err)
-	}
-	return contractAddress, nil
 }

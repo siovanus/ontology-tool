@@ -21,21 +21,18 @@ package testframework
 import (
 	log4 "github.com/alecthomas/log4go"
 	sdk "github.com/ontio/multi-chain-go-sdk"
-	"github.com/ontio/ontology-tool/common"
 )
 
 //TestFrameworkContext is the context for test case
 type TestFrameworkContext struct {
 	Ont       *sdk.MultiChainSdk //sdk to ontology
-	Wallet    *sdk.Wallet        // wallet instance
 	failNowCh chan interface{}
 }
 
 //NewTestFrameworkContext return a TestFrameworkContext instance
-func NewTestFrameworkContext(ont *sdk.MultiChainSdk, wal *sdk.Wallet, failNowCh chan interface{}) *TestFrameworkContext {
+func NewTestFrameworkContext(ont *sdk.MultiChainSdk, failNowCh chan interface{}) *TestFrameworkContext {
 	return &TestFrameworkContext{
 		Ont:       ont,
-		Wallet:    wal,
 		failNowCh: failNowCh,
 	}
 }
@@ -53,10 +50,6 @@ func (this *TestFrameworkContext) LogError(arg0 interface{}, args ...interface{}
 //LogWarn log warning info in test case
 func (this *TestFrameworkContext) LogWarn(arg0 interface{}, args ...interface{}) {
 	log4.Warn(arg0, args...)
-}
-
-func (this *TestFrameworkContext) GetDefaultAccount() (*sdk.Account, error) {
-	return this.Wallet.GetDefaultAccount([]byte(common.DefConfig.Password))
 }
 
 func (this *TestFrameworkContext) NewAccount() *sdk.Account {
