@@ -497,6 +497,33 @@ func RemoveRelayer(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
+func GetConfig(ctx *testframework.TestFrameworkContext) bool {
+	config, err := getConfig(ctx)
+	if err != nil {
+		ctx.LogError("getConfig failed %v", err)
+		return false
+	}
+
+	fmt.Println("config.BlockMsgDelay is:", config.BlockMsgDelay)
+	fmt.Println("config.HashMsgDelay is:", config.HashMsgDelay)
+	fmt.Println("config.PeerHandshakeTimeout is:", config.PeerHandshakeTimeout)
+	fmt.Println("config.MaxBlockChangeView is:", config.MaxBlockChangeView)
+	return true
+}
+
+func getConfig(ctx *testframework.TestFrameworkContext) (*node_manager.Configuration, error) {
+	contractAddress := utils.NodeManagerContractAddress
+	config := new(node_manager.Configuration)
+	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), []byte(node_manager.VBFT_CONFIG))
+	if err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
+	}
+	if err := config.Deserialization(common.NewZeroCopySource(value)); err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize config error!")
+	}
+	return config, nil
+}
+
 func GetPeerPoolMap(ctx *testframework.TestFrameworkContext) bool {
 	peerPoolMap, err := getPeerPoolMap(ctx)
 	if err != nil {
