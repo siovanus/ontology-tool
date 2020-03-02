@@ -106,7 +106,7 @@ func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	txHash, err := ctx.Ont.Native.Scm.RegisterSideChain(user.Address.ToBase58(), registerSideChainParam.Chainid,
+	txHash, err := ctx.Ont.Native.Scm.RegisterSideChain(user.Address, registerSideChainParam.Chainid,
 		registerSideChainParam.Router, registerSideChainParam.Name, registerSideChainParam.BlocksToWait, user)
 	if err != nil {
 		ctx.LogError("ctx.Ont.Native.Scm.RegisterSideChain error: %v", err)
@@ -394,27 +394,30 @@ func UpdateConfig(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 
+	var users []*sdk.Account
 	time.Sleep(1 * time.Second)
 	for _, path := range configuration.Path {
 		user, ok := getAccountByPassword(ctx, path)
 		if !ok {
 			return false
 		}
-		txHash, err := ctx.Ont.Native.Nm.UpdateConfig(configuration.BlockMsgDelay, configuration.HashMsgDelay,
-			configuration.PeerHandshakeTimeout, configuration.MaxBlockChangeView, user)
-		if err != nil {
-			ctx.LogError("ctx.Ont.Native.Nm.UpdateConfig error: %v", err)
-			return false
-		}
-		ctx.LogInfo("UpdateConfig txHash is: %v", txHash.ToHexString())
+		users = append(users, user)
 	}
+
+	txHash, err := ctx.Ont.Native.Nm.UpdateConfig(configuration.BlockMsgDelay, configuration.HashMsgDelay,
+		configuration.PeerHandshakeTimeout, configuration.MaxBlockChangeView, users)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Native.Nm.UpdateConfig error: %v", err)
+		return false
+	}
+	ctx.LogInfo("CommitDpos txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
 
-type RelayerParam struct {
-	Address []string
-	Path    []string
+type RelayerListParam struct {
+	AddressList []string
+	Path        string
 }
 
 func RegisterRelayer(ctx *testframework.TestFrameworkContext) bool {
@@ -423,15 +426,15 @@ func RegisterRelayer(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
 	}
-	relayerParam := new(RelayerParam)
-	err = json.Unmarshal(data, relayerParam)
+	relayerListParam := new(RelayerListParam)
+	err = json.Unmarshal(data, relayerListParam)
 	if err != nil {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
 
 	addressList := make([]common.Address, 0)
-	for _, addr := range relayerParam.Address {
+	for _, addr := range relayerListParam.AddressList {
 		address, err := common.AddressFromBase58(addr)
 		if err != nil {
 			ctx.LogError("common.AddressFromBase58 failed %v", err)
@@ -440,19 +443,16 @@ func RegisterRelayer(ctx *testframework.TestFrameworkContext) bool {
 		addressList = append(addressList, address)
 	}
 
-	time.Sleep(1 * time.Second)
-	for _, path := range relayerParam.Path {
-		user, ok := getAccountByPassword(ctx, path)
-		if !ok {
-			return false
-		}
-		txHash, err := ctx.Ont.Native.Rm.RegisterRelayer(addressList, user)
-		if err != nil {
-			ctx.LogError("ctx.Ont.Native.Rm.RegisterRelayer error: %v", err)
-			return false
-		}
-		ctx.LogInfo("RegisterRelayer txHash is: %v", txHash.ToHexString())
+	user, ok := getAccountByPassword(ctx, relayerListParam.Path)
+	if !ok {
+		return false
 	}
+	txHash, err := ctx.Ont.Native.Rm.RegisterRelayer(addressList, user)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Native.Rm.RegisterRelayer error: %v", err)
+		return false
+	}
+	ctx.LogInfo("RegisterRelayer txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
@@ -463,15 +463,15 @@ func RemoveRelayer(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
 	}
-	relayerParam := new(RelayerParam)
-	err = json.Unmarshal(data, relayerParam)
+	relayerListParam := new(RelayerListParam)
+	err = json.Unmarshal(data, relayerListParam)
 	if err != nil {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
 
 	addressList := make([]common.Address, 0)
-	for _, addr := range relayerParam.Address {
+	for _, addr := range relayerListParam.AddressList {
 		address, err := common.AddressFromBase58(addr)
 		if err != nil {
 			ctx.LogError("common.AddressFromBase58 failed %v", err)
@@ -480,18 +480,80 @@ func RemoveRelayer(ctx *testframework.TestFrameworkContext) bool {
 		addressList = append(addressList, address)
 	}
 
+	user, ok := getAccountByPassword(ctx, relayerListParam.Path)
+	if !ok {
+		return false
+	}
+	txHash, err := ctx.Ont.Native.Rm.RemoveRelayer(addressList, user)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Native.Rm.RemoveRelayer error: %v", err)
+		return false
+	}
+	ctx.LogInfo("RemoveRelayer txHash is: %v", txHash.ToHexString())
+	waitForBlock(ctx)
+	return true
+}
+
+type ApproveRelayerParam struct {
+	ID   uint64
+	Path []string
+}
+
+func ApproveRegisterRelayer(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/ApproveRegisterRelayer.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	approveRelayerParam := new(ApproveRelayerParam)
+	err = json.Unmarshal(data, approveRelayerParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
 	time.Sleep(1 * time.Second)
-	for _, path := range relayerParam.Path {
+	for _, path := range approveRelayerParam.Path {
 		user, ok := getAccountByPassword(ctx, path)
 		if !ok {
 			return false
 		}
-		txHash, err := ctx.Ont.Native.Rm.RemoveRelayer(addressList, user)
+		txHash, err := ctx.Ont.Native.Rm.ApproveRegisterRelayer(approveRelayerParam.ID, user)
 		if err != nil {
-			ctx.LogError("ctx.Ont.Native.Rm.RemoveRelayer error: %v", err)
+			ctx.LogError("ctx.Ont.Native.Rm.ApproveRegisterRelayer error: %v", err)
 			return false
 		}
-		ctx.LogInfo("RemoveRelayer txHash is: %v", txHash.ToHexString())
+		ctx.LogInfo("ApproveRegisterRelayer txHash is: %v", txHash.ToHexString())
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+func ApproveRemoveRelayer(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/ApproveRemoveRelayer.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	approveRelayerParam := new(ApproveRelayerParam)
+	err = json.Unmarshal(data, approveRelayerParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	time.Sleep(1 * time.Second)
+	for _, path := range approveRelayerParam.Path {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		txHash, err := ctx.Ont.Native.Rm.ApproveRemoveRelayer(approveRelayerParam.ID, user)
+		if err != nil {
+			ctx.LogError("ctx.Ont.Native.Rm.ApproveRemoveRelayer error: %v", err)
+			return false
+		}
+		ctx.LogInfo("ApproveRemoveRelayer txHash is: %v", txHash.ToHexString())
 	}
 	waitForBlock(ctx)
 	return true
