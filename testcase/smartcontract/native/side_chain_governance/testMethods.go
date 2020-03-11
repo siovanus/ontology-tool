@@ -19,6 +19,7 @@
 package side_chain_governance
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -87,6 +88,7 @@ type RegisterSideChainParam struct {
 	Router       uint64
 	Name         string
 	BlocksToWait uint64
+	CCMCAddress  string
 }
 
 func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
@@ -106,8 +108,14 @@ func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
+	CCMCAddress, err := hex.DecodeString(registerSideChainParam.CCMCAddress)
+	if err != nil {
+		ctx.LogError("hex.DecodeString error %v", err)
+		return false
+	}
 	txHash, err := ctx.Ont.Native.Scm.RegisterSideChain(user.Address, registerSideChainParam.Chainid,
-		registerSideChainParam.Router, registerSideChainParam.Name, registerSideChainParam.BlocksToWait, user)
+		registerSideChainParam.Router, registerSideChainParam.Name, registerSideChainParam.BlocksToWait,
+		CCMCAddress, user)
 	if err != nil {
 		ctx.LogError("ctx.Ont.Native.Scm.RegisterSideChain error: %v", err)
 		return false
