@@ -26,6 +26,8 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("SyncGenesisHeader", SyncGenesisHeader)
 	testframework.TFramework.RegTestCase("RegisterSideChain", RegisterSideChain)
 	testframework.TFramework.RegTestCase("ApproveRegisterSideChain", ApproveRegisterSideChain)
+	testframework.TFramework.RegTestCase("UpdateSideChain", UpdateSideChain)
+	testframework.TFramework.RegTestCase("ApproveUpdateSideChain", ApproveUpdateSideChain)
 
 	testframework.TFramework.RegTestCase("RegisterCandidate", RegisterCandidate)
 	testframework.TFramework.RegTestCase("UnRegisterCandidate", UnRegisterCandidate)

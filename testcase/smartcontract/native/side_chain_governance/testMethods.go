@@ -82,7 +82,7 @@ func SyncGenesisHeader(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
-type RegisterSideChainParam struct {
+type SideChainParam struct {
 	Path         string
 	Chainid      uint64
 	Router       uint64
@@ -97,24 +97,24 @@ func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
 	}
-	registerSideChainParam := new(RegisterSideChainParam)
-	err = json.Unmarshal(data, registerSideChainParam)
+	sideChainParam := new(SideChainParam)
+	err = json.Unmarshal(data, sideChainParam)
 	if err != nil {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
 
-	user, ok := getAccountByPassword(ctx, registerSideChainParam.Path)
+	user, ok := getAccountByPassword(ctx, sideChainParam.Path)
 	if !ok {
 		return false
 	}
-	CCMCAddress, err := hex.DecodeString(registerSideChainParam.CCMCAddress)
+	CCMCAddress, err := hex.DecodeString(sideChainParam.CCMCAddress)
 	if err != nil {
 		ctx.LogError("hex.DecodeString error %v", err)
 		return false
 	}
-	txHash, err := ctx.Ont.Native.Scm.RegisterSideChain(user.Address, registerSideChainParam.Chainid,
-		registerSideChainParam.Router, registerSideChainParam.Name, registerSideChainParam.BlocksToWait,
+	txHash, err := ctx.Ont.Native.Scm.RegisterSideChain(user.Address, sideChainParam.Chainid,
+		sideChainParam.Router, sideChainParam.Name, sideChainParam.BlocksToWait,
 		CCMCAddress, user)
 	if err != nil {
 		ctx.LogError("ctx.Ont.Native.Scm.RegisterSideChain error: %v", err)
@@ -125,7 +125,40 @@ func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
-type ApproveRegisterSideChainParam struct {
+func UpdateSideChain(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/UpdateSideChain.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	sideChainParam := new(SideChainParam)
+	err = json.Unmarshal(data, sideChainParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	user, ok := getAccountByPassword(ctx, sideChainParam.Path)
+	if !ok {
+		return false
+	}
+	CCMCAddress, err := hex.DecodeString(sideChainParam.CCMCAddress)
+	if err != nil {
+		ctx.LogError("hex.DecodeString error %v", err)
+		return false
+	}
+	txHash, err := ctx.Ont.Native.Scm.UpdateSideChain(user.Address, sideChainParam.Chainid,
+		sideChainParam.Router, sideChainParam.Name, sideChainParam.BlocksToWait, CCMCAddress, user)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Native.Scm.UpdateSideChain error: %v", err)
+		return false
+	}
+	ctx.LogInfo("UpdateSideChain txHash is: %v", txHash.ToHexString())
+	waitForBlock(ctx)
+	return true
+}
+
+type ApproveSideChainParam struct {
 	Path    []string
 	Chainid uint64
 }
@@ -136,25 +169,55 @@ func ApproveRegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
 	}
-	approveRegisterSideChainParam := new(ApproveRegisterSideChainParam)
-	err = json.Unmarshal(data, approveRegisterSideChainParam)
+	approveSideChainParam := new(ApproveSideChainParam)
+	err = json.Unmarshal(data, approveSideChainParam)
 	if err != nil {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
 
 	time.Sleep(1 * time.Second)
-	for _, path := range approveRegisterSideChainParam.Path {
+	for _, path := range approveSideChainParam.Path {
 		user, ok := getAccountByPassword(ctx, path)
 		if !ok {
 			return false
 		}
-		txHash, err := ctx.Ont.Native.Scm.ApproveRegisterSideChain(approveRegisterSideChainParam.Chainid, user)
+		txHash, err := ctx.Ont.Native.Scm.ApproveRegisterSideChain(approveSideChainParam.Chainid, user)
 		if err != nil {
 			ctx.LogError("ctx.Ont.Native.Scm.ApproveRegisterSideChain error: %v", err)
 			return false
 		}
 		ctx.LogInfo("ApproveRegisterSideChain txHash is: %v", txHash.ToHexString())
+	}
+	waitForBlock(ctx)
+	return true
+}
+
+func ApproveUpdateSideChain(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/ApproveUpdateSideChain.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	approveSideChainParam := new(ApproveSideChainParam)
+	err = json.Unmarshal(data, approveSideChainParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	time.Sleep(1 * time.Second)
+	for _, path := range approveSideChainParam.Path {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		txHash, err := ctx.Ont.Native.Scm.ApproveUpdateSideChain(approveSideChainParam.Chainid, user)
+		if err != nil {
+			ctx.LogError("ctx.Ont.Native.Scm.ApproveUpdateSideChain error: %v", err)
+			return false
+		}
+		ctx.LogInfo("ApproveUpdateSideChain txHash is: %v", txHash.ToHexString())
 	}
 	waitForBlock(ctx)
 	return true
