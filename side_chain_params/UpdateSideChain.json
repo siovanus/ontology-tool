@@ -3,5 +3,6 @@
   "Chainid": 0,
   "Router": 0,
   "Name":"btc",
-  "BlocksToWait": 7
+  "BlocksToWait": 7,
+  "CCMCAddress": "e143611dc85819bf50fd86e154db5167c0d775d6"
 }
