@@ -34,6 +34,77 @@ import (
 	"github.com/ontio/ontology-tool/testframework"
 )
 
+type BlackChainParam struct {
+	Path    []string
+	ChainID uint64
+}
+
+func BlackChain(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/BlackChain.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	blackChainParam := new(BlackChainParam)
+	err = json.Unmarshal(data, blackChainParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	var users []*sdk.Account
+	time.Sleep(1 * time.Second)
+	for _, path := range blackChainParam.Path {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+	}
+
+	txHash, err := ctx.Ont.Native.Ccm.BlackChain(blackChainParam.ChainID, users)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Native.Ccm.BlackChain error: %v", err)
+		return false
+	}
+	ctx.LogInfo("BlackChain txHash is: %v", txHash.ToHexString())
+	waitForBlock(ctx)
+	return true
+}
+
+func WhiteChain(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/WhiteChain.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	blackChainParam := new(BlackChainParam)
+	err = json.Unmarshal(data, blackChainParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	var users []*sdk.Account
+	time.Sleep(1 * time.Second)
+	for _, path := range blackChainParam.Path {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+	}
+
+	txHash, err := ctx.Ont.Native.Ccm.WhiteChain(blackChainParam.ChainID, users)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Native.Ccm.WhiteChain error: %v", err)
+		return false
+	}
+	ctx.LogInfo("WhiteChain txHash is: %v", txHash.ToHexString())
+	waitForBlock(ctx)
+	return true
+}
+
 type SyncGenesisHeaderParam struct {
 	Path     []string
 	ChainID  uint64
@@ -74,10 +145,10 @@ func SyncGenesisHeader(ctx *testframework.TestFrameworkContext) bool {
 
 	txHash, err := ctx.Ont.Native.Hs.SyncGenesisHeader(syncGenesisHeaderParam.ChainID, genesisBlockHeader, users)
 	if err != nil {
-		ctx.LogError("ctx.Ont.Native.Scm.RegisterSideChain error: %v", err)
+		ctx.LogError("ctx.Ont.Native.Hs.SyncGenesisHeader error: %v", err)
 		return false
 	}
-	ctx.LogInfo("RegisterSideChain txHash is: %v", txHash.ToHexString())
+	ctx.LogInfo("SyncGenesisHeader txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
