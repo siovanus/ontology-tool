@@ -203,6 +203,9 @@ type RegisterCandidateParam struct {
 	Path       []string
 	PeerPubkey []string
 	InitPos    []uint32
+	Caller     []string
+	Index      []uint32
+	OntIdPath  []string
 }
 
 func RegisterCandidate(ontSdk *sdk.OntologySdk) bool {
@@ -223,7 +226,12 @@ func RegisterCandidate(ontSdk *sdk.OntologySdk) bool {
 		if !ok {
 			return false
 		}
-		ok = registerCandidate(ontSdk, user, registerCandidateParam.PeerPubkey[i], registerCandidateParam.InitPos[i])
+		ontIdAccount, ok := common.GetAccountByPassword(ontSdk, registerCandidateParam.OntIdPath[i])
+		if !ok {
+			return false
+		}
+		ok = registerCandidate(ontSdk, user, registerCandidateParam.PeerPubkey[i], registerCandidateParam.InitPos[i],
+			registerCandidateParam.Caller[i], registerCandidateParam.Index[i], ontIdAccount)
 		if !ok {
 			return false
 		}

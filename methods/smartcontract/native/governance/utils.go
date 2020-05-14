@@ -21,29 +21,39 @@ import (
 
 var OntIDVersion = byte(0)
 
-const PROMISE_POS = 200000
-
-func registerCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string, initPos uint32) bool {
+func registerCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string, initPos uint32,
+	caller string, index uint32, ontIdAccount *sdk.Account) bool {
 	params := &governance.RegisterCandidateParam{
 		PeerPubkey: peerPubkey,
 		Address:    user.Address,
 		InitPos:    initPos,
-		Caller:     []byte("did:ont:" + user.Address.ToBase58()),
-		KeyNo:      1,
+		Caller:     []byte(caller),
+		KeyNo:      index,
 	}
 	method := "registerCandidate"
 	contractAddress := utils.GovernanceContractAddress
-	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit,
-		user, user, OntIDVersion, contractAddress, method, []interface{}{params})
+	tx, err := ontSdk.Native.NewNativeInvokeTransaction(config.DefConfig.GasPrice, config.DefConfig.GasLimit,
+		OntIDVersion, contractAddress, method, []interface{}{params})
 	if err != nil {
-		log4.Error("invokeNativeContract error :", err)
+		log4.Error("NewNativeInvokeTransaction error :", err)
+		return false
+	}
+	err = ontSdk.SignToTransaction(tx, user)
+	if err != nil {
+		log4.Error("SignToTransaction error :", err)
+		return false
+	}
+	err = ontSdk.SignToTransaction(tx, ontIdAccount)
+	if err != nil {
+		log4.Error("SignToTransaction error :", err)
+		return false
+	}
+	txHash, err := ontSdk.SendTransaction(tx)
+	if err != nil {
+		log4.Error("SendTransaction error :", err)
 		return false
 	}
 	log4.Info("registerCandidate txHash is :", txHash.ToHexString())
-	//common.WaitForBlock(ontSdk)
-
-	//let node can be authorized
-	//changeMaxAuthorization(ontSdk, user, peerPubkey, PROMISE_POS)
 	return true
 }
 

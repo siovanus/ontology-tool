@@ -1,5 +1,8 @@
 {
    "Path": ["wallets/peer1/wallet.dat"],
    "PeerPubkey": ["03acea758e49b87a03b3dbf29e3055857ce7a4673ea864e640ed8f13d43861da41"],
-   "InitPos": [10000]
+   "InitPos": [10000],
+   "Caller": "did:ont:AMAx993nE6NEqZjwBssUfopxnnvTdob9ij",
+   "Index": 1,
+   "OntIdPath": ["wallets/peer1/wallet.dat"]
 }
