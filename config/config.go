@@ -28,10 +28,10 @@ import (
 )
 
 //Default config instance
-var DefConfig = NewTestConfig()
+var DefConfig = NewConfig()
 
 //Config object used by ontology-instance
-type TestConfig struct {
+type Config struct {
 	//JsonRpcAddress of ontology
 	JsonRpcAddress string
 	//RestfulAddress of ontology
@@ -47,13 +47,13 @@ type TestConfig struct {
 	GasDeployLimit uint64
 }
 
-//NewTestConfig retuen a TestConfig instance
-func NewTestConfig() *TestConfig {
-	return &TestConfig{}
+//NewConfig retuen a Config instance
+func NewConfig() *Config {
+	return &Config{}
 }
 
-//Init TestConfig with a config file
-func (this *TestConfig) Init(fileName string) error {
+//Init Config with a config file
+func (this *Config) Init(fileName string) error {
 	err := this.loadConfig(fileName)
 	if err != nil {
 		return fmt.Errorf("loadConfig error:%s", err)
@@ -61,7 +61,7 @@ func (this *TestConfig) Init(fileName string) error {
 	return nil
 }
 
-func (this *TestConfig) loadConfig(fileName string) error {
+func (this *Config) loadConfig(fileName string) error {
 	data, err := this.readFile(fileName)
 	if err != nil {
 		return err
@@ -73,7 +73,7 @@ func (this *TestConfig) loadConfig(fileName string) error {
 	return nil
 }
 
-func (this *TestConfig) readFile(fileName string) ([]byte, error) {
+func (this *Config) readFile(fileName string) ([]byte, error) {
 	file, err := os.OpenFile(fileName, os.O_RDONLY, 0666)
 	if err != nil {
 		return nil, fmt.Errorf("OpenFile %s error %s", fileName, err)
