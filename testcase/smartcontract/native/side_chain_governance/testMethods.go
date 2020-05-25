@@ -134,14 +134,31 @@ func SyncGenesisHeader(ctx *testframework.TestFrameworkContext) bool {
 		users = append(users, user)
 	}
 
-	sideSdk := osdk.NewOntologySdk()
-	sideSdk.NewRpcClient().SetAddress(syncGenesisHeaderParam.ChainRpc)
-	genesisBlock, err := sideSdk.GetBlockByHeight(0)
-	if err != nil {
-		ctx.LogError("get side chain genesis block error: %s", err)
-		return false
+	var genesisBlockHeader []byte
+	if syncGenesisHeaderParam.ChainID == 3 {
+		sideSdk := osdk.NewOntologySdk()
+		sideSdk.NewRpcClient().SetAddress(syncGenesisHeaderParam.ChainRpc)
+		genesisBlock, err := sideSdk.GetBlockByHeight(0)
+		if err != nil {
+			ctx.LogError("get side chain genesis block error: %s", err)
+			return false
+		}
+		genesisBlockHeader = genesisBlock.Header.ToArray()
+	} else if syncGenesisHeaderParam.ChainID == 2 {
+		restClient := NewRestClient()
+		restClient.SetAddr(syncGenesisHeaderParam.ChainRpc)
+		lastestHeight, err := GetNodeHeight(restClient)
+		if err != nil {
+			ctx.LogError("get block height error:", err)
+			return false
+		}
+		header, err := GetNodeHeader(restClient,lastestHeight)
+		if err != nil {
+			ctx.LogError("get side chain genesis block error:", err)
+			return false
+		}
+		genesisBlockHeader = header
 	}
-	genesisBlockHeader := genesisBlock.Header.ToArray()
 
 	txHash, err := ctx.Ont.Native.Hs.SyncGenesisHeader(syncGenesisHeaderParam.ChainID, genesisBlockHeader, users)
 	if err != nil {
