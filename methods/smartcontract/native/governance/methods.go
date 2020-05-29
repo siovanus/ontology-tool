@@ -997,9 +997,9 @@ func SetPromisePos(ontSdk *sdk.OntologySdk) bool {
 }
 
 type TransferPenaltyParam struct {
-	Path1      []string
+	Path       []string
 	PeerPubkey string
-	Path2      string
+	Address    string
 }
 
 func TransferPenalty(ontSdk *sdk.OntologySdk) bool {
@@ -1017,7 +1017,7 @@ func TransferPenalty(ontSdk *sdk.OntologySdk) bool {
 	var users []*sdk.Account
 	var pubKeys []keypair.PublicKey
 	time.Sleep(1 * time.Second)
-	for _, path := range transferPenaltyParam.Path1 {
+	for _, path := range transferPenaltyParam.Path {
 		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
@@ -1025,11 +1025,11 @@ func TransferPenalty(ontSdk *sdk.OntologySdk) bool {
 		users = append(users, user)
 		pubKeys = append(pubKeys, user.PublicKey)
 	}
-	user1, ok := common.GetAccountByPassword(ontSdk, transferPenaltyParam.Path2)
-	if !ok {
+	address, err := ocommon.AddressFromBase58(transferPenaltyParam.Address)
+	if err != nil {
 		return false
 	}
-	ok = transferPenaltyMultiSign(ontSdk, pubKeys, users, transferPenaltyParam.PeerPubkey, user1.Address)
+	ok := transferPenaltyMultiSign(ontSdk, pubKeys, users, transferPenaltyParam.PeerPubkey, address)
 	if !ok {
 		return false
 	}
