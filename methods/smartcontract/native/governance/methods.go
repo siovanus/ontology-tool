@@ -226,12 +226,7 @@ func RegisterCandidate(ontSdk *sdk.OntologySdk) bool {
 		if !ok {
 			return false
 		}
-		ontIdAccount, ok := common.GetAccountByPassword(ontSdk, registerCandidateParam.OntIdPath[i])
-		if !ok {
-			return false
-		}
-		ok = registerCandidate(ontSdk, user, registerCandidateParam.PeerPubkey[i], registerCandidateParam.InitPos[i],
-			registerCandidateParam.Caller[i], registerCandidateParam.Index[i], ontIdAccount)
+		ok = registerCandidate(ontSdk, user, registerCandidateParam.PeerPubkey[i], registerCandidateParam.InitPos[i])
 		if !ok {
 			return false
 		}

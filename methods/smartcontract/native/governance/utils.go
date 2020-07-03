@@ -21,14 +21,11 @@ import (
 
 var OntIDVersion = byte(0)
 
-func registerCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string, initPos uint32,
-	caller string, index uint32, ontIdAccount *sdk.Account) bool {
+func registerCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string, initPos uint32) bool {
 	params := &governance.RegisterCandidateParam{
 		PeerPubkey: peerPubkey,
 		Address:    user.Address,
 		InitPos:    initPos,
-		Caller:     []byte(caller),
-		KeyNo:      index,
 	}
 	method := "registerCandidate"
 	contractAddress := utils.GovernanceContractAddress
@@ -39,11 +36,6 @@ func registerCandidate(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey st
 		return false
 	}
 	err = ontSdk.SignToTransaction(tx, user)
-	if err != nil {
-		log4.Error("SignToTransaction error :", err)
-		return false
-	}
-	err = ontSdk.SignToTransaction(tx, ontIdAccount)
 	if err != nil {
 		log4.Error("SignToTransaction error :", err)
 		return false
@@ -952,10 +944,7 @@ func getPeerPoolMap(ontSdk *sdk.OntologySdk) (*governance.PeerPoolMap, error) {
 	peerPoolMap := &governance.PeerPoolMap{
 		PeerPoolMap: make(map[string]*governance.PeerPoolItem),
 	}
-	viewBytes, err := governance.GetUint32Bytes(view)
-	if err != nil {
-		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "GetUint32Bytes, get viewBytes error!")
-	}
+	viewBytes := governance.GetUint32Bytes(view)
 	key := common.ConcatKey([]byte(governance.PEER_POOL), viewBytes)
 	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
