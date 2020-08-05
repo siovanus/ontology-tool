@@ -1968,6 +1968,9 @@ func GetAttributes(ontSdk *sdk.OntologySdk) bool {
 	fmt.Println("peerAttributes.T2PeerCost is:", peerAttributes.T2PeerCost)
 	fmt.Println("peerAttributes.T1PeerCost is:", peerAttributes.T1PeerCost)
 	fmt.Println("peerAttributes.TPeerCost is:", peerAttributes.TPeerCost)
+	fmt.Println("peerAttributes.T2StakeCost is:", peerAttributes.T2StakeCost)
+	fmt.Println("peerAttributes.T1StakeCost is:", peerAttributes.T1StakeCost)
+	fmt.Println("peerAttributes.TStakeCost is:", peerAttributes.TStakeCost)
 
 	return true
 }
