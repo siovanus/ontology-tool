@@ -51,6 +51,7 @@ func RegisterGovernance() {
 	core.OntTool.RegMethod("TransferPenalty", TransferPenalty)
 	core.OntTool.RegMethod("SetPromisePos", SetPromisePos)
 	core.OntTool.RegMethod("GetVbftConfig", GetVbftConfig)
+	core.OntTool.RegMethod("GetPreConfig", GetPreConfig)
 	core.OntTool.RegMethod("GetGlobalParam", GetGlobalParam)
 	core.OntTool.RegMethod("GetGlobalParam2", GetGlobalParam2)
 	core.OntTool.RegMethod("GetSplitCurve", GetSplitCurve)

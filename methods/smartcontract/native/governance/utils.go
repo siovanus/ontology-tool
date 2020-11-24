@@ -869,6 +869,20 @@ func getVbftConfig(ontSdk *sdk.OntologySdk) (*governance.Configuration, error) {
 	return config, nil
 }
 
+func getPreConfig(ontSdk *sdk.OntologySdk) (*governance.Configuration, error) {
+	contractAddress := utils.GovernanceContractAddress
+	preConfig := new(governance.PreConfig)
+	key := []byte(governance.PRE_CONFIG)
+	value, err := ontSdk.GetStorage(contractAddress.ToHexString(), key)
+	if err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
+	}
+	if err := preConfig.Deserialization(ontcommon.NewZeroCopySource(value)); err != nil {
+		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize config error!")
+	}
+	return preConfig.Configuration, nil
+}
+
 func getGlobalParam(ontSdk *sdk.OntologySdk) (*governance.GlobalParam, error) {
 	contractAddress := utils.GovernanceContractAddress
 	globalParam := new(governance.GlobalParam)
