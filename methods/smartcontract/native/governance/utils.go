@@ -182,21 +182,22 @@ func changeMaxAuthorization(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubk
 	return true
 }
 
-func setPeerCost(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string, peerCost uint32) bool {
-	params := &governance.SetPeerCostParam{
+func setFeePercentage(ontSdk *sdk.OntologySdk, user *sdk.Account, peerPubkey string, peerCost, stakeCost uint32) bool {
+	params := &governance.SetFeePercentageParam{
 		Address:    user.Address,
 		PeerPubkey: peerPubkey,
 		PeerCost:   peerCost,
+		StakeCost:  stakeCost,
 	}
 	contractAddress := utils.GovernanceContractAddress
-	method := "setPeerCost"
+	method := "SetFeePercentage"
 	txHash, err := ontSdk.Native.InvokeNativeContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit,
 		user, user, OntIDVersion, contractAddress, method, []interface{}{params})
 	if err != nil {
 		log4.Error("invokeNativeContract error :", err)
 		return false
 	}
-	log4.Info("setPeerCost txHash is :", txHash.ToHexString())
+	log4.Info("setFeePercentage txHash is :", txHash.ToHexString())
 	return true
 }
 

@@ -444,31 +444,32 @@ func ChangeMaxAuthorization(ontSdk *sdk.OntologySdk) bool {
 	return true
 }
 
-type SetPeerCostParam struct {
+type SetFeePercentageParam struct {
 	PathList       []string
 	PeerPubkeyList []string
 	PeerCostList   []uint32
+	StakeCostList  []uint32
 }
 
-func SetPeerCost(ontSdk *sdk.OntologySdk) bool {
+func SetFeePercentage(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/SetPeerCost.json")
 	if err != nil {
 		log4.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
-	setPeerCostParam := new(SetPeerCostParam)
-	err = json.Unmarshal(data, setPeerCostParam)
+	setFeePercentageParam := new(SetFeePercentageParam)
+	err = json.Unmarshal(data, setFeePercentageParam)
 	if err != nil {
 		log4.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
-	for index, path := range setPeerCostParam.PathList {
+	for index, path := range setFeePercentageParam.PathList {
 		user, ok := common.GetAccountByPassword(ontSdk, path)
 		if !ok {
 			return false
 		}
-		ok = setPeerCost(ontSdk, user, setPeerCostParam.PeerPubkeyList[index], setPeerCostParam.PeerCostList[index])
+		ok = setFeePercentage(ontSdk, user, setFeePercentageParam.PeerPubkeyList[index], setFeePercentageParam.PeerCostList[index], setFeePercentageParam.StakeCostList[index])
 		if !ok {
 			return false
 		}

@@ -34,7 +34,7 @@ func RegisterGovernance() {
 	core.OntTool.RegMethod("ApproveCandidate", ApproveCandidate)
 	core.OntTool.RegMethod("RejectCandidate", RejectCandidate)
 	core.OntTool.RegMethod("ChangeMaxAuthorization", ChangeMaxAuthorization)
-	core.OntTool.RegMethod("SetPeerCost", SetPeerCost)
+	core.OntTool.RegMethod("SetFeePercentage", SetFeePercentage)
 	core.OntTool.RegMethod("AddInitPos", AddInitPos)
 	core.OntTool.RegMethod("ReduceInitPos", ReduceInitPos)
 	core.OntTool.RegMethod("AuthorizeForPeer", AuthorizeForPeer)
