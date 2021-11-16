@@ -23,6 +23,8 @@ import (
 )
 
 func RegisterGovernance() {
+	core.OntTool.RegMethod("InvokeNeoVM", InvokeNeoVM)
+
 	core.OntTool.RegMethod("RegIdWithPublicKey", RegIdWithPublicKey)
 	core.OntTool.RegMethod("AssignFuncsToRole", AssignFuncsToRole)
 	core.OntTool.RegMethod("AssignFuncsToRoleAny", AssignFuncsToRoleAny)

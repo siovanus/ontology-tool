@@ -3,7 +3,6 @@ package governance
 import (
 	"bytes"
 	"encoding/hex"
-
 	log4 "github.com/alecthomas/log4go"
 	"github.com/ontio/ontology-crypto/keypair"
 	sdk "github.com/ontio/ontology-go-sdk"
@@ -831,6 +830,46 @@ func assignOntIDsToRole(ontSdk *sdk.OntologySdk, user *sdk.Account, contract ont
 		return false
 	}
 	log4.Info("assignOntIDsToRole txHash is :", txHash.ToHexString())
+	return true
+}
+
+//func test(ontSdk *sdk.OntologySdk, user *sdk.Account) bool {
+//	contractAddress, _ := ontcommon.AddressFromHexString("33c439c502cb4b6ac5a1e8057a65fe1fa7c300e2")
+//	b, err := hex.DecodeString("42e54382e86dcdca09e0da8bb67e2fac4d498744")
+//	if err != nil {
+//		log4.Error("hex.DecodeString error :", err)
+//		return false
+//	}
+//
+//	txHash, err := ontSdk.NeoVM.InvokeNeoVMContract(config.DefConfig.GasPrice, config.DefConfig.GasLimit,
+//		user, user, contractAddress, []interface{}{"bindProxyHash", []interface{}{big.NewInt(88).Bytes(), b}})
+//	if err != nil {
+//		log4.Error("invokeNeoVMContract error :", err)
+//		return false
+//	}
+//	log4.Info("txhash is :%s", txHash.ToHexString())
+//	return true
+//}
+
+func test(ontSdk *sdk.OntologySdk, user *sdk.Account) bool {
+	contractAddress, _ := ontcommon.AddressFromHexString("33c439c502cb4b6ac5a1e8057a65fe1fa7c300e2")
+	//b, err := hex.DecodeString("51007a63db7c8579f5fad500e8507539e3519986")
+	//if err != nil {
+	//	log4.Error("hex.DecodeString error :", err)
+	//	return false
+	//}
+	r, err := ontSdk.NeoVM.PreExecInvokeNeoVMContract(contractAddress, []interface{}{"getProxyHash", []interface{}{88}})
+	if err != nil {
+		log4.Error("invokeNeoVMContract error :", err)
+		return false
+	}
+	s, err := r.Result.ToByteArray()
+	if err != nil {
+		log4.Error("r.Result.ToString error :", err)
+		return false
+	}
+	log4.Info("tx state is :%v", r.State)
+	log4.Info("result is :%s", hex.EncodeToString(s))
 	return true
 }
 

@@ -45,6 +45,31 @@ type Account struct {
 	Path string
 }
 
+func InvokeNeoVM(ontSdk *sdk.OntologySdk) bool {
+	data, err := ioutil.ReadFile("./params/InvokeNeoVM.json")
+	if err != nil {
+		log4.Error("ioutil.ReadFile failed ", err)
+		return false
+	}
+	account := new(Account)
+	err = json.Unmarshal(data, account)
+	if err != nil {
+		log4.Error("json.Unmarshal failed ", err)
+		return false
+	}
+	time.Sleep(1 * time.Second)
+	user, ok := common.GetAccountByPassword(ontSdk, account.Path)
+	if !ok {
+		return false
+	}
+	ok = test(ontSdk, user)
+	if !ok {
+		return false
+	}
+	common.WaitForBlock(ontSdk)
+	return true
+}
+
 func RegIdWithPublicKey(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/RegIdWithPublicKey.json")
 	if err != nil {

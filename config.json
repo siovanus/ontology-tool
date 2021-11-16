@@ -1,5 +1,5 @@
 {
-  "JsonRpcAddress":"http://dappnode2.ont.io:20336",
-  "GasPrice":500,
+  "JsonRpcAddress":"http://40.115.182.238:40336",
+  "GasPrice":2500,
   "GasLimit":20000
 }

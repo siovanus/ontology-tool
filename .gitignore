@@ -8,5 +8,5 @@ build/
 vendor/*
 *.iml
 ontology-tool
-wallet.dat
+*.dat
 main
