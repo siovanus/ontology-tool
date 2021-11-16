@@ -22,7 +22,7 @@ package testframework
 import (
 	"fmt"
 	log4 "github.com/alecthomas/log4go"
-	sdk "github.com/ontio/multi-chain-go-sdk"
+	sdk "github.com/polynetwork/poly-go-sdk"
 	"reflect"
 	"time"
 )
@@ -46,7 +46,7 @@ type TestFramework struct {
 	//Map the test case result for testing
 	testCaseRes map[string]bool
 	//OntologySdk object
-	ont *sdk.MultiChainSdk
+	ont *sdk.PolySdk
 }
 
 //NewTestFramework return a TestFramework instance
@@ -115,7 +115,7 @@ func (this *TestFramework) runTest(index int, ctx *TestFrameworkContext, testCas
 }
 
 //SetOntSdk ontology sdk instance to test framework
-func (this *TestFramework) SetOntSdk(ont *sdk.MultiChainSdk) {
+func (this *TestFramework) SetOntSdk(ont *sdk.PolySdk) {
 	this.ont = ont
 }
 

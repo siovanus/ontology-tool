@@ -13,41 +13,41 @@ import (
 )
 
 type jsonError struct {
-	Code    int              `json:"code"`
-	Message string           `json:"message"`
-	Data    interface{}     `json:"data,omitempty"`
+	Code    int         `json:"code"`
+	Message string      `json:"message"`
+	Data    interface{} `json:"data,omitempty"`
 }
 
 type blockReq struct {
-	JsonRpc string               `json:"jsonrpc"`
-	Method  string               `json:"method"`
-	Params  []interface{}       `json:"params"`
-	Id      uint                 `json:"id"`
+	JsonRpc string        `json:"jsonrpc"`
+	Method  string        `json:"method"`
+	Params  []interface{} `json:"params"`
+	Id      uint          `json:"id"`
 }
 
 type blockRsp struct {
-	JsonRPC string               `json:"jsonrpc"`
-	Result  *types.Header        `json:"result,omitempty"`
-	Error   *jsonError           `json:"error,omitempty"`
-	Id      uint                 `json:"id"`
+	JsonRPC string        `json:"jsonrpc"`
+	Result  *types.Header `json:"result,omitempty"`
+	Error   *jsonError    `json:"error,omitempty"`
+	Id      uint          `json:"id"`
 }
 
 type heightReq struct {
-	JsonRpc string          `json:"jsonrpc"`
-	Method  string          `json:"method"`
-	Params  []string        `json:"params"`
-	Id      uint            `json:"id"`
+	JsonRpc string   `json:"jsonrpc"`
+	Method  string   `json:"method"`
+	Params  []string `json:"params"`
+	Id      uint     `json:"id"`
 }
 
 type heightRsp struct {
-	JsonRpc string          `json:"jsonrpc"`
-	Result  string          `json:"result,omitempty"`
-	Error   *jsonError      `json:"error,omitempty"`
-	Id      uint            `json:"id"`
+	JsonRpc string     `json:"jsonrpc"`
+	Result  string     `json:"result,omitempty"`
+	Error   *jsonError `json:"error,omitempty"`
+	Id      uint       `json:"id"`
 }
 
 func GetNodeHeader(restClient *RestClient, height uint64) ([]byte, error) {
-	params := []interface{} {fmt.Sprintf("0x%x", height), true}
+	params := []interface{}{fmt.Sprintf("0x%x", height), true}
 	req := &blockReq{
 		JsonRpc: "2.0",
 		Method:  "eth_getBlockByNumber",

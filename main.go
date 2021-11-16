@@ -20,11 +20,11 @@ package main
 import (
 	"flag"
 	log4 "github.com/alecthomas/log4go"
-	sdk "github.com/ontio/multi-chain-go-sdk"
-	"github.com/ontio/multi-chain/common/log"
 	"github.com/ontio/ontology-tool/common"
 	_ "github.com/ontio/ontology-tool/testcase"
 	"github.com/ontio/ontology-tool/testframework"
+	sdk "github.com/polynetwork/poly-go-sdk"
+	"github.com/polynetwork/poly/common/log"
 	"math/rand"
 	"strings"
 	"time"
@@ -55,7 +55,7 @@ func main() {
 		return
 	}
 
-	ontSdk := sdk.NewMultiChainSdk()
+	ontSdk := sdk.NewPolySdk()
 	ontSdk.NewRpcClient().SetAddress(common.DefConfig.JsonRpcAddress)
 	testCases := make([]string, 0)
 	if TestCases != "" {

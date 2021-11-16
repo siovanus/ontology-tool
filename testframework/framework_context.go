@@ -20,17 +20,17 @@ package testframework
 
 import (
 	log4 "github.com/alecthomas/log4go"
-	sdk "github.com/ontio/multi-chain-go-sdk"
+	sdk "github.com/polynetwork/poly-go-sdk"
 )
 
 //TestFrameworkContext is the context for test case
 type TestFrameworkContext struct {
-	Ont       *sdk.MultiChainSdk //sdk to ontology
+	Ont       *sdk.PolySdk //sdk to ontology
 	failNowCh chan interface{}
 }
 
 //NewTestFrameworkContext return a TestFrameworkContext instance
-func NewTestFrameworkContext(ont *sdk.MultiChainSdk, failNowCh chan interface{}) *TestFrameworkContext {
+func NewTestFrameworkContext(ont *sdk.PolySdk, failNowCh chan interface{}) *TestFrameworkContext {
 	return &TestFrameworkContext{
 		Ont:       ont,
 		failNowCh: failNowCh,

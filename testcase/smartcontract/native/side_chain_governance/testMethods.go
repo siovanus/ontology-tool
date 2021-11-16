@@ -25,13 +25,12 @@ import (
 	"io/ioutil"
 	"time"
 
-	sdk "github.com/ontio/multi-chain-go-sdk"
-	"github.com/ontio/multi-chain/common"
-	"github.com/ontio/multi-chain/errors"
-	"github.com/ontio/multi-chain/native/service/governance/node_manager"
-	"github.com/ontio/multi-chain/native/service/utils"
 	osdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/testframework"
+	sdk "github.com/polynetwork/poly-go-sdk"
+	"github.com/polynetwork/poly/common"
+	"github.com/polynetwork/poly/native/service/governance/node_manager"
+	"github.com/polynetwork/poly/native/service/utils"
 )
 
 type BlackChainParam struct {
@@ -152,7 +151,7 @@ func SyncGenesisHeader(ctx *testframework.TestFrameworkContext) bool {
 			ctx.LogError("get block height error:", err)
 			return false
 		}
-		header, err := GetNodeHeader(restClient,lastestHeight)
+		header, err := GetNodeHeader(restClient, lastestHeight)
 		if err != nil {
 			ctx.LogError("get side chain genesis block error:", err)
 			return false
@@ -737,10 +736,10 @@ func getConfig(ctx *testframework.TestFrameworkContext) (*node_manager.Configura
 	config := new(node_manager.Configuration)
 	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), []byte(node_manager.VBFT_CONFIG))
 	if err != nil {
-		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
+		return nil, fmt.Errorf("getStorage error: %s", err)
 	}
 	if err := config.Deserialization(common.NewZeroCopySource(value)); err != nil {
-		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize config error!")
+		return nil, fmt.Errorf("deserialize, deserialize config error: %s", err)
 	}
 	return config, nil
 }
@@ -780,10 +779,10 @@ func getGovernanceView(ctx *testframework.TestFrameworkContext) (*node_manager.G
 	key := []byte(node_manager.GOVERNANCE_VIEW)
 	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
-		return nil, fmt.Errorf("getStorage error")
+		return nil, fmt.Errorf("getStorage error: %s", err)
 	}
 	if err := governanceView.Deserialization(common.NewZeroCopySource(value)); err != nil {
-		return nil, fmt.Errorf("deserialize, deserialize governanceView error!")
+		return nil, fmt.Errorf("deserialize, deserialize governanceView error: %s", err)
 	}
 	return governanceView, nil
 }
@@ -791,7 +790,7 @@ func getGovernanceView(ctx *testframework.TestFrameworkContext) (*node_manager.G
 func getView(ctx *testframework.TestFrameworkContext) (uint32, error) {
 	governanceView, err := getGovernanceView(ctx)
 	if err != nil {
-		return 0, errors.NewDetailErr(err, errors.ErrNoCode, "getGovernanceView error")
+		return 0, fmt.Errorf("getGovernanceView error: %s", err)
 	}
 	return governanceView.View, nil
 }
@@ -800,7 +799,7 @@ func getPeerPoolMap(ctx *testframework.TestFrameworkContext) (*node_manager.Peer
 	contractAddress := utils.NodeManagerContractAddress
 	view, err := getView(ctx)
 	if err != nil {
-		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getView error")
+		return nil, fmt.Errorf("getView error: %s", err)
 	}
 	peerPoolMap := &node_manager.PeerPoolMap{
 		PeerPoolMap: make(map[string]*node_manager.PeerPoolItem),
@@ -809,10 +808,10 @@ func getPeerPoolMap(ctx *testframework.TestFrameworkContext) (*node_manager.Peer
 	key := ConcatKey([]byte(node_manager.PEER_POOL), viewBytes)
 	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), key)
 	if err != nil {
-		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "getStorage error")
+		return nil, fmt.Errorf("getStorage error")
 	}
 	if err := peerPoolMap.Deserialization(common.NewZeroCopySource(value)); err != nil {
-		return nil, errors.NewDetailErr(err, errors.ErrNoCode, "deserialize, deserialize peerPoolMap error!")
+		return nil, fmt.Errorf("deserialize, deserialize peerPoolMap error")
 	}
 	return peerPoolMap, nil
 }

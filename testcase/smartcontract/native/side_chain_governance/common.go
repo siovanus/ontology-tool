@@ -21,9 +21,9 @@ package side_chain_governance
 import (
 	"time"
 
-	asdk "github.com/ontio/multi-chain-go-sdk"
-	"github.com/ontio/multi-chain/common/password"
 	"github.com/ontio/ontology-tool/testframework"
+	asdk "github.com/polynetwork/poly-go-sdk"
+	"github.com/polynetwork/poly/common/password"
 )
 
 func getAccountByPassword(ctx *testframework.TestFrameworkContext, path string) (*asdk.Account, bool) {

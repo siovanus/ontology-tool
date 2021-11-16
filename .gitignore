@@ -9,5 +9,5 @@ vendor/*
 *.iml
 ontology-tool
 config_test.json
-wallet.dat
+*.dat
 main.exe 
