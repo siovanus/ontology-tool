@@ -169,6 +169,50 @@ func SyncGenesisHeader(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
+type SyncAnyGenesisHeaderParam struct {
+	Path    []string
+	ChainID uint64
+	Header  string
+}
+
+func SyncAnyGenesisHeader(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/SyncAnyGenesisHeader.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	syncGenesisHeaderParam := new(SyncAnyGenesisHeaderParam)
+	err = json.Unmarshal(data, syncGenesisHeaderParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	var users []*sdk.Account
+	time.Sleep(1 * time.Second)
+	for _, path := range syncGenesisHeaderParam.Path {
+		user, ok := getAccountByPassword(ctx, path)
+		if !ok {
+			return false
+		}
+		users = append(users, user)
+	}
+
+	genesisBlockHeader, err := hex.DecodeString(syncGenesisHeaderParam.Header)
+	if err != nil {
+		ctx.LogError("hex.DecodeString header error: %v", err)
+		return false
+	}
+	txHash, err := ctx.Ont.Native.Hs.SyncGenesisHeader(syncGenesisHeaderParam.ChainID, genesisBlockHeader, users)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Native.Hs.SyncGenesisHeader error: %v", err)
+		return false
+	}
+	ctx.LogInfo("SyncGenesisHeader txHash is: %v", txHash.ToHexString())
+	waitForBlock(ctx)
+	return true
+}
+
 type SideChainParam struct {
 	Path         string
 	Chainid      uint64
