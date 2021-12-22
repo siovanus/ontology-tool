@@ -273,11 +273,7 @@ func UpdateSideChain(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	CCMCAddress, err := hex.DecodeString(sideChainParam.CCMCAddress)
-	if err != nil {
-		ctx.LogError("hex.DecodeString error %v", err)
-		return false
-	}
+	CCMCAddress := []byte(sideChainParam.CCMCAddress)
 	txHash, err := ctx.Ont.Native.Scm.UpdateSideChain(user.Address, sideChainParam.Chainid,
 		sideChainParam.Router, sideChainParam.Name, sideChainParam.BlocksToWait, CCMCAddress, user)
 	if err != nil {

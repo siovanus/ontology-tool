@@ -1,8 +1,8 @@
 {
-  "Path": "wallets/peer1/wallet.dat",
-  "Chainid": 0,
-  "Router": 0,
-  "Name":"btc",
-  "BlocksToWait": 7,
-  "CCMCAddress": "e143611dc85819bf50fd86e154db5167c0d775d6"
+  "Path": "poly.dev1.dat",
+  "Chainid": 218,
+  "Router": 18,
+  "Name":"starcoin",
+  "BlocksToWait": 12,
+  "CCMCAddress": "0x3809644a7409cca52138ce747c56eaf2::CrossChainManager::CrossChainEvent"
 }
