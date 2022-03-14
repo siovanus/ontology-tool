@@ -1,0 +1,6 @@
+{
+  "Path": "poly.dev1.dat",
+  "AssetMap": [
+    {"ChainId": 100, "AssetAddress": "", "Fee": 13000000, "Sequence": 25336391, "Quorum": 2, "SignerNum": 3}
+  ]
+}

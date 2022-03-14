@@ -22,7 +22,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/polynetwork/poly/native/service/governance/side_chain_manager"
 	"io/ioutil"
+	"math/big"
 	"time"
 
 	osdk "github.com/ontio/ontology-go-sdk"
@@ -281,6 +283,68 @@ func UpdateSideChain(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	ctx.LogInfo("UpdateSideChain txHash is: %v", txHash.ToHexString())
+	waitForBlock(ctx)
+	return true
+}
+
+type RegisterAssetMapParam struct {
+	Path     string
+	AssetMap []*AssetInfo
+}
+
+type AssetInfo struct {
+	ChainId      uint64
+	AssetAddress string
+	Fee          uint64
+	Sequence     uint32
+	Quorum       uint32
+	SignerNum    uint32
+}
+
+func RegisterAssetMap(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/RegisterAssetMap.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	registerAssetMapParam := new(RegisterAssetMapParam)
+	err = json.Unmarshal(data, registerAssetMapParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	user, ok := getAccountByPassword(ctx, registerAssetMapParam.Path)
+	if !ok {
+		return false
+	}
+
+	assetMap := make(map[uint64]*side_chain_manager.AssetInfo)
+	for _, v := range registerAssetMapParam.AssetMap {
+		assetInfo := new(side_chain_manager.AssetInfo)
+		assetInfo.AssetAddress, err = hex.DecodeString(v.AssetAddress)
+		if err != nil {
+			ctx.LogError("hex.DecodeString asset address failed %v", err)
+			return false
+		}
+		extra := &side_chain_manager.RippleExtraInfo{
+			Fee:       new(big.Int).SetUint64(v.Fee),
+			Sequence:  v.Sequence,
+			Quorum:    v.Quorum,
+			SignerNum: v.SignerNum,
+		}
+		sink := common.NewZeroCopySink(nil)
+		extra.Serialization(sink)
+		assetInfo.ExtraInfo = sink.Bytes()
+		assetMap[v.ChainId] = assetInfo
+	}
+
+	txHash, err := ctx.Ont.Native.Scm.RegisterAssetMap(assetMap, user)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Native.Scm.UpdateSideChain error: %v", err)
+		return false
+	}
+	ctx.LogInfo("RegisterAssetMap txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
