@@ -33,6 +33,7 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("UpdateSideChain", UpdateSideChain)
 	testframework.TFramework.RegTestCase("ApproveUpdateSideChain", ApproveUpdateSideChain)
 	testframework.TFramework.RegTestCase("RegisterAssetMap", RegisterAssetMap)
+	testframework.TFramework.RegTestCase("RegisterRippleExtraInfo", RegisterRippleExtraInfo)
 
 	testframework.TFramework.RegTestCase("RegisterCandidate", RegisterCandidate)
 	testframework.TFramework.RegTestCase("UnRegisterCandidate", UnRegisterCandidate)

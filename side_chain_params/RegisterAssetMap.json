@@ -1,6 +1,7 @@
 {
   "Path": "poly.dev1.dat",
+  "AssetName": "XRP",
   "AssetMap": [
-    {"ChainId": 100, "AssetAddress": "", "Fee": 13000000, "Sequence": 25336391, "Quorum": 2, "SignerNum": 3}
+    {"ChainId": 101, "AssetAddress": "1911020795da799386af26f1cacc0ef6582b7d2c"}
   ]
 }
