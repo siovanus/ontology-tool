@@ -22,7 +22,9 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/polynetwork/poly/native/service/governance/side_chain_manager"
 	"io/ioutil"
+	"math/big"
 	"time"
 
 	osdk "github.com/ontio/ontology-go-sdk"
@@ -256,6 +258,137 @@ func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
+type RippleParam struct {
+	Path          string
+	Chainid       uint64
+	Router        uint64
+	Name          string
+	BlocksToWait  uint64
+	CCMCAddress   string
+	Operator      string
+	Sequence      uint64
+	Quorum        uint64
+	SignerNum     uint64
+	Pks           []string
+	ReserveAmount uint64
+}
+
+func RegisterRipple(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/RegisterRipple.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	registerRippleParam := new(RippleParam)
+	err = json.Unmarshal(data, registerRippleParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	user, ok := getAccountByPassword(ctx, registerRippleParam.Path)
+	if !ok {
+		return false
+	}
+	CCMCAddress, err := hex.DecodeString(registerRippleParam.CCMCAddress)
+	if err != nil {
+		ctx.LogError("hex.DecodeString error %v", err)
+		return false
+	}
+	operator, err := common.AddressFromBase58(registerRippleParam.Operator)
+	if err != nil {
+		ctx.LogError("common.AddressFromBase58 error %v", err)
+		return false
+	}
+	pks := make([][]byte, 0, len(registerRippleParam.Pks))
+	for _, v := range registerRippleParam.Pks {
+		pk, err := hex.DecodeString(v)
+		if err != nil {
+			ctx.LogError("hex.DecodeString pk error %v", err)
+			return false
+		}
+		pks = append(pks, pk)
+	}
+	rippleExtraInfo := &side_chain_manager.RippleExtraInfo{
+		Operator:      operator,
+		Sequence:      registerRippleParam.Sequence,
+		Quorum:        registerRippleParam.Quorum,
+		SignerNum:     registerRippleParam.SignerNum,
+		Pks:           pks,
+		ReserveAmount: new(big.Int).SetUint64(registerRippleParam.ReserveAmount),
+	}
+	sink := common.NewZeroCopySink(nil)
+	rippleExtraInfo.Serialization(sink)
+	txHash, err := ctx.Ont.Native.Scm.RegisterSideChainExt(user.Address, registerRippleParam.Chainid,
+		registerRippleParam.Router, registerRippleParam.Name, registerRippleParam.BlocksToWait,
+		CCMCAddress, sink.Bytes(), user)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Native.Scm.RegisterSideChainExt error: %v", err)
+		return false
+	}
+	ctx.LogInfo("RegisterRipple txHash is: %v", txHash.ToHexString())
+	waitForBlock(ctx)
+	return true
+}
+
+func UpdateRipple(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/UpdateRipple.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	updateRippleParam := new(RippleParam)
+	err = json.Unmarshal(data, updateRippleParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	user, ok := getAccountByPassword(ctx, updateRippleParam.Path)
+	if !ok {
+		return false
+	}
+	CCMCAddress, err := hex.DecodeString(updateRippleParam.CCMCAddress)
+	if err != nil {
+		ctx.LogError("hex.DecodeString error %v", err)
+		return false
+	}
+	operator, err := common.AddressFromBase58(updateRippleParam.Operator)
+	if err != nil {
+		ctx.LogError("common.AddressFromBase58 error %v", err)
+		return false
+	}
+	pks := make([][]byte, 0, len(updateRippleParam.Pks))
+	for _, v := range updateRippleParam.Pks {
+		pk, err := hex.DecodeString(v)
+		if err != nil {
+			ctx.LogError("hex.DecodeString pk error %v", err)
+			return false
+		}
+		pks = append(pks, pk)
+	}
+	rippleExtraInfo := &side_chain_manager.RippleExtraInfo{
+		Operator:      operator,
+		Sequence:      updateRippleParam.Sequence,
+		Quorum:        updateRippleParam.Quorum,
+		SignerNum:     updateRippleParam.SignerNum,
+		Pks:           pks,
+		ReserveAmount: new(big.Int).SetUint64(updateRippleParam.ReserveAmount),
+	}
+	sink := common.NewZeroCopySink(nil)
+	rippleExtraInfo.Serialization(sink)
+	txHash, err := ctx.Ont.Native.Scm.UpdateSideChainExt(user.Address, updateRippleParam.Chainid,
+		updateRippleParam.Router, updateRippleParam.Name, updateRippleParam.BlocksToWait,
+		CCMCAddress, sink.Bytes(), user)
+	if err != nil {
+		ctx.LogError("ctx.Ont.Native.Scm.RegisterSideChainExt error: %v", err)
+		return false
+	}
+	ctx.LogInfo("UpdateRipple txHash is: %v", txHash.ToHexString())
+	waitForBlock(ctx)
+	return true
+}
+
 func UpdateSideChain(ctx *testframework.TestFrameworkContext) bool {
 	data, err := ioutil.ReadFile("./side_chain_params/UpdateSideChain.json")
 	if err != nil {
@@ -285,10 +418,11 @@ func UpdateSideChain(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
-type RegisterAssetMapParam struct {
-	Path      string
-	AssetName string
-	AssetMap  []*AssetInfo
+type RegisterAssetParam struct {
+	Path        string
+	ChainId     uint64
+	AssetMap    []*AssetInfo
+	LockProxMap []*LockProxyInfo
 }
 
 type AssetInfo struct {
@@ -296,26 +430,31 @@ type AssetInfo struct {
 	AssetAddress string
 }
 
-func RegisterAssetMap(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./side_chain_params/RegisterAssetMap.json")
+type LockProxyInfo struct {
+	ChainId          uint64
+	LockProxyAddress string
+}
+
+func RegisterAsset(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/RegisterAsset.json")
 	if err != nil {
 		ctx.LogError("ioutil.ReadFile failed %v", err)
 		return false
 	}
-	registerAssetMapParam := new(RegisterAssetMapParam)
-	err = json.Unmarshal(data, registerAssetMapParam)
+	registerAssetParam := new(RegisterAssetParam)
+	err = json.Unmarshal(data, registerAssetParam)
 	if err != nil {
 		ctx.LogError("json.Unmarshal failed %v", err)
 		return false
 	}
 
-	user, ok := getAccountByPassword(ctx, registerAssetMapParam.Path)
+	user, ok := getAccountByPassword(ctx, registerAssetParam.Path)
 	if !ok {
 		return false
 	}
 
 	assetMap := make(map[uint64][]byte)
-	for _, v := range registerAssetMapParam.AssetMap {
+	for _, v := range registerAssetParam.AssetMap {
 		assetAddress, err := hex.DecodeString(v.AssetAddress)
 		if err != nil {
 			ctx.LogError("hex.DecodeString asset address failed %v", err)
@@ -323,65 +462,21 @@ func RegisterAssetMap(ctx *testframework.TestFrameworkContext) bool {
 		}
 		assetMap[v.ChainId] = assetAddress
 	}
-	txHash, err := ctx.Ont.Native.Scm.RegisterAssetMap(assetMap, registerAssetMapParam.AssetName, user)
-	if err != nil {
-		ctx.LogError("ctx.Ont.Native.Scm.RegisterAssetMap error: %v", err)
-		return false
-	}
-	ctx.LogInfo("RegisterAssetMap txHash is: %v", txHash.ToHexString())
-	waitForBlock(ctx)
-	return true
-}
-
-type RegisterRippleExtraInfoParam struct {
-	Path         string
-	ChainId      uint64
-	AssetAddress string
-	Sequence     uint64
-	Quorum       uint64
-	SignerNum    uint64
-	Pks          []string
-}
-
-func RegisterRippleExtraInfo(ctx *testframework.TestFrameworkContext) bool {
-	data, err := ioutil.ReadFile("./side_chain_params/RegisterRippleExtraInfo.json")
-	if err != nil {
-		ctx.LogError("ioutil.ReadFile failed %v", err)
-		return false
-	}
-	registerRippleExtraInfoParam := new(RegisterRippleExtraInfoParam)
-	err = json.Unmarshal(data, registerRippleExtraInfoParam)
-	if err != nil {
-		ctx.LogError("json.Unmarshal failed %v", err)
-		return false
-	}
-
-	user, ok := getAccountByPassword(ctx, registerRippleExtraInfoParam.Path)
-	if !ok {
-		return false
-	}
-	assetAddress, err := hex.DecodeString(registerRippleExtraInfoParam.AssetAddress)
-	if err != nil {
-		ctx.LogError("hex.DecodeString asset address failed %v", err)
-		return false
-	}
-
-	pks := make([][]byte, 0)
-	for _, v := range registerRippleExtraInfoParam.Pks {
-		temp, err := hex.DecodeString(v)
+	lockProxyMap := make(map[uint64][]byte)
+	for _, v := range registerAssetParam.LockProxMap {
+		lockProxyAddress, err := hex.DecodeString(v.LockProxyAddress)
 		if err != nil {
-			ctx.LogError("hex.DecodeString public key failed %v", err)
+			ctx.LogError("hex.DecodeString lock proxy address failed %v", err)
 			return false
 		}
-		pks = append(pks, temp)
+		lockProxyMap[v.ChainId] = lockProxyAddress
 	}
-	txHash, err := ctx.Ont.Native.Scm.RegisterRippleExtraInfo(registerRippleExtraInfoParam.ChainId, assetAddress,
-		registerRippleExtraInfoParam.Quorum, registerRippleExtraInfoParam.Sequence, registerRippleExtraInfoParam.SignerNum, pks, user)
+	txHash, err := ctx.Ont.Native.Scm.RegisterAsset(lockProxyMap, assetMap, registerAssetParam.ChainId, user)
 	if err != nil {
-		ctx.LogError("ctx.Ont.Native.Scm.RegisterRippleExtraInfo error: %v", err)
+		ctx.LogError("ctx.Ont.Native.Scm.RegisterAsset error: %v", err)
 		return false
 	}
-	ctx.LogInfo("RegisterRippleExtraInfo txHash is: %v", txHash.ToHexString())
+	ctx.LogInfo("RegisterAsset txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
 	return true
 }
