@@ -1,7 +1,10 @@
 {
   "Path": "poly.dev1.dat",
-  "AssetName": "XRP",
+  "ChainId": 101,
   "AssetMap": [
     {"ChainId": 101, "AssetAddress": "1911020795da799386af26f1cacc0ef6582b7d2c"}
+  ],
+  "LockProxyMap": [
+    {"ChainId": 101, "LockProxyAddress": "1911020795da799386af26f1cacc0ef6582b7d2c"}
   ]
 }

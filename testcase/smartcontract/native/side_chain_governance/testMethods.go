@@ -419,10 +419,10 @@ func UpdateSideChain(ctx *testframework.TestFrameworkContext) bool {
 }
 
 type RegisterAssetParam struct {
-	Path        string
-	ChainId     uint64
-	AssetMap    []*AssetInfo
-	LockProxMap []*LockProxyInfo
+	Path         string
+	ChainId      uint64
+	AssetMap     []*AssetInfo
+	LockProxyMap []*LockProxyInfo
 }
 
 type AssetInfo struct {
@@ -463,7 +463,7 @@ func RegisterAsset(ctx *testframework.TestFrameworkContext) bool {
 		assetMap[v.ChainId] = assetAddress
 	}
 	lockProxyMap := make(map[uint64][]byte)
-	for _, v := range registerAssetParam.LockProxMap {
+	for _, v := range registerAssetParam.LockProxyMap {
 		lockProxyAddress, err := hex.DecodeString(v.LockProxyAddress)
 		if err != nil {
 			ctx.LogError("hex.DecodeString lock proxy address failed %v", err)

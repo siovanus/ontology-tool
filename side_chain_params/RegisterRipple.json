@@ -3,6 +3,7 @@
   "Chainid": 101,
   "Router": 0,
   "Name":"ripple",
+  "BlocksToWait": 1,
   "Operator": "AaodCegA3EWhwd5hRdcKASGnJCPd3RJ3A5",
   "Sequence": 25336394,
   "Quorum": 3,
