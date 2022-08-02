@@ -1,10 +1,14 @@
 {
-  "Path": "poly.dev1.dat",
-  "ChainId": 101,
+  "Path": "wallet1.dat",
+  "ChainId": 223,
   "AssetMap": [
-    {"ChainId": 101, "AssetAddress": "1911020795da799386af26f1cacc0ef6582b7d2c"}
+    {"ChainId": 223, "AssetAddress": "51fa7b7c1e0c79b54de202e6a24fef61bf54f442"},
+    {"ChainId": 79, "AssetAddress": "0cDD8c7461b9028A5D55970E9432786c74f4c25F"},
+    {"ChainId": 202, "AssetAddress": "f4AE60D912D031203AbF873d6B3A0E5Dc8e97573"}
   ],
   "LockProxyMap": [
-    {"ChainId": 101, "LockProxyAddress": "1911020795da799386af26f1cacc0ef6582b7d2c"}
+    {"ChainId": 223, "LockProxyAddress": "51fa7b7c1e0c79b54de202e6a24fef61bf54f442"},
+    {"ChainId": 79, "LockProxyAddress": "1166e83FF7bB10BD75B480432cDfC7FF724e281e"},
+    {"ChainId": 202, "AssetAddress": "c6DA7D3888A321B5A54AF8614f20505D771Cd979"}
   ]
 }

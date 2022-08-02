@@ -222,6 +222,7 @@ type SideChainParam struct {
 	Name         string
 	BlocksToWait uint64
 	CCMCAddress  string
+	Extra string
 }
 
 func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
@@ -246,9 +247,9 @@ func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
 		ctx.LogError("hex.DecodeString error %v", err)
 		return false
 	}
-	txHash, err := ctx.Ont.Native.Scm.RegisterSideChain(user.Address, sideChainParam.Chainid,
+	txHash, err := ctx.Ont.Native.Scm.RegisterSideChainExt(user.Address, sideChainParam.Chainid,
 		sideChainParam.Router, sideChainParam.Name, sideChainParam.BlocksToWait,
-		CCMCAddress, user)
+		CCMCAddress, []byte(sideChainParam.Extra), user)
 	if err != nil {
 		ctx.LogError("ctx.Ont.Native.Scm.RegisterSideChain error: %v", err)
 		return false
@@ -406,9 +407,14 @@ func UpdateSideChain(ctx *testframework.TestFrameworkContext) bool {
 	if !ok {
 		return false
 	}
-	CCMCAddress := []byte(sideChainParam.CCMCAddress)
-	txHash, err := ctx.Ont.Native.Scm.UpdateSideChain(user.Address, sideChainParam.Chainid,
-		sideChainParam.Router, sideChainParam.Name, sideChainParam.BlocksToWait, CCMCAddress, user)
+	CCMCAddress, err := hex.DecodeString(sideChainParam.CCMCAddress)
+	if err != nil {
+		ctx.LogError("hex.DecodeString error %v", err)
+		return false
+	}
+	txHash, err := ctx.Ont.Native.Scm.UpdateSideChainExt(user.Address, sideChainParam.Chainid,
+		sideChainParam.Router, sideChainParam.Name, sideChainParam.BlocksToWait, CCMCAddress,
+		[]byte(sideChainParam.Extra), user)
 	if err != nil {
 		ctx.LogError("ctx.Ont.Native.Scm.UpdateSideChain error: %v", err)
 		return false

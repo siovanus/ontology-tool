@@ -6,7 +6,7 @@ require (
 	github.com/alecthomas/log4go v0.0.0-20180109082532-d146e6b86faa
 	github.com/ethereum/go-ethereum v1.9.25
 	github.com/ontio/ontology-go-sdk v1.11.4
-	github.com/polynetwork/poly v1.8.4-0.20220310043944-b07dfc3df5f8
+	github.com/polynetwork/poly v1.9.1-0.20220424092935-f54fa45801fe
 	github.com/polynetwork/poly-go-sdk v0.0.0-20220126075452-e5c053a49c0a
 )
 

@@ -1,8 +1,9 @@
 {
-  "Path": "wallet1.dat",
-  "Chainid": 318,
-  "Router": 18,
-  "Name":"starcoin",
-  "BlocksToWait": 36,
-  "CCMCAddress": "0x416b32009fe49fcab1d5f2ba0153838f::CrossChainManager::CrossChainEvent"
+  "Path": "poly.dev1.dat",
+  "Chainid": 79,
+  "Router": 6,
+  "Name":"bsc",
+  "BlocksToWait": 1,
+  "CCMCAddress": "f8B390c2473e2FCE3Ca3655dba1e64Eea00F4460",
+  "Extra": "{\"ChainID\":97}"
 }

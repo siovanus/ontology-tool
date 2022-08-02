@@ -1,7 +1,7 @@
 {
   "Path": "poly.dev1.dat",
   "Chainid": 101,
-  "Router": 0,
+  "Router": 23,
   "Name":"ripple",
   "BlocksToWait": 1,
   "Operator": "AaodCegA3EWhwd5hRdcKASGnJCPd3RJ3A5",

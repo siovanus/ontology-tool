@@ -1064,9 +1064,12 @@ github.com/polynetwork/cosmos-poly-module v0.0.0-20200810030259-95d586518759/go.
 github.com/polynetwork/eth-contracts v0.0.0-20200814062128-70f58e22b014/go.mod h1:TeePrYZfWJAwuksPlie7RPequ51Ujp5l/JY6TcutsFc=
 github.com/polynetwork/poly v0.0.0-20200710095239-0596a3d7afe5/go.mod h1:UzlGEWk0eCGsuMJOZfBoZjRbmu4Yw/SudKAIFe1gPnY=
 github.com/polynetwork/poly v0.0.0-20200715030435-4f1d1a0adb44/go.mod h1:UzlGEWk0eCGsuMJOZfBoZjRbmu4Yw/SudKAIFe1gPnY=
+github.com/polynetwork/poly v1.9.1-0.20220424092935-f54fa45801fe h1:GxB1wJFwQP4wXy7K+BAU1qdyJizEshQbDhHDIz6ljng=
+github.com/polynetwork/poly v1.9.1-0.20220424092935-f54fa45801fe/go.mod h1:wq2hnh/fDL/k27rE3d2SFKBswGmND6IyPKevQJYT1hU=
 github.com/polynetwork/poly-go-sdk v0.0.0-20200722030827-6875b6018b93/go.mod h1:a1wMo/VFoUAKX2yVjipvFug6Yu5BPhf/2tP5xywqfIc=
 github.com/polynetwork/poly-go-sdk v0.0.0-20200730112529-d9c0c7ddf3d8/go.mod h1:a1wMo/VFoUAKX2yVjipvFug6Yu5BPhf/2tP5xywqfIc=
 github.com/polynetwork/poly-io-test v0.0.0-20200819093740-8cf514b07750/go.mod h1:Y/xz9uHdO0HPz0p+x0bZxNuo1ufVcln3dDjmchSUgso=
+github.com/polynetwork/ripple-sdk v0.0.0-20220424031403-3947f2e7636c/go.mod h1:M5k8xCDpbtYH+Xlac61sMBYhyo770ZeUc0vrJnIQn/g=
 github.com/posener/complete v1.1.1/go.mod h1:em0nMJCgc9GFtwrmVmEMR/ZL6WyhyjMBndrE9hABlRI=
 github.com/prometheus/client_golang v0.8.0/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=
 github.com/prometheus/client_golang v0.9.1/go.mod h1:7SWBe2y4D6OKWSNQJUaRYU/AaXPKyh/dDVn+NZz0KFw=

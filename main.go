@@ -56,7 +56,7 @@ func main() {
 	}
 
 	ontSdk := sdk.NewPolySdk()
-	ontSdk.SetChainId(391549339)
+	ontSdk.SetChainId(9223372036854775807)
 	ontSdk.NewRpcClient().SetAddress(common.DefConfig.JsonRpcAddress)
 	testCases := make([]string, 0)
 	if TestCases != "" {
