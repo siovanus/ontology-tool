@@ -27,7 +27,6 @@ import (
 	"math/big"
 	"time"
 
-	osdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/testframework"
 	sdk "github.com/polynetwork/poly-go-sdk"
 	"github.com/polynetwork/poly/common"
@@ -137,7 +136,7 @@ func SyncGenesisHeader(ctx *testframework.TestFrameworkContext) bool {
 
 	var genesisBlockHeader []byte
 	if syncGenesisHeaderParam.ChainID == 3 {
-		sideSdk := osdk.NewOntologySdk()
+		sideSdk := sdk.NewPolySdk()
 		sideSdk.NewRpcClient().SetAddress(syncGenesisHeaderParam.ChainRpc)
 		genesisBlock, err := sideSdk.GetBlockByHeight(0)
 		if err != nil {
