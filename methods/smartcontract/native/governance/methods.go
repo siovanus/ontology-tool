@@ -23,22 +23,21 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
-	"math"
-	"time"
-
-	log4 "github.com/alecthomas/log4go"
 	"github.com/ontio/ontology-crypto/keypair"
 	s "github.com/ontio/ontology-crypto/signature"
 	"github.com/ontio/ontology-crypto/vrf"
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/common"
+	"github.com/ontio/ontology-tool/log"
 	ocommon "github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/password"
 	"github.com/ontio/ontology/consensus/vbft/config"
 	"github.com/ontio/ontology/core/types"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
+	"io/ioutil"
+	"math"
+	"time"
 )
 
 type Account struct {
@@ -48,13 +47,13 @@ type Account struct {
 func InvokeNeoVM(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/InvokeNeoVM.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	account := new(Account)
 	err = json.Unmarshal(data, account)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
@@ -62,6 +61,8 @@ func InvokeNeoVM(ontSdk *sdk.OntologySdk) bool {
 	if !ok {
 		return false
 	}
+	log.Errorf("%s", user.Address.ToBase58())
+	log.Errorf("%s", user.Address.ToHexString())
 	ok = test(ontSdk, user)
 	if !ok {
 		return false
@@ -73,13 +74,13 @@ func InvokeNeoVM(ontSdk *sdk.OntologySdk) bool {
 func RegIdWithPublicKey(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/RegIdWithPublicKey.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	account := new(Account)
 	err = json.Unmarshal(data, account)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
@@ -98,13 +99,13 @@ func RegIdWithPublicKey(ontSdk *sdk.OntologySdk) bool {
 func AssignFuncsToRole(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/AssignFuncsToRole.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	account := new(Account)
 	err = json.Unmarshal(data, account)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
@@ -130,13 +131,13 @@ type AssignFuncsToRoleAnyParam struct {
 func AssignFuncsToRoleAny(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/AssignFuncsToRoleAny.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	assignFuncsToRoleAnyParam := new(AssignFuncsToRoleAnyParam)
 	err = json.Unmarshal(data, assignFuncsToRoleAnyParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
@@ -146,7 +147,7 @@ func AssignFuncsToRoleAny(ontSdk *sdk.OntologySdk) bool {
 	}
 	contractAddress, err := common.GetAddressByHexString(assignFuncsToRoleAnyParam.ContractAddress)
 	if err != nil {
-		log4.Error("getAddressByHexString failed ", err)
+		log.Error("getAddressByHexString failed ", err)
 		return false
 	}
 	ok = assignFuncsToRole(ontSdk, user, contractAddress, assignFuncsToRoleAnyParam.Role, assignFuncsToRoleAnyParam.Function)
@@ -165,13 +166,13 @@ type AssignOntIDsToRoleParam struct {
 func AssignOntIDsToRole(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/AssignOntIDsToRole.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	assignOntIDsToRoleParam := new(AssignOntIDsToRoleParam)
 	err = json.Unmarshal(data, assignOntIDsToRoleParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
@@ -197,13 +198,13 @@ type AssignOntIDsToRoleAnyParam struct {
 func AssignOntIDsToRoleAny(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/AssignOntIDsToRoleAny.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	assignOntIDsToRoleAnyParam := new(AssignOntIDsToRoleAnyParam)
 	err = json.Unmarshal(data, assignOntIDsToRoleAnyParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
@@ -213,7 +214,7 @@ func AssignOntIDsToRoleAny(ontSdk *sdk.OntologySdk) bool {
 	}
 	contractAddress, err := common.GetAddressByHexString(assignOntIDsToRoleAnyParam.ContractAddress)
 	if err != nil {
-		log4.Error("getAddressByHexString failed ", err)
+		log.Error("getAddressByHexString failed ", err)
 		return false
 	}
 	ok = assignOntIDsToRole(ontSdk, user1, contractAddress, assignOntIDsToRoleAnyParam.Role, assignOntIDsToRoleAnyParam.Ontid)
@@ -236,13 +237,13 @@ type RegisterCandidateParam struct {
 func RegisterCandidate(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/RegisterCandidate.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	registerCandidateParam := new(RegisterCandidateParam)
 	err = json.Unmarshal(data, registerCandidateParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
@@ -276,13 +277,13 @@ func RegisterCandidate2Sign(ontSdk *sdk.OntologySdk) bool {
 
 	data, err := ioutil.ReadFile("./params/RegisterCandidate2Sign.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	registerCandidate2SignParam := new(RegisterCandidate2SignParam)
 	err = json.Unmarshal(data, registerCandidate2SignParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 
@@ -301,7 +302,7 @@ func RegisterCandidate2Sign(ontSdk *sdk.OntologySdk) bool {
 	time.Sleep(1 * time.Second)
 	pwd, err := password.GetPassword()
 	if err != nil {
-		log4.Error("getPassword error:%s", err)
+		log.Error("getPassword error:%s", err)
 		return false
 	}
 	pri, err := keypair.DecryptWithCustomScrypt(&res, pwd, &keypair.ScryptParam{
@@ -312,7 +313,7 @@ func RegisterCandidate2Sign(ontSdk *sdk.OntologySdk) bool {
 	})
 	//pri, err := keypair.DecryptPrivateKey(&res, pwd)
 	if err != nil {
-		log4.Error("error: ", err)
+		log.Error("error: ", err)
 		return false
 	}
 	address, _ := ocommon.AddressFromBase58(registerCandidate2SignParam.Address)
@@ -341,13 +342,13 @@ type UnRegisterCandidateParam struct {
 func UnRegisterCandidate(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/UnRegisterCandidate.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	unRegisterCandidateParam := new(UnRegisterCandidateParam)
 	err = json.Unmarshal(data, unRegisterCandidateParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	user, ok := common.GetAccountByPassword(ontSdk, unRegisterCandidateParam.Path)
@@ -370,13 +371,13 @@ type ApproveCandidateParam struct {
 func ApproveCandidate(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/ApproveCandidate.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	approveCandidateParam := new(ApproveCandidateParam)
 	err = json.Unmarshal(data, approveCandidateParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -408,13 +409,13 @@ type RejectCandidateParam struct {
 func RejectCandidate(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/RejectCandidate.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	rejectCandidateParam := new(RejectCandidateParam)
 	err = json.Unmarshal(data, rejectCandidateParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -445,13 +446,13 @@ type ChangeMaxAuthorizationParam struct {
 func ChangeMaxAuthorization(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/ChangeMaxAuthorization.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	changeMaxAuthorizationParam := new(ChangeMaxAuthorizationParam)
 	err = json.Unmarshal(data, changeMaxAuthorizationParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
@@ -479,13 +480,13 @@ type SetFeePercentageParam struct {
 func SetFeePercentage(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/SetPeerCost.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	setFeePercentageParam := new(SetFeePercentageParam)
 	err = json.Unmarshal(data, setFeePercentageParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
@@ -512,13 +513,13 @@ type AddInitPosParam struct {
 func AddInitPos(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/AddInitPos.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	addInitPosParam := new(AddInitPosParam)
 	err = json.Unmarshal(data, addInitPosParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
@@ -543,13 +544,13 @@ type ReduceInitPosParam struct {
 func ReduceInitPos(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/ReduceInitPos.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	reduceInitPosParam := new(ReduceInitPosParam)
 	err = json.Unmarshal(data, reduceInitPosParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
@@ -574,13 +575,13 @@ type AuthorizeForPeerParam struct {
 func AuthorizeForPeer(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/AuthorizeForPeer.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	authorizeForPeerParam := new(AuthorizeForPeerParam)
 	err = json.Unmarshal(data, authorizeForPeerParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	user, ok := common.GetAccountByPassword(ontSdk, authorizeForPeerParam.Path)
@@ -598,13 +599,13 @@ func AuthorizeForPeer(ontSdk *sdk.OntologySdk) bool {
 func UnAuthorizeForPeer(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/UnAuthorizeForPeer.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	authorizeForPeerParam := new(AuthorizeForPeerParam)
 	err = json.Unmarshal(data, authorizeForPeerParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	user, ok := common.GetAccountByPassword(ontSdk, authorizeForPeerParam.Path)
@@ -628,13 +629,13 @@ type WithdrawParam struct {
 func Withdraw(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/Withdraw.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	withdrawParam := new(WithdrawParam)
 	err = json.Unmarshal(data, withdrawParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	user, ok := common.GetAccountByPassword(ontSdk, withdrawParam.Path)
@@ -657,13 +658,13 @@ type QuitNodeParam struct {
 func QuitNode(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/QuitNode.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	quitNodeParam := new(QuitNodeParam)
 	err = json.Unmarshal(data, quitNodeParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	time.Sleep(1 * time.Second)
@@ -689,13 +690,13 @@ type BlackNodeParam struct {
 func BlackNode(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/BlackNode.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	blackNodeParam := new(BlackNodeParam)
 	err = json.Unmarshal(data, blackNodeParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -725,13 +726,13 @@ type WhiteNodeParam struct {
 func WhiteNode(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/WhiteNode.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	whiteNodeParam := new(WhiteNodeParam)
 	err = json.Unmarshal(data, whiteNodeParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -760,13 +761,13 @@ type MultiAccount struct {
 func CommitDpos(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/CommitDpos.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	multiAccount := new(MultiAccount)
 	err = json.Unmarshal(data, multiAccount)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -803,13 +804,13 @@ type UpdateConfigParam struct {
 func UpdateConfig(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/UpdateConfig.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	updateConfigParam := new(UpdateConfigParam)
 	err = json.Unmarshal(data, updateConfigParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -856,13 +857,13 @@ type UpdateGlobalParamParam struct {
 func UpdateGlobalParam(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/UpdateGlobalParam.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	updateGlobalParamParam := new(UpdateGlobalParamParam)
 	err = json.Unmarshal(data, updateGlobalParamParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -903,13 +904,13 @@ type UpdateGlobalParamParam2 struct {
 func UpdateGlobalParam2(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/UpdateGlobalParam2.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	updateGlobalParamParam2 := new(UpdateGlobalParamParam2)
 	err = json.Unmarshal(data, updateGlobalParamParam2)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -943,13 +944,13 @@ type UpdateSplitCurveParam struct {
 func UpdateSplitCurve(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/UpdateSplitCurve.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	updateSplitCurveParam := new(UpdateSplitCurveParam)
 	err = json.Unmarshal(data, updateSplitCurveParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -983,13 +984,13 @@ type SetPromisePosParam struct {
 func SetPromisePos(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/SetPromisePos.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	setPromisePosParam := new(SetPromisePosParam)
 	err = json.Unmarshal(data, setPromisePosParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -1026,13 +1027,13 @@ type TransferPenaltyParam struct {
 func TransferPenalty(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferPenalty.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	transferPenaltyParam := new(TransferPenaltyParam)
 	err = json.Unmarshal(data, transferPenaltyParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -1061,7 +1062,7 @@ func TransferPenalty(ontSdk *sdk.OntologySdk) bool {
 func GetVbftConfig(ontSdk *sdk.OntologySdk) bool {
 	config, err := getVbftConfig(ontSdk)
 	if err != nil {
-		log4.Error("getVbftConfig failed ", err)
+		log.Error("getVbftConfig failed ", err)
 		return false
 	}
 	fmt.Println("config.N is:", config.N)
@@ -1078,7 +1079,7 @@ func GetVbftConfig(ontSdk *sdk.OntologySdk) bool {
 func GetPreConfig(ontSdk *sdk.OntologySdk) bool {
 	config, err := getPreConfig(ontSdk)
 	if err != nil {
-		log4.Error("getVbftConfig failed ", err)
+		log.Error("getVbftConfig failed ", err)
 		return false
 	}
 	fmt.Println("config.N is:", config.N)
@@ -1095,7 +1096,7 @@ func GetPreConfig(ontSdk *sdk.OntologySdk) bool {
 func GetGlobalParam(ontSdk *sdk.OntologySdk) bool {
 	globalParam, err := getGlobalParam(ontSdk)
 	if err != nil {
-		log4.Error("getGlobalParam failed ", err)
+		log.Error("getGlobalParam failed ", err)
 		return false
 	}
 	fmt.Println("globalParam.CandidateFee is:", globalParam.CandidateFee)
@@ -1112,7 +1113,7 @@ func GetGlobalParam(ontSdk *sdk.OntologySdk) bool {
 func GetGlobalParam2(ontSdk *sdk.OntologySdk) bool {
 	globalParam2, err := getGlobalParam2(ontSdk)
 	if err != nil {
-		log4.Error("getGlobalParam failed ", err)
+		log.Error("getGlobalParam failed ", err)
 		return false
 	}
 	fmt.Println("globalParam2.MinAuthorizePos is:", globalParam2.MinAuthorizePos)
@@ -1123,7 +1124,7 @@ func GetGlobalParam2(ontSdk *sdk.OntologySdk) bool {
 func GetSplitCurve(ontSdk *sdk.OntologySdk) bool {
 	splitCurve, err := getSplitCurve(ontSdk)
 	if err != nil {
-		log4.Error("getSplitCurve failed ", err)
+		log.Error("getSplitCurve failed ", err)
 		return false
 	}
 	fmt.Println("splitCurve.Yi is", splitCurve.Yi)
@@ -1133,7 +1134,7 @@ func GetSplitCurve(ontSdk *sdk.OntologySdk) bool {
 func GetGovernanceView(ontSdk *sdk.OntologySdk) bool {
 	governanceView, err := getGovernanceView(ontSdk)
 	if err != nil {
-		log4.Error("getGovernanceView failed ", err)
+		log.Error("getGovernanceView failed ", err)
 		return false
 	}
 	fmt.Println("governanceView.View is:", governanceView.View)
@@ -1149,19 +1150,19 @@ type GetPeerPoolItemParam struct {
 func GetPeerPoolItem(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/GetPeerPoolItem.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	getPeerPoolItemParam := new(GetPeerPoolItemParam)
 	err = json.Unmarshal(data, getPeerPoolItemParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 
 	peerPoolMap, err := getPeerPoolMap(ontSdk)
 	if err != nil {
-		log4.Error("getPeerPoolMap failed ", err)
+		log.Error("getPeerPoolMap failed ", err)
 		return false
 	}
 
@@ -1181,7 +1182,7 @@ func GetPeerPoolItem(ontSdk *sdk.OntologySdk) bool {
 func GetPeerPoolMap(ontSdk *sdk.OntologySdk) bool {
 	peerPoolMap, err := getPeerPoolMap(ontSdk)
 	if err != nil {
-		log4.Error("getPeerPoolMap failed ", err)
+		log.Error("getPeerPoolMap failed ", err)
 		return false
 	}
 
@@ -1205,24 +1206,24 @@ type GetAuthorizeInfoParam struct {
 func GetAuthorizeInfo(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/GetAuthorizeInfo.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	getAuthorizeInfoParam := new(GetAuthorizeInfoParam)
 	err = json.Unmarshal(data, getAuthorizeInfoParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 
 	address, err := ocommon.AddressFromBase58(getAuthorizeInfoParam.Address)
 	if err != nil {
-		log4.Error("common.AddressFromBase58 failed ", err)
+		log.Error("common.AddressFromBase58 failed ", err)
 		return false
 	}
 	authorizeInfo, err := getAuthorizeInfo(ontSdk, getAuthorizeInfoParam.PeerPubkey, address)
 	if err != nil {
-		log4.Error("getAuthorizeInfo failed ", err)
+		log.Error("getAuthorizeInfo failed ", err)
 		return false
 	}
 
@@ -1244,24 +1245,24 @@ type GetTotalStakeParam struct {
 func GetTotalStake(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/GetTotalStake.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	getTotalStakeParam := new(GetTotalStakeParam)
 	err = json.Unmarshal(data, getTotalStakeParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	address, err := ocommon.AddressFromBase58(getTotalStakeParam.Address)
 	if err != nil {
-		log4.Error("common.AddressFromBase58 failed ", err)
+		log.Error("common.AddressFromBase58 failed ", err)
 		return false
 	}
 
 	totalStake, err := getTotalStake(ontSdk, address)
 	if err != nil {
-		log4.Error("getTotalStake failed ", err)
+		log.Error("getTotalStake failed ", err)
 		return false
 	}
 
@@ -1278,19 +1279,19 @@ type GetPenaltyStakeParam struct {
 func GetPenaltyStake(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/GetPenaltyStake.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	getPenaltyStakeParam := new(GetPenaltyStakeParam)
 	err = json.Unmarshal(data, getPenaltyStakeParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 
 	penaltyStake, err := getPenaltyStake(ontSdk, getPenaltyStakeParam.PeerPubkey)
 	if err != nil {
-		log4.Error("getPenaltyStake failed ", err)
+		log.Error("getPenaltyStake failed ", err)
 		return false
 	}
 
@@ -1309,19 +1310,19 @@ type InBlackListParam struct {
 func InBlackList(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/InBlackList.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	inBlackListParam := new(InBlackListParam)
 	err = json.Unmarshal(data, inBlackListParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 
 	inBlackList, err := inBlackList(ontSdk, inBlackListParam.PeerPubkey)
 	if err != nil {
-		log4.Error("getPenaltyStake failed ", err)
+		log.Error("getPenaltyStake failed ", err)
 		return false
 	}
 
@@ -1337,13 +1338,13 @@ type WithdrawOngParam struct {
 func WithdrawOng(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/WithdrawOng.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	withdrawOngParam := new(WithdrawOngParam)
 	err = json.Unmarshal(data, withdrawOngParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	user, ok := common.GetAccountByPassword(ontSdk, withdrawOngParam.Path)
@@ -1370,13 +1371,13 @@ type vrfData struct {
 func Vrf(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/Vrf.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	vrfParam := new(VrfParam)
 	err = json.Unmarshal(data, vrfParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	user, ok := common.GetAccountByPassword(ontSdk, vrfParam.Path)
@@ -1389,23 +1390,23 @@ func Vrf(ontSdk *sdk.OntologySdk) bool {
 		PrevVrf:  keypair.SerializePublicKey(user.PublicKey),
 	})
 	if err != nil {
-		log4.Error("json.Unmarshal vrf payload failed ", err)
+		log.Error("json.Unmarshal vrf payload failed ", err)
 		return false
 	}
 
 	value, proof, err := vrf.Vrf(user.PrivateKey, data)
 	if err != nil {
-		log4.Error("vrf computation failed ", err)
+		log.Error("vrf computation failed ", err)
 		return false
 	}
 
 	if ok, err := vrf.Verify(user.PublicKey, data, value, proof); err != nil || !ok {
-		log4.Error("vrf verify failed: ", err)
+		log.Error("vrf verify failed: ", err)
 		return false
 	}
 
-	log4.Info("vrf value: %s", hex.EncodeToString(value))
-	log4.Info("vrf proof: %s", hex.EncodeToString(proof))
+	log.Info("vrf value: %s", hex.EncodeToString(value))
+	log.Info("vrf proof: %s", hex.EncodeToString(proof))
 
 	return true
 }
@@ -1419,13 +1420,13 @@ type TransferMultiSignParam struct {
 func TransferOntMultiSign(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferOntMultiSign.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	transferMultiSignParam := new(TransferMultiSignParam)
 	err = json.Unmarshal(data, transferMultiSignParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -1457,13 +1458,13 @@ func TransferOntMultiSign(ontSdk *sdk.OntologySdk) bool {
 func TransferOngMultiSign(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferOngMultiSign.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	transferMultiSignParam := new(TransferMultiSignParam)
 	err = json.Unmarshal(data, transferMultiSignParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -1501,13 +1502,13 @@ type TransferFromMultiSignParam struct {
 func TransferFromOngMultiSign(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferFromOngMultiSign.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	transferFromMultiSignParam := new(TransferFromMultiSignParam)
 	err = json.Unmarshal(data, transferFromMultiSignParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -1543,13 +1544,13 @@ type GetAddressMultiSignParam struct {
 func GetAddressMultiSign(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/GetAddressMultiSign.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	getAddressMultiSignParam := new(GetAddressMultiSignParam)
 	err = json.Unmarshal(data, getAddressMultiSignParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var pubKeys []keypair.PublicKey
@@ -1557,17 +1558,17 @@ func GetAddressMultiSign(ontSdk *sdk.OntologySdk) bool {
 	for _, v := range getAddressMultiSignParam.PubKeys {
 		vByte, err := hex.DecodeString(v)
 		if err != nil {
-			log4.Error("hex.DecodeString failed ", err)
+			log.Error("hex.DecodeString failed ", err)
 		}
 		k, err := keypair.DeserializePublicKey(vByte)
 		if err != nil {
-			log4.Error("keypair.DeserializePublicKey failed ", err)
+			log.Error("keypair.DeserializePublicKey failed ", err)
 		}
 		pubKeys = append(pubKeys, k)
 	}
 	from, err := types.AddressFromMultiPubKeys(pubKeys, int((5*len(pubKeys)+6)/7))
 	if err != nil {
-		log4.Error("types.AddressFromMultiPubKeys error", err)
+		log.Error("types.AddressFromMultiPubKeys error", err)
 	}
 	fmt.Println("address is:", from.ToBase58())
 	return true
@@ -1582,13 +1583,13 @@ type TransferMultiSignToMultiSignParam struct {
 func TransferOntMultiSignToMultiSign(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferOntMultiSignToMultiSign.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	transferMultiSignToMultiSignParam := new(TransferMultiSignToMultiSignParam)
 	err = json.Unmarshal(data, transferMultiSignToMultiSignParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -1606,17 +1607,17 @@ func TransferOntMultiSignToMultiSign(ontSdk *sdk.OntologySdk) bool {
 	for _, v := range transferMultiSignToMultiSignParam.PubKeys {
 		vByte, err := hex.DecodeString(v)
 		if err != nil {
-			log4.Error("hex.DecodeString failed ", err)
+			log.Error("hex.DecodeString failed ", err)
 		}
 		k, err := keypair.DeserializePublicKey(vByte)
 		if err != nil {
-			log4.Error("keypair.DeserializePublicKey failed ", err)
+			log.Error("keypair.DeserializePublicKey failed ", err)
 		}
 		pubKeysTo = append(pubKeysTo, k)
 	}
 	to, err := types.AddressFromMultiPubKeys(pubKeysTo, int((5*len(pubKeysTo)+6)/7))
 	if err != nil {
-		log4.Error("types.AddressFromMultiPubKeys error", err)
+		log.Error("types.AddressFromMultiPubKeys error", err)
 	}
 	ok := transferOntMultiSignToMultiSign(ontSdk, pubKeys, users, to, transferMultiSignToMultiSignParam.Amount)
 	if !ok {
@@ -1629,13 +1630,13 @@ func TransferOntMultiSignToMultiSign(ontSdk *sdk.OntologySdk) bool {
 func TransferOngMultiSignToMultiSign(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferOngMultiSignToMultiSign.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	transferMultiSignToMultiSignParam := new(TransferMultiSignToMultiSignParam)
 	err = json.Unmarshal(data, transferMultiSignToMultiSignParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -1653,17 +1654,17 @@ func TransferOngMultiSignToMultiSign(ontSdk *sdk.OntologySdk) bool {
 	for _, v := range transferMultiSignToMultiSignParam.PubKeys {
 		vByte, err := hex.DecodeString(v)
 		if err != nil {
-			log4.Error("hex.DecodeString failed ", err)
+			log.Error("hex.DecodeString failed ", err)
 		}
 		k, err := keypair.DeserializePublicKey(vByte)
 		if err != nil {
-			log4.Error("keypair.DeserializePublicKey failed ", err)
+			log.Error("keypair.DeserializePublicKey failed ", err)
 		}
 		pubKeysTo = append(pubKeysTo, k)
 	}
 	to, err := types.AddressFromMultiPubKeys(pubKeysTo, int((5*len(pubKeysTo)+6)/7))
 	if err != nil {
-		log4.Error("types.AddressFromMultiPubKeys error", err)
+		log.Error("types.AddressFromMultiPubKeys error", err)
 	}
 	ok := transferOngMultiSignToMultiSign(ontSdk, pubKeys, users, to, transferMultiSignToMultiSignParam.Amount)
 	if !ok {
@@ -1682,13 +1683,13 @@ type TransferFromMultiSignToMultiSignParam struct {
 func TransferFromOngMultiSignToMultiSign(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferFromOngMultiSignToMultiSign.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	transferFromMultiSignToMultiSignParam := new(TransferFromMultiSignToMultiSignParam)
 	err = json.Unmarshal(data, transferFromMultiSignToMultiSignParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -1706,17 +1707,17 @@ func TransferFromOngMultiSignToMultiSign(ontSdk *sdk.OntologySdk) bool {
 	for _, v := range transferFromMultiSignToMultiSignParam.PubKeys {
 		vByte, err := hex.DecodeString(v)
 		if err != nil {
-			log4.Error("hex.DecodeString failed ", err)
+			log.Error("hex.DecodeString failed ", err)
 		}
 		k, err := keypair.DeserializePublicKey(vByte)
 		if err != nil {
-			log4.Error("keypair.DeserializePublicKey failed ", err)
+			log.Error("keypair.DeserializePublicKey failed ", err)
 		}
 		pubKeysTo = append(pubKeysTo, k)
 	}
 	to, err := types.AddressFromMultiPubKeys(pubKeysTo, int((5*len(pubKeysTo)+6)/7))
 	if err != nil {
-		log4.Error("types.AddressFromMultiPubKeys error", err)
+		log.Error("types.AddressFromMultiPubKeys error", err)
 	}
 	ok := transferFromOngMultiSignToMultiSign(ontSdk, pubKeys, users, to, transferFromMultiSignToMultiSignParam.Amount)
 	if !ok {
@@ -1736,13 +1737,13 @@ type TransferMultiSignAddressParam struct {
 func TransferOntMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferOntMultiSignAddress.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	transferMultiSignAddressParam := new(TransferMultiSignAddressParam)
 	err = json.Unmarshal(data, transferMultiSignAddressParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -1758,18 +1759,18 @@ func TransferOntMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 	for _, v := range transferMultiSignAddressParam.PubKeys {
 		vByte, err := hex.DecodeString(v)
 		if err != nil {
-			log4.Error("hex.DecodeString failed ", err)
+			log.Error("hex.DecodeString failed ", err)
 		}
 		k, err := keypair.DeserializePublicKey(vByte)
 		if err != nil {
-			log4.Error("keypair.DeserializePublicKey failed ", err)
+			log.Error("keypair.DeserializePublicKey failed ", err)
 		}
 		pubKeys = append(pubKeys, k)
 	}
 	for index, address := range transferMultiSignAddressParam.Address {
 		addr, err := ocommon.AddressFromBase58(address)
 		if err != nil {
-			log4.Error("common.AddressFromBase58 failed ", err)
+			log.Error("common.AddressFromBase58 failed ", err)
 			return false
 		}
 		ok := transferOntMultiSign(ontSdk, pubKeys, users, addr, transferMultiSignAddressParam.Amount[index])
@@ -1784,13 +1785,13 @@ func TransferOntMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 func TransferOngMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferOngMultiSignAddress.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	transferMultiSignAddressParam := new(TransferMultiSignAddressParam)
 	err = json.Unmarshal(data, transferMultiSignAddressParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -1806,18 +1807,18 @@ func TransferOngMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 	for _, v := range transferMultiSignAddressParam.PubKeys {
 		vByte, err := hex.DecodeString(v)
 		if err != nil {
-			log4.Error("hex.DecodeString failed ", err)
+			log.Error("hex.DecodeString failed ", err)
 		}
 		k, err := keypair.DeserializePublicKey(vByte)
 		if err != nil {
-			log4.Error("keypair.DeserializePublicKey failed ", err)
+			log.Error("keypair.DeserializePublicKey failed ", err)
 		}
 		pubKeys = append(pubKeys, k)
 	}
 	for index, address := range transferMultiSignAddressParam.Address {
 		addr, err := ocommon.AddressFromBase58(address)
 		if err != nil {
-			log4.Error("common.AddressFromBase58 failed ", err)
+			log.Error("common.AddressFromBase58 failed ", err)
 			return false
 		}
 		ok := transferOngMultiSign(ontSdk, pubKeys, users, addr, transferMultiSignAddressParam.Amount[index])
@@ -1838,13 +1839,13 @@ type TransferFromMultiSignAddressParam struct {
 func TransferFromOngMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/TransferFromOngMultiSignAddress.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	transferFromMultiSignAddressParam := new(TransferFromMultiSignAddressParam)
 	err = json.Unmarshal(data, transferFromMultiSignAddressParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -1862,7 +1863,7 @@ func TransferFromOngMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 	for index, address := range transferFromMultiSignAddressParam.Address {
 		addr, err := ocommon.AddressFromBase58(address)
 		if err != nil {
-			log4.Error("common.AddressFromBase58 failed ", err)
+			log.Error("common.AddressFromBase58 failed ", err)
 			return false
 		}
 		ok := transferFromOngMultiSign(ontSdk, pubKeys, users, addr, transferFromMultiSignAddressParam.Amount[index])
@@ -1876,17 +1877,17 @@ func TransferFromOngMultiSignAddress(ontSdk *sdk.OntologySdk) bool {
 func GetVbftInfo(ontSdk *sdk.OntologySdk) bool {
 	blkNum, err := ontSdk.GetCurrentBlockHeight()
 	if err != nil {
-		log4.Error("TestGetVbftInfo GetBlockCount error:%s", err)
+		log.Error("TestGetVbftInfo GetBlockCount error:%s", err)
 		return false
 	}
 	blk, err := ontSdk.GetBlockByHeight(blkNum - 1)
 	if err != nil {
-		log4.Error("TestGetVbftInfo GetBlockByHeight error:%s", err)
+		log.Error("TestGetVbftInfo GetBlockByHeight error:%s", err)
 		return false
 	}
 	block, err := common.InitVbftBlock(blk)
 	if err != nil {
-		log4.Error("TestGetVbftInfo initVbftBlock error:%s", err)
+		log.Error("TestGetVbftInfo initVbftBlock error:%s", err)
 		return false
 	}
 
@@ -1898,17 +1899,17 @@ func GetVbftInfo(ontSdk *sdk.OntologySdk) bool {
 		if block.Info.LastConfigBlockNum != math.MaxUint32 {
 			cfgBlock, err = ontSdk.GetBlockByHeight(block.Info.LastConfigBlockNum)
 			if err != nil {
-				log4.Error("TestGetVbftInfo chainconfig GetBlockByHeight error:%s", err)
+				log.Error("TestGetVbftInfo chainconfig GetBlockByHeight error:%s", err)
 				return false
 			}
 		}
 		blk, err := common.InitVbftBlock(cfgBlock)
 		if err != nil {
-			log4.Error("TestGetVbftInfo initVbftBlock error:%s", err)
+			log.Error("TestGetVbftInfo initVbftBlock error:%s", err)
 			return false
 		}
 		if blk.Info.NewChainConfig == nil {
-			log4.Error("TestGetVbftInfo newchainconfig error:%s", err)
+			log.Error("TestGetVbftInfo newchainconfig error:%s", err)
 			return false
 		}
 		cfg = *blk.Info.NewChainConfig
@@ -1930,13 +1931,13 @@ type MultiTransferParam struct {
 func MultiTransferOnt(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/MultiTransferOnt.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	multiTransferParam := new(MultiTransferParam)
 	err = json.Unmarshal(data, multiTransferParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -1959,13 +1960,13 @@ func MultiTransferOnt(ontSdk *sdk.OntologySdk) bool {
 func MultiTransferOng(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/MultiTransferOng.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	multiTransferParam := new(MultiTransferParam)
 	err = json.Unmarshal(data, multiTransferParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	var users []*sdk.Account
@@ -1992,18 +1993,18 @@ type GetAttributesParam struct {
 func GetAttributes(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/GetAttributes.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	getAttributesParam := new(GetAttributesParam)
 	err = json.Unmarshal(data, getAttributesParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	peerAttributes, err := getAttributes(ontSdk, getAttributesParam.PeerPubkey)
 	if err != nil {
-		log4.Error("getAttributes failed ", err)
+		log.Error("getAttributes failed ", err)
 		return false
 	}
 	fmt.Println("peerAttributes.PeerPubkey is:", peerAttributes.PeerPubkey)
@@ -2025,23 +2026,23 @@ type GetSplitFeeAddressParam struct {
 func GetSplitFeeAddress(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/GetSplitFeeAddress.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	getSplitFeeAddressParam := new(GetSplitFeeAddressParam)
 	err = json.Unmarshal(data, getSplitFeeAddressParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	address, err := ocommon.AddressFromBase58(getSplitFeeAddressParam.Address)
 	if err != nil {
-		log4.Error("common.AddressFromBase58 failed ", err)
+		log.Error("common.AddressFromBase58 failed ", err)
 		return false
 	}
 	splitFeeAddress, err := getSplitFeeAddress(ontSdk, address)
 	if err != nil {
-		log4.Error("getSplitFeeAddress failed ", err)
+		log.Error("getSplitFeeAddress failed ", err)
 		return false
 	}
 	fmt.Println("splitFeeAddress.Address is:", splitFeeAddress.Address)
@@ -2053,7 +2054,7 @@ func GetSplitFeeAddress(ontSdk *sdk.OntologySdk) bool {
 func GetSplitFee(ontSdk *sdk.OntologySdk) bool {
 	splitFee, err := getSplitFee(ontSdk)
 	if err != nil {
-		log4.Error("getSplitFeeAddress failed ", err)
+		log.Error("getSplitFeeAddress failed ", err)
 		return false
 	}
 	fmt.Println("splitFee is:", splitFee)
@@ -2068,18 +2069,18 @@ type GetPromisePosParam struct {
 func GetPromisePos(ontSdk *sdk.OntologySdk) bool {
 	data, err := ioutil.ReadFile("./params/GetPromisePos.json")
 	if err != nil {
-		log4.Error("ioutil.ReadFile failed ", err)
+		log.Error("ioutil.ReadFile failed ", err)
 		return false
 	}
 	getPromisePosParam := new(GetPromisePosParam)
 	err = json.Unmarshal(data, getPromisePosParam)
 	if err != nil {
-		log4.Error("json.Unmarshal failed ", err)
+		log.Error("json.Unmarshal failed ", err)
 		return false
 	}
 	promisePos, err := getPromisePos(ontSdk, getPromisePosParam.PeerPubkey)
 	if err != nil {
-		log4.Error("getPromisePos failed ", err)
+		log.Error("getPromisePos failed ", err)
 		return false
 	}
 	fmt.Println("promisePos.PeerPubkey is:", promisePos.PeerPubkey)

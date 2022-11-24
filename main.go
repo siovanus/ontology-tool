@@ -19,37 +19,33 @@ package main
 
 import (
 	"flag"
+	"github.com/ontio/ontology-tool/config"
+	"github.com/ontio/ontology-tool/core"
+	"github.com/ontio/ontology-tool/log"
+	_ "github.com/ontio/ontology-tool/methods"
 	"math/rand"
 	"strings"
 	"time"
-
-	log4 "github.com/alecthomas/log4go"
-	"github.com/ontio/ontology-tool/config"
-	"github.com/ontio/ontology-tool/core"
-	_ "github.com/ontio/ontology-tool/methods"
 )
 
 var (
-	Config    string //config file
-	LogConfig string //Log config file
-	Methods   string //Methods list in cmdline
+	Config  string //config file
+	Methods string //Methods list in cmdline
 )
 
 func init() {
 	flag.StringVar(&Config, "cfg", "./config.json", "Config of ontology-tool")
-	flag.StringVar(&LogConfig, "lfg", "./log4go.xml", "Log config of ontology-tool")
 	flag.StringVar(&Methods, "t", "", "methods to run. use ',' to split methods")
 	flag.Parse()
 }
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
-	log4.LoadConfiguration(LogConfig)
 	defer time.Sleep(time.Second)
 
 	err := config.DefConfig.Init(Config)
 	if err != nil {
-		log4.Error("DefConfig.Init error:%s", err)
+		log.Error("DefConfig.Init error:%s", err)
 		return
 	}
 

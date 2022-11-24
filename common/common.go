@@ -22,32 +22,31 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"time"
-
-	log4 "github.com/alecthomas/log4go"
 	"github.com/ontio/ontology-crypto/keypair"
 	sdk "github.com/ontio/ontology-go-sdk"
+	"github.com/ontio/ontology-tool/log"
 	scommon "github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/password"
 	"github.com/ontio/ontology/consensus/vbft"
 	"github.com/ontio/ontology/consensus/vbft/config"
 	"github.com/ontio/ontology/core/types"
+	"time"
 )
 
 func GetAccountByPassword(sdk *sdk.OntologySdk, path string) (*sdk.Account, bool) {
 	wallet, err := sdk.OpenWallet(path)
 	if err != nil {
-		log4.Error("open wallet error:", err)
+		log.Error("open wallet error:", err)
 		return nil, false
 	}
 	pwd, err := password.GetPassword()
 	if err != nil {
-		log4.Error("getPassword error:", err)
+		log.Error("getPassword error:", err)
 		return nil, false
 	}
 	user, err := wallet.GetDefaultAccount(pwd)
 	if err != nil {
-		log4.Error("getDefaultAccount error:", err)
+		log.Error("getDefaultAccount error:", err)
 		return nil, false
 	}
 	return user, true
@@ -80,7 +79,7 @@ func InvokeNativeContractWithMultiSign(
 func WaitForBlock(sdk *sdk.OntologySdk) bool {
 	_, err := sdk.WaitForGenerateBlock(30*time.Second, 1)
 	if err != nil {
-		log4.Error("WaitForGenerateBlock error:", err)
+		log.Error("WaitForGenerateBlock error:", err)
 		return false
 	}
 	return true

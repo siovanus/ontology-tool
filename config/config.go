@@ -22,7 +22,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
-	log4 "github.com/alecthomas/log4go"
+	"github.com/ontio/ontology-tool/log"
 	"io/ioutil"
 	"os"
 )
@@ -81,7 +81,7 @@ func (this *Config) readFile(fileName string) ([]byte, error) {
 	defer func() {
 		err := file.Close()
 		if err != nil {
-			log4.Error("File %s close error %s", fileName, err)
+			log.Error("File %s close error %s", fileName, err)
 		}
 	}()
 	data, err := ioutil.ReadAll(file)
