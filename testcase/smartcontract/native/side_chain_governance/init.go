@@ -23,6 +23,8 @@ import (
 )
 
 func TestGovernanceMethods() {
+	testframework.TFramework.RegTestCase("GetPolyInfo", GetPolyInfo)
+
 	testframework.TFramework.RegTestCase("BlackChain", BlackChain)
 	testframework.TFramework.RegTestCase("WhiteChain", WhiteChain)
 

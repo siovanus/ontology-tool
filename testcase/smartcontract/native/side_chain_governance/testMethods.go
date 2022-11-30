@@ -19,9 +19,11 @@
 package side_chain_governance
 
 import (
+	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"github.com/polynetwork/poly/native/service/cross_chain_manager/consensus_vote"
 	"github.com/polynetwork/poly/native/service/governance/side_chain_manager"
 	"io/ioutil"
 	"math/big"
@@ -30,6 +32,7 @@ import (
 	"github.com/ontio/ontology-tool/testframework"
 	sdk "github.com/polynetwork/poly-go-sdk"
 	"github.com/polynetwork/poly/common"
+	scom "github.com/polynetwork/poly/native/service/cross_chain_manager/common"
 	"github.com/polynetwork/poly/native/service/governance/node_manager"
 	"github.com/polynetwork/poly/native/service/utils"
 )
@@ -221,7 +224,7 @@ type SideChainParam struct {
 	Name         string
 	BlocksToWait uint64
 	CCMCAddress  string
-	Extra string
+	Extra        string
 }
 
 func RegisterSideChain(ctx *testframework.TestFrameworkContext) bool {
@@ -1091,5 +1094,44 @@ func CommitDpos(ctx *testframework.TestFrameworkContext) bool {
 	}
 	ctx.LogInfo("CommitDpos txHash is: %v", txHash.ToHexString())
 	waitForBlock(ctx)
+	return true
+}
+
+func GetPolyInfo(ctx *testframework.TestFrameworkContext) bool {
+	extra, err := hex.DecodeString("200000000000000000000000000000000000000000000000000000000000016ac120c1eecb753928f5a24db1cd7ac00182dfb4583b6b313ed9575615159f8ab1a4fd145f8517d606580d30c3bf210fa016b8916c685be806000000000000001412682669700109ae1f3b326d74f2a5bdb63549e308627269646765496ec414d9fb513766e60a569697d1f17ae466b0cb88745414cdf872cbf1ee181cf00c0cc6f8a8f5e683ea45a0e9b74ef17799eeeb0400000000000000000000000000000000000000000000007901145f5737403c8b30288299e51d94d007a826f9d593020100000000000000000000000000000000000000000000000000000000000000000091c0ea861aed9fdd040000000000000000000000000000000000000000000000521c876300000000000000000000000000000000000000000000000000000000")
+	if err != nil {
+		ctx.LogError("hex.DecodeString error: %s", err)
+		return false
+	}
+	unique := &scom.EntranceParam{
+		SourceChainID: 17,
+		Height:        36241866,
+		Extra:         extra,
+	}
+	sink := common.NewZeroCopySink(nil)
+	unique.Serialization(sink)
+	temp := sha256.Sum256(sink.Bytes())
+	id := temp[:]
+
+	key := ConcatKey([]byte(consensus_vote.VOTE_INFO), id)
+	value, err := ctx.Ont.GetStorage(utils.CrossChainManagerContractAddress.ToHexString(), key)
+	if err != nil {
+		ctx.LogError("getStorage error: %s", err)
+		return false
+	}
+	fmt.Println(value)
+	voteInfo := &consensus_vote.VoteInfo{
+		VoteInfo: make(map[string]bool),
+	}
+	if err := voteInfo.Deserialization(common.NewZeroCopySource(value)); err != nil {
+		ctx.LogError("deserialize, deserialize voteInfo error: %s", err)
+		return false
+	}
+	fmt.Println("voteInfo.Status is:", voteInfo.Status)
+	for k, v := range voteInfo.VoteInfo {
+		fmt.Printf("k is: %s, v is: %v", k, v)
+		fmt.Println("#")
+	}
+
 	return true
 }
