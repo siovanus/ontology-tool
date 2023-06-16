@@ -23,11 +23,12 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"github.com/polynetwork/poly/native/service/cross_chain_manager/consensus_vote"
-	"github.com/polynetwork/poly/native/service/governance/side_chain_manager"
 	"io/ioutil"
 	"math/big"
 	"time"
+
+	"github.com/polynetwork/poly/native/service/cross_chain_manager/consensus_vote"
+	"github.com/polynetwork/poly/native/service/governance/side_chain_manager"
 
 	"github.com/ontio/ontology-tool/testframework"
 	sdk "github.com/polynetwork/poly-go-sdk"
