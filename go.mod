@@ -7,6 +7,7 @@ require (
 	github.com/ethereum/go-ethereum v1.9.25
 	github.com/polynetwork/poly v1.9.1-0.20220424092935-f54fa45801fe
 	github.com/polynetwork/poly-go-sdk v0.0.0-20220425024155-af1927301211
+	github.com/ontio/ontology-go-sdk v1.11.1
 )
 
 require (

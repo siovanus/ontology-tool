@@ -50,6 +50,7 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("ApproveRegisterRelayer", ApproveRegisterRelayer)
 	testframework.TFramework.RegTestCase("RemoveRelayer", RemoveRelayer)
 	testframework.TFramework.RegTestCase("ApproveRemoveRelayer", ApproveRemoveRelayer)
+	testframework.TFramework.RegTestCase("QueryRelayer", QueryRelayer)
 	testframework.TFramework.RegTestCase("CommitDpos", CommitDpos)
 
 	testframework.TFramework.RegTestCase("GetGovernanceView", GetGovernanceView)

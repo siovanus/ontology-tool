@@ -28,6 +28,7 @@ import (
 	"time"
 
 	"github.com/polynetwork/poly/native/service/cross_chain_manager/consensus_vote"
+	"github.com/polynetwork/poly/native/service/governance/relayer_manager"
 	"github.com/polynetwork/poly/native/service/governance/side_chain_manager"
 
 	"github.com/ontio/ontology-tool/testframework"
@@ -1134,5 +1135,26 @@ func GetPolyInfo(ctx *testframework.TestFrameworkContext) bool {
 		fmt.Println("#")
 	}
 
+	return true
+}
+
+func QueryRelayer(ctx *testframework.TestFrameworkContext) bool {
+	addr, err := common.AddressFromBase58("ANiMTwa6hnRuoMd15nvEQRs3nNZQkdPJ6N")
+	if err != nil {
+		ctx.LogError("common.AddressFromBase58 error: %s", err)
+		return false
+	}
+	key := ConcatKey([]byte(relayer_manager.RELAYER), addr[:])
+	value, err := ctx.Ont.GetStorage(utils.RelayerManagerContractAddress.ToHexString(), key)
+	if err != nil {
+		ctx.LogError("getStorage error: %s", err)
+		return false
+	}
+	a, err := common.AddressParseFromBytes(value)
+	if err != nil {
+		ctx.LogError("common.AddressParseFromBytes error: %s", err)
+		return false
+	}
+	fmt.Println(a.ToBase58())
 	return true
 }
