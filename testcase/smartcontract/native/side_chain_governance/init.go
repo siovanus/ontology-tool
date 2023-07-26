@@ -56,4 +56,5 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("GetGovernanceView", GetGovernanceView)
 	testframework.TFramework.RegTestCase("GetPeerPoolMap", GetPeerPoolMap)
 	testframework.TFramework.RegTestCase("GetConfig", GetConfig)
+	testframework.TFramework.RegTestCase("GetAddressMultiSign", GetAddressMultiSign)
 }

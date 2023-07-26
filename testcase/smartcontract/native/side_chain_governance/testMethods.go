@@ -27,15 +27,16 @@ import (
 	"math/big"
 	"time"
 
-	"github.com/polynetwork/poly/native/service/cross_chain_manager/consensus_vote"
-	"github.com/polynetwork/poly/native/service/governance/relayer_manager"
-	"github.com/polynetwork/poly/native/service/governance/side_chain_manager"
-
+	"github.com/ontio/ontology-crypto/keypair"
 	"github.com/ontio/ontology-tool/testframework"
 	sdk "github.com/polynetwork/poly-go-sdk"
 	"github.com/polynetwork/poly/common"
+	"github.com/polynetwork/poly/core/types"
 	scom "github.com/polynetwork/poly/native/service/cross_chain_manager/common"
+	"github.com/polynetwork/poly/native/service/cross_chain_manager/consensus_vote"
 	"github.com/polynetwork/poly/native/service/governance/node_manager"
+	"github.com/polynetwork/poly/native/service/governance/relayer_manager"
+	"github.com/polynetwork/poly/native/service/governance/side_chain_manager"
 	"github.com/polynetwork/poly/native/service/utils"
 )
 
@@ -1156,5 +1157,42 @@ func QueryRelayer(ctx *testframework.TestFrameworkContext) bool {
 		return false
 	}
 	fmt.Println(a.ToBase58())
+	return true
+}
+
+type GetAddressMultiSignParam struct {
+	PubKeys []string
+}
+
+func GetAddressMultiSign(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/GetAddressMultiSign.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed ", err)
+		return false
+	}
+	getAddressMultiSignParam := new(GetAddressMultiSignParam)
+	err = json.Unmarshal(data, getAddressMultiSignParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed ", err)
+		return false
+	}
+	var pubKeys []keypair.PublicKey
+	time.Sleep(1 * time.Second)
+	for _, v := range getAddressMultiSignParam.PubKeys {
+		vByte, err := hex.DecodeString(v)
+		if err != nil {
+			ctx.LogError("hex.DecodeString failed ", err)
+		}
+		k, err := keypair.DeserializePublicKey(vByte)
+		if err != nil {
+			ctx.LogError("keypair.DeserializePublicKey failed ", err)
+		}
+		pubKeys = append(pubKeys, k)
+	}
+	from, err := types.AddressFromBookkeepers(pubKeys)
+	if err != nil {
+		ctx.LogError("types.AddressFromMultiPubKeys error", err)
+	}
+	fmt.Println("address is:", from.ToBase58())
 	return true
 }

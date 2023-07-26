@@ -5,9 +5,9 @@ go 1.17
 require (
 	github.com/alecthomas/log4go v0.0.0-20180109082532-d146e6b86faa
 	github.com/ethereum/go-ethereum v1.9.25
+	github.com/ontio/ontology-crypto v1.0.9
 	github.com/polynetwork/poly v1.9.1-0.20220424092935-f54fa45801fe
 	github.com/polynetwork/poly-go-sdk v0.0.0-20220425024155-af1927301211
-	github.com/ontio/ontology-go-sdk v1.11.1
 )
 
 require (
@@ -25,7 +25,6 @@ require (
 	github.com/howeyc/gopass v0.0.0-20190910152052-7cb4b85ec19c // indirect
 	github.com/itchyny/base58-go v0.1.0 // indirect
 	github.com/ontio/go-bip32 v0.0.0-20190520025953-d3cea6894a2b // indirect
-	github.com/ontio/ontology-crypto v1.0.9 // indirect
 	github.com/ontio/ontology-eventbus v0.9.1 // indirect
 	github.com/orcaman/concurrent-map v0.0.0-20190826125027-8c72a8bb44f6 // indirect
 	github.com/polynetwork/ripple-sdk v0.0.0-20220424031403-3947f2e7636c // indirect
