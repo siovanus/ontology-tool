@@ -83,4 +83,6 @@ func RegisterGovernance() {
 	core.OntTool.RegMethod("TransferOngMultiSignToMultiSign", TransferOngMultiSignToMultiSign)
 	core.OntTool.RegMethod("TransferFromOngMultiSignToMultiSign", TransferFromOngMultiSignToMultiSign)
 	core.OntTool.RegMethod("GetVbftInfo", GetVbftInfo)
+
+	core.OntTool.RegMethod("GetOperator", GetOperator)
 }

@@ -23,6 +23,10 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"math"
+	"time"
+
 	"github.com/ontio/ontology-crypto/keypair"
 	s "github.com/ontio/ontology-crypto/signature"
 	"github.com/ontio/ontology-crypto/vrf"
@@ -31,13 +35,10 @@ import (
 	"github.com/ontio/ontology-tool/log"
 	ocommon "github.com/ontio/ontology/common"
 	"github.com/ontio/ontology/common/password"
-	"github.com/ontio/ontology/consensus/vbft/config"
+	vconfig "github.com/ontio/ontology/consensus/vbft/config"
 	"github.com/ontio/ontology/core/types"
 	"github.com/ontio/ontology/smartcontract/service/native/governance"
 	"github.com/ontio/ontology/smartcontract/service/native/utils"
-	"io/ioutil"
-	"math"
-	"time"
 )
 
 type Account struct {
@@ -2086,5 +2087,19 @@ func GetPromisePos(ontSdk *sdk.OntologySdk) bool {
 	fmt.Println("promisePos.PeerPubkey is:", promisePos.PeerPubkey)
 	fmt.Println("promisePos.PromisePos is:", promisePos.PromisePos)
 
+	return true
+}
+
+func GetOperator(ontSdk *sdk.OntologySdk) bool {
+	contractAddress := "9775c048e3708fe6a1477286137103995dabb486"
+	value, err := ontSdk.GetStorage(contractAddress, []byte("Operator"))
+	if err != nil {
+		log.Error("ontSdk.GetStorage error:", err)
+	}
+	a, err := ocommon.AddressParseFromBytes(value)
+	if err != nil {
+		log.Error("ocommon.AddressParseFromBytes error:", err)
+	}
+	fmt.Println(a.ToBase58())
 	return true
 }

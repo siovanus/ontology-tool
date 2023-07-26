@@ -3,6 +3,7 @@ package governance
 import (
 	"bytes"
 	"encoding/hex"
+
 	"github.com/ontio/ontology-crypto/keypair"
 	sdk "github.com/ontio/ontology-go-sdk"
 	"github.com/ontio/ontology-tool/common"
