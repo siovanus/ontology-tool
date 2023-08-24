@@ -47,6 +47,7 @@ func TestGovernanceMethods() {
 	testframework.TFramework.RegTestCase("WhiteNode", WhiteNode)
 	testframework.TFramework.RegTestCase("UpdateConfig", UpdateConfig)
 	testframework.TFramework.RegTestCase("RegisterRelayer", RegisterRelayer)
+	testframework.TFramework.RegTestCase("IfRelayer", IfRelayer)
 	testframework.TFramework.RegTestCase("ApproveRegisterRelayer", ApproveRegisterRelayer)
 	testframework.TFramework.RegTestCase("RemoveRelayer", RemoveRelayer)
 	testframework.TFramework.RegTestCase("ApproveRemoveRelayer", ApproveRemoveRelayer)

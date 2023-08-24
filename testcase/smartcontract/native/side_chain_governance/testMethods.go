@@ -862,6 +862,43 @@ func RegisterRelayer(ctx *testframework.TestFrameworkContext) bool {
 	return true
 }
 
+type IfRelayerParam struct {
+	Address string
+}
+
+func IfRelayer(ctx *testframework.TestFrameworkContext) bool {
+	data, err := ioutil.ReadFile("./side_chain_params/IfRelayer.json")
+	if err != nil {
+		ctx.LogError("ioutil.ReadFile failed %v", err)
+		return false
+	}
+	ifRelayerParam := new(IfRelayerParam)
+	err = json.Unmarshal(data, ifRelayerParam)
+	if err != nil {
+		ctx.LogError("json.Unmarshal failed %v", err)
+		return false
+	}
+
+	contractAddress := utils.RelayerManagerContractAddress
+	address, err := common.AddressFromBase58(ifRelayerParam.Address)
+	if err != nil {
+		ctx.LogError("common.AddressFromBase58 failed %v", err)
+		return false
+	}
+	value, err := ctx.Ont.GetStorage(contractAddress.ToHexString(), append([]byte(relayer_manager.RELAYER), address[:]...))
+	if err != nil {
+		ctx.LogError("ctx.Ont.GetStorage failed %v", err)
+		return false
+	}
+	if len(value) == 20 {
+		fmt.Println("Yes, value length is 20")
+	} else {
+		fmt.Println("No, value length is", len(value))
+	}
+
+	return true
+}
+
 func RemoveRelayer(ctx *testframework.TestFrameworkContext) bool {
 	data, err := ioutil.ReadFile("./side_chain_params/RemoveRelayer.json")
 	if err != nil {
